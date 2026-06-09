@@ -9,13 +9,15 @@ from pathlib import Path
 from pydantic import BaseModel
 
 from .chunker import chunk_clean_documents
+from .claims import build_claim_items, write_claims_csv, write_claims_jsonl
 from .collector import load_seed_sources
 from .config import PipelineConfig, default_pipeline_config
 from .evidence import build_evidence_items, write_evidence_csv, write_evidence_jsonl
 from .evaluation import build_evaluation_summary, write_evaluation_json
 from .fetcher import fetch_sources_safe
 from .filtering import filter_chunks, rank_chunks_bm25
-from .models import CleanDocument, FetchResult, ParseResult
+from .llm_gateway import build_llm_gateway, llm_gateway_config_from_env
+from .models import ClaimItem, CleanDocument, FetchResult, ParseResult
 from .parser import parse_raw_documents_safe
 from .planner import build_cltv_research_plan
 from .quality_gate import QualityGateResult, run_quality_gate
@@ -32,6 +34,10 @@ class PipelineResult(BaseModel):
     parse_results: list[ParseResult]
     evaluation_summary: dict
     quality_gate: QualityGateResult
+    model_gateway_metadata: dict = {}
+    claim_items: list[ClaimItem] = []
+    claims_csv_path: Path | None = None
+    claims_jsonl_path: Path | None = None
     evidence_csv_path: Path | None = None
     evidence_jsonl_path: Path | None = None
     evaluation_json_path: Path | None = None
@@ -44,6 +50,10 @@ def run_research_pipeline(topic: str, config: PipelineConfig | None = None) -> P
     cfg = (config or default_pipeline_config()).resolved()
     sensitivity = check_query_sensitivity(topic)
     if not sensitivity.allowed:
+        model_gateway_metadata = build_llm_gateway(
+            llm_gateway_config_from_env()
+        ).metadata().model_dump(mode="json")
+        model_gateway_metadata["synthesis_status"] = "blocked_before_synthesis"
         empty_gate = run_quality_gate(
             evidence_items=[],
             evaluation_summary={"clean_document_count": 0, "evidence_source_count": 0},
@@ -56,6 +66,7 @@ def run_research_pipeline(topic: str, config: PipelineConfig | None = None) -> P
             parse_results=[],
             evaluation_summary={"blocked": True, "reason": "sensitivity_check"},
             quality_gate=empty_gate,
+            model_gateway_metadata=model_gateway_metadata,
         )
 
     plan = build_cltv_research_plan(topic)
@@ -95,6 +106,11 @@ def run_research_pipeline(topic: str, config: PipelineConfig | None = None) -> P
         top_k_per_query=cfg.top_k_per_query,
     )
     evidence_items = build_evidence_items(ranked_chunks, max_items=cfg.max_evidence_items)
+    claim_items = build_claim_items(evidence_items)
+    model_gateway_metadata, llm_synthesis_markdown = _maybe_synthesize_with_llm(
+        topic,
+        evidence_items,
+    )
     evaluation_summary = build_evaluation_summary(
         plan=plan,
         sources=sources,
@@ -107,6 +123,8 @@ def run_research_pipeline(topic: str, config: PipelineConfig | None = None) -> P
         topic=topic,
         evidence_items=evidence_items,
         evaluation_summary=evaluation_summary,
+        claim_items=claim_items,
+        llm_synthesis_markdown=llm_synthesis_markdown,
     )
     quality_gate = run_quality_gate(
         evidence_items=evidence_items,
@@ -117,6 +135,8 @@ def run_research_pipeline(topic: str, config: PipelineConfig | None = None) -> P
         min_evidence_sources=cfg.min_evidence_sources,
     )
 
+    claims_csv_path = write_claims_csv(claim_items, cfg.reports_dir / "claims_cltv.csv")
+    claims_jsonl_path = write_claims_jsonl(claim_items, cfg.reports_dir / "claims_cltv.jsonl")
     evidence_csv_path = write_evidence_csv(evidence_items, cfg.reports_dir / "evidence_cltv.csv")
     evidence_jsonl_path = write_evidence_jsonl(evidence_items, cfg.reports_dir / "evidence_cltv.jsonl")
     evaluation_json_path = write_evaluation_json(
@@ -132,6 +152,10 @@ def run_research_pipeline(topic: str, config: PipelineConfig | None = None) -> P
         parse_results=parse_results,
         evaluation_summary=evaluation_summary,
         quality_gate=quality_gate,
+        model_gateway_metadata=model_gateway_metadata,
+        claim_items=claim_items,
+        claims_csv_path=claims_csv_path,
+        claims_jsonl_path=claims_jsonl_path,
         evidence_csv_path=evidence_csv_path,
         evidence_jsonl_path=evidence_jsonl_path,
         evaluation_json_path=evaluation_json_path,
@@ -207,6 +231,27 @@ def _load_cached_clean_documents(
             )
         )
     return clean_documents
+
+
+def _maybe_synthesize_with_llm(
+    topic: str,
+    evidence_items,
+) -> tuple[dict, str | None]:
+    gateway = build_llm_gateway(llm_gateway_config_from_env())
+    metadata = gateway.metadata().model_dump(mode="json")
+    if not metadata["external_llm_calls"]:
+        metadata["synthesis_status"] = "not_requested"
+        return metadata, None
+
+    try:
+        synthesis = gateway.synthesize_report(topic, evidence_items)
+    except Exception as exc:
+        metadata["synthesis_status"] = "fallback"
+        metadata["last_error"] = f"{type(exc).__name__}: {str(exc)[:220]}"
+        return metadata, None
+
+    metadata["synthesis_status"] = "success"
+    return metadata, synthesis
 
 
 if __name__ == "__main__":

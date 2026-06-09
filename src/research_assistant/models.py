@@ -131,3 +131,15 @@ class EvidenceItem(BaseModel):
     relevance_score: float | None = None
     trust_score: float | None = None
     page: int | None = None
+
+
+class ClaimItem(BaseModel):
+    """A machine-readable report claim linked to concrete evidence items."""
+
+    claim_id: str = Field(min_length=3)
+    claim_text: str = Field(min_length=1)
+    research_block: str | None = None
+    evidence_ids: list[str] = Field(default_factory=list)
+    source_ids: list[str] = Field(default_factory=list)
+    confidence: str = "medium"
+    status: str = "draft"

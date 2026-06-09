@@ -7,6 +7,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from research_assistant.source_policy import SourcePolicyConfig
+
 
 class ResearchRunRequest(BaseModel):
     """Request to run the research pipeline."""
@@ -14,6 +16,17 @@ class ResearchRunRequest(BaseModel):
     topic: str = Field(default="CLTV in foreign banks", min_length=3)
     use_live_fetch: bool = False
     fetch_limit: int | None = Field(default=None, ge=1)
+    actor_id: str = Field(default="local_analyst", min_length=3)
+    actor_role: str = Field(default="analyst", pattern="^(analyst|reviewer|admin)$")
+
+
+class ResearchReviewRequest(BaseModel):
+    """Request to review, approve, or reject a generated report."""
+
+    actor_id: str = Field(min_length=3)
+    actor_role: str = Field(pattern="^(analyst|reviewer|admin)$")
+    decision: str = Field(pattern="^(reviewed|approved|rejected)$")
+    notes: str | None = Field(default=None, max_length=1000)
 
 
 class ResearchRunResponse(BaseModel):
@@ -27,6 +40,11 @@ class ResearchRunResponse(BaseModel):
     sensitivity: str
     quality_gate: str
     evaluation_summary: dict[str, Any]
+    request_settings: dict[str, Any]
+    source_policy: dict[str, Any]
+    model_gateway: dict[str, Any]
+    review: dict[str, Any]
+    audit: dict[str, Any]
     artifacts: dict[str, str | None]
     links: dict[str, str | None]
 
@@ -41,6 +59,31 @@ class ResearchRunListResponse(BaseModel):
     runs: list[ResearchRunStatusResponse]
 
 
+class ResearchReviewResponse(BaseModel):
+    """Review state after a reviewer action."""
+
+    run_id: str
+    review: dict[str, Any]
+    audit: dict[str, Any]
+    links: dict[str, str | None]
+
+
+class SourcePolicyUpdateRequest(BaseModel):
+    """Request to replace the file-backed source allowlist policy."""
+
+    actor_id: str = Field(min_length=3)
+    actor_role: str = Field(pattern="^(analyst|reviewer|admin)$")
+    policy: SourcePolicyConfig
+
+
+class SourcePolicyResponse(BaseModel):
+    """Current source allowlist policy and audit metadata."""
+
+    policy: SourcePolicyConfig
+    audit: dict[str, Any]
+    links: dict[str, str | None]
+
+
 class ReportResponse(BaseModel):
     """Markdown report payload for one stored research run."""
 
@@ -50,6 +93,13 @@ class ReportResponse(BaseModel):
 
 class EvidenceResponse(BaseModel):
     """Structured evidence payload for one stored research run."""
+
+    run_id: str
+    items: list[dict[str, Any]]
+
+
+class ClaimsResponse(BaseModel):
+    """Machine-readable claim/evidence traceability for one run."""
 
     run_id: str
     items: list[dict[str, Any]]

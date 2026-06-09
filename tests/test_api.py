@@ -1,6 +1,8 @@
+import json
+
 from fastapi.testclient import TestClient
 
-from api.main import app
+from api.main import AUDIT_LOG_PATH, SOURCE_POLICY_PATH, app
 
 
 def test_health_endpoint() -> None:
@@ -27,9 +29,22 @@ def test_research_run_endpoint_offline() -> None:
     assert payload["sensitivity"] == "allow"
     assert payload["quality_gate"] in {"pass", "warn"}
     assert payload["evaluation_summary"]["clean_document_count"] >= 5
+    assert payload["request_settings"]["use_live_fetch"] is False
+    assert payload["source_policy"]["candidate_source_count"] >= 10
+    assert payload["source_policy"]["allowed_source_count"] >= 5
+    assert payload["model_gateway"]["mode"] == "offline_template"
+    assert payload["model_gateway"]["provider"] == "offline"
+    assert payload["model_gateway"]["model"] == "template-report-v1"
+    assert payload["model_gateway"]["api_key_configured"] is False
+    assert payload["model_gateway"]["external_llm_calls"] is False
+    assert payload["model_gateway"]["synthesis_status"] == "not_requested"
+    assert payload["review"]["status"] == "draft"
+    assert payload["audit"]["logged"] is True
     assert payload["links"]["status"].endswith("/status")
     assert payload["links"]["report"].endswith("/report")
     assert payload["links"]["evidence"].endswith("/evidence")
+    assert payload["links"]["claims"].endswith("/claims")
+    assert payload["links"]["review"].endswith("/review")
 
 
 def test_research_run_blocks_sensitive_query() -> None:
@@ -46,6 +61,23 @@ def test_research_run_blocks_sensitive_query() -> None:
     assert payload["status"] == "blocked"
     assert payload["sensitivity"] == "block"
     assert payload["quality_gate"] == "fail"
+    assert payload["review"]["status"] == "not_applicable"
+    assert payload["audit"]["logged"] is True
+
+
+def test_reviewer_cannot_start_research_run() -> None:
+    client = TestClient(app)
+
+    response = client.post(
+        "/research/run",
+        json={
+            "topic": "CLTV in foreign banks",
+            "actor_id": "test_reviewer",
+            "actor_role": "reviewer",
+        },
+    )
+
+    assert response.status_code == 403
 
 
 def test_run_specific_report_and_evidence_endpoints_return_payloads() -> None:
@@ -56,15 +88,138 @@ def test_run_specific_report_and_evidence_endpoints_return_payloads() -> None:
     status_response = client.get(f"/research/runs/{run_id}/status")
     report_response = client.get(f"/research/runs/{run_id}/report")
     evidence_response = client.get(f"/research/runs/{run_id}/evidence")
+    claims_response = client.get(f"/research/runs/{run_id}/claims")
 
     assert status_response.status_code == 200
     assert status_response.json()["run_id"] == run_id
     assert report_response.status_code == 200
     assert "# CLTV" in report_response.json()["markdown"]
+    assert "## Claim traceability" in report_response.json()["markdown"]
     assert evidence_response.status_code == 200
     evidence_items = evidence_response.json()["items"]
     assert len(evidence_items) >= 1
     assert "source_id" in evidence_items[0]
+    assert claims_response.status_code == 200
+    claim_items = claims_response.json()["items"]
+    assert len(claim_items) >= 1
+    assert claim_items[0]["claim_id"].startswith("claim_")
+    assert claim_items[0]["evidence_ids"]
+
+
+def test_report_review_workflow_requires_reviewer_and_valid_transition() -> None:
+    client = TestClient(app)
+    run_response = client.post(
+        "/research/run",
+        json={
+            "topic": "CLTV in foreign banks",
+            "actor_id": "test_analyst",
+            "actor_role": "analyst",
+        },
+    )
+    run_id = run_response.json()["run_id"]
+
+    analyst_review_response = client.post(
+        f"/research/runs/{run_id}/review",
+        json={
+            "actor_id": "test_analyst",
+            "actor_role": "analyst",
+            "decision": "reviewed",
+        },
+    )
+    premature_approval_response = client.post(
+        f"/research/runs/{run_id}/review",
+        json={
+            "actor_id": "test_reviewer",
+            "actor_role": "reviewer",
+            "decision": "approved",
+        },
+    )
+    reviewed_response = client.post(
+        f"/research/runs/{run_id}/review",
+        json={
+            "actor_id": "test_reviewer",
+            "actor_role": "reviewer",
+            "decision": "reviewed",
+            "notes": "Evidence table checked.",
+        },
+    )
+    approved_response = client.post(
+        f"/research/runs/{run_id}/review",
+        json={
+            "actor_id": "test_reviewer",
+            "actor_role": "reviewer",
+            "decision": "approved",
+            "notes": "Report approved for demo.",
+        },
+    )
+    status_response = client.get(f"/research/runs/{run_id}/status")
+
+    assert analyst_review_response.status_code == 403
+    assert premature_approval_response.status_code == 409
+    assert reviewed_response.status_code == 200
+    assert reviewed_response.json()["review"]["status"] == "reviewed"
+    assert approved_response.status_code == 200
+    assert approved_response.json()["review"]["status"] == "approved"
+    assert len(approved_response.json()["review"]["history"]) == 2
+    assert status_response.json()["review"]["status"] == "approved"
+
+    events = [
+        json.loads(line)
+        for line in AUDIT_LOG_PATH.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    matching_event_types = [
+        event["event_type"] for event in events if event["run_id"] == run_id
+    ]
+    assert "research_run.completed" in matching_event_types
+    assert "research_run.reviewed" in matching_event_types
+    assert "research_run.approved" in matching_event_types
+
+
+def test_source_policy_admin_workflow_requires_admin_and_writes_audit() -> None:
+    client = TestClient(app)
+    original_policy_text = SOURCE_POLICY_PATH.read_text(encoding="utf-8")
+
+    try:
+        forbidden_response = client.get(
+            "/admin/source-policy",
+            params={"actor_id": "test_analyst", "actor_role": "analyst"},
+        )
+        get_response = client.get(
+            "/admin/source-policy",
+            params={"actor_id": "test_admin", "actor_role": "admin"},
+        )
+        policy = get_response.json()["policy"]
+        policy["notes"] = [*policy["notes"], "Temporary test note."]
+
+        update_response = client.put(
+            "/admin/source-policy",
+            json={
+                "actor_id": "test_admin",
+                "actor_role": "admin",
+                "policy": policy,
+            },
+        )
+
+        assert forbidden_response.status_code == 403
+        assert get_response.status_code == 200
+        assert get_response.json()["policy"]["allowed_source_ids"]
+        assert update_response.status_code == 200
+        assert update_response.json()["audit"]["logged"] is True
+        assert update_response.json()["audit"]["event_type"] == "source_policy.updated"
+
+        events = [
+            json.loads(line)
+            for line in AUDIT_LOG_PATH.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        assert any(
+            event["event_type"] == "source_policy.updated"
+            and event["actor_id"] == "test_admin"
+            for event in events
+        )
+    finally:
+        SOURCE_POLICY_PATH.write_text(original_policy_text, encoding="utf-8")
 
 
 def test_research_runs_list_contains_completed_run() -> None:
@@ -77,6 +232,31 @@ def test_research_runs_list_contains_completed_run() -> None:
     assert response.status_code == 200
     run_ids = [run["run_id"] for run in response.json()["runs"]]
     assert run_id in run_ids
+
+
+def test_audit_log_contains_research_run_event() -> None:
+    client = TestClient(app)
+    run_response = client.post(
+        "/research/run",
+        json={
+            "topic": "CLTV in foreign banks",
+            "actor_id": "test_analyst",
+            "actor_role": "analyst",
+        },
+    )
+    run_id = run_response.json()["run_id"]
+
+    assert AUDIT_LOG_PATH.exists()
+    events = [
+        json.loads(line)
+        for line in AUDIT_LOG_PATH.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    matching_events = [event for event in events if event["run_id"] == run_id]
+
+    assert len(matching_events) == 1
+    assert matching_events[0]["actor_id"] == "test_analyst"
+    assert matching_events[0]["source_policy"]["allowed_source_count"] >= 5
 
 
 def test_unknown_run_returns_404() -> None:

@@ -1,12 +1,20 @@
 from pathlib import Path
 
 from research_assistant.chunker import chunk_clean_document
+from research_assistant.claims import build_claim_items, write_claims_csv, write_claims_jsonl
 from research_assistant.collector import group_sources_by_research_block, load_seed_sources
 from research_assistant.config import PipelineConfig
 from research_assistant.evidence import build_evidence_items, write_evidence_csv
 from research_assistant.evaluation import build_evaluation_summary
 from research_assistant.fetcher import fetch_sources_safe, raw_document_path
 from research_assistant.filtering import filter_chunks, rank_chunks_bm25
+from research_assistant.llm_gateway import (
+    LLMGatewayConfig,
+    LLMGatewayError,
+    build_llm_gateway,
+    default_llm_gateway_metadata,
+    llm_gateway_config_from_env,
+)
 from research_assistant.models import CleanDocument, RawDocument
 from research_assistant.parser import extract_html_text, parse_raw_document, parse_raw_documents_safe
 from research_assistant.pipeline import run_research_pipeline
@@ -14,6 +22,7 @@ from research_assistant.planner import build_cltv_research_plan
 from research_assistant.quality_gate import run_quality_gate
 from research_assistant.report import render_markdown_report
 from research_assistant.sensitivity import check_query_sensitivity
+from research_assistant.source_policy import SourcePolicyConfig, summarize_source_policy
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -46,6 +55,27 @@ def test_seed_sources_can_be_grouped_by_research_block() -> None:
 
     assert "calculation_methods" in grouped
     assert grouped["calculation_methods"][0].source_id
+
+
+def test_source_policy_config_filters_by_ids_types_and_domains() -> None:
+    sources = load_seed_sources(PROJECT_ROOT / "data/seed_sources/cltv_sources_template.csv")
+    policy = SourcePolicyConfig(
+        allowed_source_types=["consulting"],
+        allowed_source_ids=["seed_003"],
+        allowed_domains=["bcg.com"],
+    )
+
+    summary = summarize_source_policy(
+        sources,
+        use_live_fetch=False,
+        fetch_limit=None,
+        policy=policy,
+    )
+
+    assert summary["policy_version"] == "source-policy-v1"
+    assert summary["allowed_source_ids"] == ["seed_003"]
+    assert summary["allowed_source_count"] == 1
+    assert "seed_001" in summary["blocked_source_ids"]
 
 
 def test_raw_document_path_uses_source_id_and_url_extension() -> None:
@@ -145,14 +175,23 @@ def test_chunk_filter_rank_and_evidence_flow(tmp_path) -> None:
     filtered_chunks = filter_chunks(chunks, min_chars=80, min_domain_terms=2)
     ranked_chunks = rank_chunks_bm25(filtered_chunks, build_cltv_research_plan().queries, top_k_per_query=2)
     evidence_items = build_evidence_items(ranked_chunks, max_items=3)
+    claim_items = build_claim_items(evidence_items)
     csv_path = write_evidence_csv(evidence_items, tmp_path / "evidence.csv")
+    claims_csv_path = write_claims_csv(claim_items, tmp_path / "claims.csv")
+    claims_jsonl_path = write_claims_jsonl(claim_items, tmp_path / "claims.jsonl")
 
     assert chunks
     assert filtered_chunks
     assert ranked_chunks
     assert evidence_items
+    assert claim_items
+    assert claim_items[0].evidence_ids == [
+        f"{evidence_items[0].source_id}/{evidence_items[0].chunk_id}"
+    ]
     assert evidence_items[0].chunk_id.startswith(source.source_id)
     assert csv_path.exists()
+    assert claims_csv_path.exists()
+    assert claims_jsonl_path.exists()
 
 
 def test_filter_chunks_removes_marketing_consent_noise() -> None:
@@ -229,6 +268,7 @@ def test_evaluation_report_and_quality_gate_flow(tmp_path) -> None:
     )
 
     assert summary["clean_document_count"] == 5
+    assert "## Claim traceability" in report_markdown
     assert "## Evidence table" in report_markdown
     assert "## Unknowns" in report_markdown
     assert gate.status in {"pass", "warn"}
@@ -239,6 +279,88 @@ def test_sensitivity_blocks_personal_data() -> None:
 
     assert result.decision == "block"
     assert result.allowed is False
+
+
+def test_default_llm_gateway_metadata_is_offline() -> None:
+    metadata = default_llm_gateway_metadata()
+
+    assert metadata["mode"] == "offline_template"
+    assert metadata["provider"] == "offline"
+    assert metadata["model"] == "template-report-v1"
+    assert metadata["external_llm_calls"] is False
+
+
+def test_openai_compatible_gateway_requires_explicit_external_enablement() -> None:
+    gateway = build_llm_gateway(
+        LLMGatewayConfig(
+            mode="openai_compatible",
+            provider="corporate_llm",
+            model="demo-model",
+            endpoint_url="https://llm-gateway.example.com/v1/chat/completions",
+            external_calls_enabled=False,
+        )
+    )
+
+    metadata = gateway.metadata()
+    assert metadata.mode == "openai_compatible"
+    assert metadata.provider == "corporate_llm"
+    assert metadata.external_llm_calls is False
+
+    try:
+        gateway.synthesize_report("CLTV in foreign banks", [])
+    except LLMGatewayError as exc:
+        assert "disabled" in str(exc)
+    else:
+        raise AssertionError("Expected disabled external call to raise LLMGatewayError")
+
+
+def test_llm_gateway_env_profile_supports_local_qwen(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_GATEWAY_MODE", "openai_compatible")
+    monkeypatch.setenv("LLM_PROVIDER", "local_qwen")
+    monkeypatch.setenv("LLM_MODEL", "qwen3:1.7b")
+    monkeypatch.setenv("LLM_ENDPOINT_URL", "http://localhost:11434/v1/chat/completions")
+    monkeypatch.setenv("LLM_EXTERNAL_CALLS_ENABLED", "true")
+
+    config = llm_gateway_config_from_env()
+    metadata = build_llm_gateway(config).metadata()
+
+    assert config.mode == "openai_compatible"
+    assert config.provider == "local_qwen"
+    assert config.model == "qwen3:1.7b"
+    assert metadata.external_llm_calls is True
+    assert metadata.endpoint_url == "http://localhost:11434/v1/chat/completions"
+
+
+def test_llm_gateway_env_profile_supports_alfagen(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_GATEWAY_MODE", "openai_compatible")
+    monkeypatch.setenv("LLM_PROVIDER", "alfagen")
+    monkeypatch.setenv("LLM_MODEL", "alfagen-default")
+    monkeypatch.setenv("LLM_ENDPOINT_URL", "https://alfagen.example.com/v1/chat/completions")
+    monkeypatch.setenv("LLM_API_KEY_ENV_VAR", "ALFAGEN_API_KEY")
+    monkeypatch.setenv("ALFAGEN_API_KEY", "test-token")
+
+    metadata = default_llm_gateway_metadata()
+
+    assert metadata["mode"] == "openai_compatible"
+    assert metadata["provider"] == "alfagen"
+    assert metadata["api_key_env_var"] == "ALFAGEN_API_KEY"
+    assert metadata["api_key_configured"] is True
+    assert metadata["external_llm_calls"] is False
+
+
+def test_llm_gateway_env_profile_supports_gigachat(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_GATEWAY_MODE", "gigachat")
+    monkeypatch.setenv("LLM_ENDPOINT_URL", "https://gigachat.devices.sberbank.ru/api/v1/chat/completions")
+    monkeypatch.setenv("GIGACHAT_ACCESS_TOKEN", "test-token")
+
+    config = llm_gateway_config_from_env()
+    metadata = build_llm_gateway(config).metadata()
+
+    assert config.mode == "gigachat"
+    assert config.provider == "gigachat"
+    assert config.api_key_env_var == "GIGACHAT_ACCESS_TOKEN"
+    assert metadata.api_key_configured is True
+    assert metadata.external_llm_calls is False
 
 
 def test_modular_pipeline_runs_offline_on_clean_fixtures(tmp_path) -> None:
@@ -292,5 +414,12 @@ def test_modular_pipeline_runs_offline_on_clean_fixtures(tmp_path) -> None:
     assert result.sensitivity.decision == "allow"
     assert result.quality_gate.status in {"pass", "warn"}
     assert result.evaluation_summary["clean_document_count"] == 5
+    assert result.model_gateway_metadata["mode"] == "offline_template"
+    assert result.model_gateway_metadata["synthesis_status"] == "not_requested"
     assert result.report_path is not None
     assert result.report_path.exists()
+    assert result.claim_items
+    assert result.claims_csv_path is not None
+    assert result.claims_csv_path.exists()
+    assert result.claims_jsonl_path is not None
+    assert result.claims_jsonl_path.exists()

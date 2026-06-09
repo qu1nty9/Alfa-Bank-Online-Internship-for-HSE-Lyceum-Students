@@ -41,6 +41,11 @@ def save_pipeline_run(
     result: PipelineResult,
     created_at: datetime,
     completed_at: datetime,
+    actor_id: str,
+    actor_role: str,
+    request_settings: dict[str, Any],
+    source_policy: dict[str, Any],
+    model_gateway: dict[str, Any],
 ) -> dict[str, Any]:
     """Persist metadata and copy generated artifacts for one pipeline run."""
 
@@ -49,6 +54,8 @@ def save_pipeline_run(
 
     artifacts = {
         "report_markdown": _copy_artifact(result.report_path, run_dir / "report.md"),
+        "claims_csv": _copy_artifact(result.claims_csv_path, run_dir / "claims.csv"),
+        "claims_jsonl": _copy_artifact(result.claims_jsonl_path, run_dir / "claims.jsonl"),
         "evidence_csv": _copy_artifact(result.evidence_csv_path, run_dir / "evidence.csv"),
         "evidence_jsonl": _copy_artifact(result.evidence_jsonl_path, run_dir / "evidence.jsonl"),
         "evaluation_json": _copy_artifact(result.evaluation_json_path, run_dir / "evaluation.json"),
@@ -57,11 +64,27 @@ def save_pipeline_run(
         "run_id": run_id,
         "status": "completed" if result.sensitivity.allowed else "blocked",
         "topic": result.topic,
+        "actor_id": actor_id,
+        "actor_role": actor_role,
         "created_at": created_at.astimezone(UTC).isoformat(),
         "completed_at": completed_at.astimezone(UTC).isoformat(),
         "sensitivity": result.sensitivity.decision,
         "quality_gate": result.quality_gate.status,
         "evaluation_summary": result.evaluation_summary,
+        "request_settings": request_settings,
+        "source_policy": source_policy,
+        "model_gateway": model_gateway,
+        "review": {
+            "status": "draft" if artifacts["report_markdown"] else "not_applicable",
+            "updated_at": completed_at.astimezone(UTC).isoformat(),
+            "updated_by": None,
+            "history": [],
+        },
+        "audit": {
+            "logged": False,
+            "event_type": None,
+            "log_name": None,
+        },
         "artifacts": artifacts,
     }
 
@@ -77,6 +100,19 @@ def load_run_metadata(runs_dir: Path, run_id: str) -> dict[str, Any]:
     if not metadata_path.exists():
         raise RunNotFoundError(run_id)
     return json.loads(metadata_path.read_text(encoding="utf-8"))
+
+
+def save_run_metadata(runs_dir: Path, metadata: dict[str, Any]) -> dict[str, Any]:
+    """Overwrite metadata for an existing stored run."""
+
+    run_id = metadata.get("run_id")
+    if not isinstance(run_id, str):
+        raise RunNotFoundError("unknown")
+    metadata_path = _metadata_path(runs_dir, run_id)
+    if not metadata_path.exists():
+        raise RunNotFoundError(run_id)
+    _write_json(metadata_path, metadata)
+    return metadata
 
 
 def load_latest_run_id(runs_dir: Path) -> str:
@@ -134,6 +170,25 @@ def load_evidence_items(runs_dir: Path, run_id: str) -> list[dict[str, Any]]:
 
     items: list[dict[str, Any]] = []
     with evidence_path.open(encoding="utf-8") as file:
+        for line in file:
+            if line.strip():
+                items.append(json.loads(line))
+    return items
+
+
+def load_claim_items(runs_dir: Path, run_id: str) -> list[dict[str, Any]]:
+    """Load JSON claim/evidence traceability items for a stored run."""
+
+    metadata = load_run_metadata(runs_dir, run_id)
+    claims_name = metadata.get("artifacts", {}).get("claims_jsonl")
+    if not claims_name:
+        raise RunArtifactNotFoundError(run_id)
+    claims_path = _run_dir(runs_dir, run_id) / claims_name
+    if not claims_path.exists():
+        raise RunArtifactNotFoundError(run_id)
+
+    items: list[dict[str, Any]] = []
+    with claims_path.open(encoding="utf-8") as file:
         for line in file:
             if line.strip():
                 items.append(json.loads(line))

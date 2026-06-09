@@ -35,9 +35,13 @@
 
 Этап 3 закрыт: добавлен FastAPI MVP поверх `run_research_pipeline()` для интеграции с внешними сервисами и будущим frontend.
 
+Этап 4 закрыт: добавлены audit log, actor metadata, role enforcement, report review workflow, claim/evidence traceability, source allowlist config, admin workflow и формальный LLM Gateway contract.
+
 Ключевой результат Stage 2: `research_assistant.pipeline.run_research_pipeline()`.
 
 Ключевой результат Stage 3: API-запуски с `run_id`, хранилищем metadata и endpoints для получения статуса, отчета и evidence по конкретному запуску.
+
+Ключевой результат Stage 4: каждый API-запуск оставляет audit trail, отчет проходит reviewer workflow, ключевые claims связаны с evidence, source allowlist управляется через admin API, а LLM Gateway заменяем между offline, local Qwen, AlfaGen/GigaChat и OpenAI-compatible endpoints.
 
 ## Структура проекта
 
@@ -47,6 +51,7 @@
 │   ├── clean/              # очищенные тексты
 │   ├── raw/                # сырые скачанные HTML/PDF/тексты
 │   └── seed_sources/       # подготовленные источники и шаблоны
+├── config/                 # policy configs для банковского контура
 ├── docs/                   # постановка, планы, материалы защиты
 ├── notebooks/              # эксперименты и Notebook MVP
 ├── reports/                # сгенерированные аналитические отчеты
@@ -108,7 +113,11 @@ API endpoints:
 - `GET /research/runs`
 - `GET /research/runs/{run_id}/status`
 - `GET /research/runs/{run_id}/report`
+- `GET /research/runs/{run_id}/claims`
 - `GET /research/runs/{run_id}/evidence`
+- `POST /research/runs/{run_id}/review`
+- `GET /admin/source-policy`
+- `PUT /admin/source-policy`
 - `GET /research/report` - quick demo endpoint для последнего отчета
 - `GET /research/evidence` - quick demo endpoint для последней evidence CSV
 - Swagger UI: `http://127.0.0.1:8000/docs`
@@ -118,18 +127,28 @@ API endpoints:
 ```bash
 curl -X POST http://127.0.0.1:8000/research/run \
   -H "Content-Type: application/json" \
-  -d '{"topic":"CLTV in foreign banks","use_live_fetch":false}'
+  -d '{"topic":"CLTV in foreign banks","use_live_fetch":false,"actor_id":"demo_analyst","actor_role":"analyst"}'
+```
+
+Локальная LLM для демо:
+
+```text
+docs/local_llm.md
 ```
 
 ## Основные документы
 
 - `docs/project_work_plan.md` - подробный план проекта до финального результата.
+- `docs/architecture.md` - bank-ready архитектура и поток данных.
 - `docs/demo_scenario_cltv.md` - сценарий демонстрации по теме CLTV.
 - `docs/stage_1_notebook_mvp_summary.md` - закрытие Notebook MVP.
 - `docs/stage_2_modular_pipeline_summary.md` - модульный Python-конвейер.
 - `docs/stage_3_fastapi_mvp_summary.md` - закрытие FastAPI MVP.
 - `docs/stage_3_swagger_demo.md` - сценарий демонстрации через Swagger UI.
+- `docs/stage_4_bank_ready_start_summary.md` - закрытие Stage 4: audit/roles/review/source allowlist/model gateway metadata.
+- `docs/local_llm.md` - подключение Qwen3-1.7B, AlfaGen/GigaChat и OpenAI-compatible endpoints.
 - `api/README.md` - FastAPI MVP.
+- `config/source_policy.json` - file-backed source allowlist для admin-сценария.
 - `data/seed_sources/cltv_sources_template.csv` - шаблон для списка источников.
 
 ## Модульный pipeline
@@ -151,4 +170,4 @@ curl -X POST http://127.0.0.1:8000/research/run \
 
 ## Ближайший практический шаг
 
-Перейти к Stage 4: добавить bank-ready слой - audit log, расширенные policy checks, source allowlist, role model и более строгую traceability между тезисами отчета и evidence.
+Перейти к Stage 5: подготовить финальный demo script, презентацию и при необходимости добавить минимальный UI поверх FastAPI.

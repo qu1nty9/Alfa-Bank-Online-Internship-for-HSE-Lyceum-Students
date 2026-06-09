@@ -1,0 +1,42 @@
+{
+  "policy_version": "source-policy-v1",
+  "mode": "curated_seed_with_optional_live_fetch",
+  "allowed_source_types": [
+    "official_bank",
+    "regulator",
+    "consulting",
+    "academic",
+    "vendor"
+  ],
+  "allowed_source_ids": [
+    "seed_001",
+    "seed_002",
+    "seed_003",
+    "seed_004",
+    "seed_005",
+    "seed_006",
+    "seed_007",
+    "seed_008",
+    "seed_009",
+    "seed_010",
+    "seed_011",
+    "seed_012"
+  ],
+  "blocked_source_ids": [],
+  "allowed_domains": [
+    "teradata.com",
+    "bcg.com",
+    "mckinsey.com",
+    "deloitte.com",
+    "bain.com",
+    "arxiv.org",
+    "experian.com",
+    "businesswire.com"
+  ],
+  "notes": [
+    "Use curated public sources first.",
+    "Prefer official banks, regulators, reports, academic sources, and reputable vendors.",
+    "Do not position anti-bot bypass as a project capability.",
+    "Use live fetching only for public URLs from the curated source list."
+  ]
+}

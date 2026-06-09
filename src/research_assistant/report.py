@@ -6,7 +6,8 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from .models import EvidenceItem
+from .claims import build_claim_items
+from .models import ClaimItem, EvidenceItem
 
 SECTION_TITLES = {
     "definition_and_business_value": "Зачем банкам CLTV",
@@ -22,9 +23,12 @@ def render_markdown_report(
     topic: str,
     evidence_items: list[EvidenceItem],
     evaluation_summary: dict[str, Any],
+    claim_items: list[ClaimItem] | None = None,
+    llm_synthesis_markdown: str | None = None,
 ) -> str:
     """Render a transparent evidence-first draft report without LLM synthesis."""
 
+    claims = claim_items if claim_items is not None else build_claim_items(evidence_items)
     lines: list[str] = [
         "# CLTV в иностранных банках",
         "",
@@ -42,6 +46,40 @@ def render_markdown_report(
         f"- Покрытие типов источников: {evaluation_summary.get('source_type_coverage', {})}.",
         "",
     ]
+
+    if llm_synthesis_markdown:
+        lines.extend(
+            [
+                "## LLM synthesis draft",
+                "",
+                llm_synthesis_markdown.strip(),
+                "",
+                (
+                    "Этот блок сгенерирован через LLM Gateway и должен проверяться "
+                    "по claim/evidence таблицам ниже."
+                ),
+                "",
+            ]
+        )
+
+    lines.extend(
+        [
+            "## Claim traceability",
+            "",
+            "| claim_id | research_block | evidence_ids | confidence | claim_text |",
+            "| --- | --- | --- | --- | --- |",
+        ]
+    )
+    for item in claims:
+        lines.append(
+            "| "
+            f"{item.claim_id} | "
+            f"{item.research_block or ''} | "
+            f"{', '.join(item.evidence_ids)} | "
+            f"{item.confidence} | "
+            f"{_escape_table(item.claim_text)} |"
+        )
+    lines.append("")
 
     evidence_by_block = _group_evidence_by_block(evidence_items)
     for block, title in SECTION_TITLES.items():
