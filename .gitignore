@@ -3,6 +3,8 @@
 __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
+.venv/
+.pytest_cache/
 data/raw/*
 !data/raw/.gitkeep
 data/clean/*
@@ -11,3 +13,4 @@ reports/evidence_*.csv
 reports/evidence_*.jsonl
 reports/report_*.md
 reports/evaluation_*.json
+reports/api_runs/

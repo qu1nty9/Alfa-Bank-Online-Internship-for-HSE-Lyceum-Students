@@ -12,11 +12,12 @@ pypdf>=4.2
 rank-bm25>=0.2.2
 numpy>=1.26
 
-# MVP UI and notebooks
+# API, MVP UI, and notebooks
+fastapi>=0.111
+uvicorn[standard]>=0.30
 streamlit>=1.35
 jupyter>=1.0
 ipykernel>=6.29
 
 # Testing
 pytest>=8.2
-
