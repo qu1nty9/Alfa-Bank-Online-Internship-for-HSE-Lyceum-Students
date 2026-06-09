@@ -1,0 +1,101 @@
+"""Quality gate checks for the Notebook MVP report."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from pydantic import BaseModel
+
+from .models import EvidenceItem
+
+
+class QualityCheck(BaseModel):
+    """One quality gate check result."""
+
+    name: str
+    passed: bool
+    severity: str
+    detail: str
+
+
+class QualityGateResult(BaseModel):
+    """Aggregated quality gate result."""
+
+    status: str
+    checks: list[QualityCheck]
+
+
+def run_quality_gate(
+    *,
+    evidence_items: list[EvidenceItem],
+    evaluation_summary: dict[str, Any],
+    report_markdown: str,
+    min_clean_documents: int = 5,
+    min_evidence_items: int = 8,
+    min_evidence_sources: int = 4,
+) -> QualityGateResult:
+    """Run transparent MVP quality checks before accepting the notebook output."""
+
+    checks = [
+        QualityCheck(
+            name="clean_document_count",
+            passed=evaluation_summary.get("clean_document_count", 0) >= min_clean_documents,
+            severity="fail",
+            detail=(
+                f"Clean documents: {evaluation_summary.get('clean_document_count', 0)} "
+                f"(required >= {min_clean_documents})."
+            ),
+        ),
+        QualityCheck(
+            name="evidence_item_count",
+            passed=len(evidence_items) >= min_evidence_items,
+            severity="fail",
+            detail=f"Evidence items: {len(evidence_items)} (required >= {min_evidence_items}).",
+        ),
+        QualityCheck(
+            name="evidence_source_diversity",
+            passed=evaluation_summary.get("evidence_source_count", 0) >= min_evidence_sources,
+            severity="warn",
+            detail=(
+                f"Evidence sources: {evaluation_summary.get('evidence_source_count', 0)} "
+                f"(target >= {min_evidence_sources})."
+            ),
+        ),
+        QualityCheck(
+            name="required_evidence_blocks",
+            passed=not evaluation_summary.get("missing_evidence_blocks"),
+            severity="warn",
+            detail=f"Missing evidence blocks: {evaluation_summary.get('missing_evidence_blocks', [])}.",
+        ),
+        QualityCheck(
+            name="report_has_unknowns",
+            passed="## Unknowns" in report_markdown,
+            severity="fail",
+            detail="Generated report must include an Unknowns section.",
+        ),
+        QualityCheck(
+            name="report_has_evidence_table",
+            passed="## Evidence table" in report_markdown and "| rank | source_id |" in report_markdown,
+            severity="fail",
+            detail="Generated report must include an evidence table.",
+        ),
+        QualityCheck(
+            name="all_evidence_items_have_source_ids",
+            passed=all(item.source_id and item.chunk_id for item in evidence_items),
+            severity="fail",
+            detail="Every evidence item must have source_id and chunk_id.",
+        ),
+    ]
+
+    has_failed_required_check = any(
+        not check.passed and check.severity == "fail" for check in checks
+    )
+    has_warning = any(not check.passed and check.severity == "warn" for check in checks)
+    if has_failed_required_check:
+        status = "fail"
+    elif has_warning:
+        status = "warn"
+    else:
+        status = "pass"
+
+    return QualityGateResult(status=status, checks=checks)
