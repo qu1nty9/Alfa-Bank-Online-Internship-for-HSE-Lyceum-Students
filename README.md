@@ -37,6 +37,8 @@
 
 Этап 4 закрыт: добавлены audit log, actor metadata, role enforcement, report review workflow, claim/evidence traceability, source allowlist config, admin workflow и формальный LLM Gateway contract.
 
+Этап 5 начат: добавлены материалы финальной защиты, demo script, метрики качества, roadmap и структура презентации.
+
 Ключевой результат Stage 2: `research_assistant.pipeline.run_research_pipeline()`.
 
 Ключевой результат Stage 3: API-запуски с `run_id`, хранилищем metadata и endpoints для получения статуса, отчета и evidence по конкретному запуску.
@@ -141,11 +143,16 @@ docs/local_llm.md
 - `docs/project_work_plan.md` - подробный план проекта до финального результата.
 - `docs/architecture.md` - bank-ready архитектура и поток данных.
 - `docs/demo_scenario_cltv.md` - сценарий демонстрации по теме CLTV.
+- `docs/final_demo_script.md` - пошаговый сценарий финального демо.
+- `docs/evaluation_metrics.md` - метрики качества и как их показывать.
+- `docs/roadmap.md` - путь от MVP к production-ready решению.
+- `docs/final_presentation_outline.md` - структура финальной презентации.
 - `docs/stage_1_notebook_mvp_summary.md` - закрытие Notebook MVP.
 - `docs/stage_2_modular_pipeline_summary.md` - модульный Python-конвейер.
 - `docs/stage_3_fastapi_mvp_summary.md` - закрытие FastAPI MVP.
 - `docs/stage_3_swagger_demo.md` - сценарий демонстрации через Swagger UI.
 - `docs/stage_4_bank_ready_start_summary.md` - закрытие Stage 4: audit/roles/review/source allowlist/model gateway metadata.
+- `docs/stage_5_final_defense_summary.md` - старт Stage 5: final defense package.
 - `docs/local_llm.md` - подключение Qwen3-1.7B, AlfaGen/GigaChat и OpenAI-compatible endpoints.
 - `api/README.md` - FastAPI MVP.
 - `config/source_policy.json` - file-backed source allowlist для admin-сценария.
@@ -170,4 +177,4 @@ docs/local_llm.md
 
 ## Ближайший практический шаг
 
-Перейти к Stage 5: подготовить финальный demo script, презентацию и при необходимости добавить минимальный UI поверх FastAPI.
+Продолжить Stage 5: добавить минимальный demo UI поверх FastAPI или собрать финальную презентацию на основе `docs/final_presentation_outline.md`.
