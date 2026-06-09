@@ -1,0 +1,213 @@
+"""End-to-end orchestration for the modular research assistant pipeline."""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+
+from pydantic import BaseModel
+
+from .chunker import chunk_clean_documents
+from .collector import load_seed_sources
+from .config import PipelineConfig, default_pipeline_config
+from .evidence import build_evidence_items, write_evidence_csv, write_evidence_jsonl
+from .evaluation import build_evaluation_summary, write_evaluation_json
+from .fetcher import fetch_sources_safe
+from .filtering import filter_chunks, rank_chunks_bm25
+from .models import CleanDocument, FetchResult, ParseResult
+from .parser import parse_raw_documents_safe
+from .planner import build_cltv_research_plan
+from .quality_gate import QualityGateResult, run_quality_gate
+from .report import render_markdown_report, write_markdown_report
+from .sensitivity import SensitivityResult, check_query_sensitivity
+
+
+class PipelineResult(BaseModel):
+    """Structured result returned by one pipeline run."""
+
+    topic: str
+    sensitivity: SensitivityResult
+    fetch_results: list[FetchResult]
+    parse_results: list[ParseResult]
+    evaluation_summary: dict
+    quality_gate: QualityGateResult
+    evidence_csv_path: Path | None = None
+    evidence_jsonl_path: Path | None = None
+    evaluation_json_path: Path | None = None
+    report_path: Path | None = None
+
+
+def run_research_pipeline(topic: str, config: PipelineConfig | None = None) -> PipelineResult:
+    """Run the CLTV Notebook MVP logic as a reusable Python pipeline."""
+
+    cfg = (config or default_pipeline_config()).resolved()
+    sensitivity = check_query_sensitivity(topic)
+    if not sensitivity.allowed:
+        empty_gate = run_quality_gate(
+            evidence_items=[],
+            evaluation_summary={"clean_document_count": 0, "evidence_source_count": 0},
+            report_markdown="",
+        )
+        return PipelineResult(
+            topic=topic,
+            sensitivity=sensitivity,
+            fetch_results=[],
+            parse_results=[],
+            evaluation_summary={"blocked": True, "reason": "sensitivity_check"},
+            quality_gate=empty_gate,
+        )
+
+    plan = build_cltv_research_plan(topic)
+    sources = load_seed_sources(cfg.seed_sources_path)
+    fetch_results: list[FetchResult] = []
+    parse_results: list[ParseResult] = []
+
+    if cfg.use_live_fetch:
+        fetch_results = fetch_sources_safe(
+            sources,
+            cfg.raw_dir,
+            limit=cfg.fetch_limit,
+            timeout_seconds=cfg.fetch_timeout_seconds,
+            force=cfg.force_fetch,
+        )
+        raw_documents = [
+            result.raw_document for result in fetch_results if result.ok and result.raw_document
+        ]
+        parse_results = parse_raw_documents_safe(raw_documents, sources, cfg.clean_dir)
+
+    clean_documents = _load_cached_clean_documents(cfg.clean_dir, sources)
+    chunks = chunk_clean_documents(
+        clean_documents,
+        sources,
+        max_chars=cfg.chunk_max_chars,
+        overlap_chars=cfg.chunk_overlap_chars,
+        min_chars=cfg.chunk_min_chars,
+    )
+    filtered_chunks = filter_chunks(
+        chunks,
+        min_chars=cfg.filter_min_chars,
+        min_domain_terms=cfg.filter_min_domain_terms,
+    )
+    ranked_chunks = rank_chunks_bm25(
+        filtered_chunks,
+        plan.queries,
+        top_k_per_query=cfg.top_k_per_query,
+    )
+    evidence_items = build_evidence_items(ranked_chunks, max_items=cfg.max_evidence_items)
+    evaluation_summary = build_evaluation_summary(
+        plan=plan,
+        sources=sources,
+        clean_documents=clean_documents,
+        chunks=chunks,
+        filtered_chunks=filtered_chunks,
+        evidence_items=evidence_items,
+    )
+    report_markdown = render_markdown_report(
+        topic=topic,
+        evidence_items=evidence_items,
+        evaluation_summary=evaluation_summary,
+    )
+    quality_gate = run_quality_gate(
+        evidence_items=evidence_items,
+        evaluation_summary=evaluation_summary,
+        report_markdown=report_markdown,
+        min_clean_documents=cfg.min_clean_documents,
+        min_evidence_items=cfg.min_evidence_items,
+        min_evidence_sources=cfg.min_evidence_sources,
+    )
+
+    evidence_csv_path = write_evidence_csv(evidence_items, cfg.reports_dir / "evidence_cltv.csv")
+    evidence_jsonl_path = write_evidence_jsonl(evidence_items, cfg.reports_dir / "evidence_cltv.jsonl")
+    evaluation_json_path = write_evaluation_json(
+        evaluation_summary,
+        cfg.reports_dir / "evaluation_cltv.json",
+    )
+    report_path = write_markdown_report(report_markdown, cfg.reports_dir / "report_cltv.md")
+
+    return PipelineResult(
+        topic=topic,
+        sensitivity=sensitivity,
+        fetch_results=fetch_results,
+        parse_results=parse_results,
+        evaluation_summary=evaluation_summary,
+        quality_gate=quality_gate,
+        evidence_csv_path=evidence_csv_path,
+        evidence_jsonl_path=evidence_jsonl_path,
+        evaluation_json_path=evaluation_json_path,
+        report_path=report_path,
+    )
+
+
+def main(argv: list[str] | None = None) -> int:
+    """CLI entrypoint."""
+
+    parser = argparse.ArgumentParser(description="Run the modular research pipeline.")
+    parser.add_argument("--topic", default="CLTV in foreign banks")
+    parser.add_argument("--project-root", default=str(Path.cwd()))
+    parser.add_argument("--live-fetch", action="store_true")
+    parser.add_argument("--fetch-limit", type=int, default=None)
+    parser.add_argument("--json", action="store_true", help="Print compact JSON summary.")
+    args = parser.parse_args(argv)
+
+    config = default_pipeline_config(args.project_root).model_copy(
+        update={
+            "use_live_fetch": args.live_fetch,
+            "fetch_limit": args.fetch_limit,
+        }
+    )
+    result = run_research_pipeline(args.topic, config)
+
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "topic": result.topic,
+                    "sensitivity": result.sensitivity.decision,
+                    "quality_gate": result.quality_gate.status,
+                    "evaluation_summary": result.evaluation_summary,
+                    "report_path": str(result.report_path) if result.report_path else None,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+    else:
+        print(f"Topic: {result.topic}")
+        print(f"Sensitivity: {result.sensitivity.decision}")
+        print(f"Quality gate: {result.quality_gate.status}")
+        print(f"Clean documents: {result.evaluation_summary.get('clean_document_count', 0)}")
+        print(f"Evidence items: {result.evaluation_summary.get('evidence_item_count', 0)}")
+        if result.report_path:
+            print(f"Report: {result.report_path}")
+
+    return 0 if result.quality_gate.status in {"pass", "warn"} else 1
+
+
+def _load_cached_clean_documents(
+    clean_dir: Path,
+    sources,
+) -> list[CleanDocument]:
+    sources_by_id = {source.source_id: source for source in sources}
+    clean_documents: list[CleanDocument] = []
+    for clean_path in sorted(clean_dir.glob("*.txt")):
+        source = sources_by_id.get(clean_path.stem)
+        if source is None:
+            continue
+        text = clean_path.read_text(encoding="utf-8")
+        clean_documents.append(
+            CleanDocument(
+                source_id=source.source_id,
+                title=source.title,
+                url=source.url,
+                path=clean_path,
+                text=text,
+                parser_name="cached_clean_text",
+                char_count=len(text),
+            )
+        )
+    return clean_documents
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

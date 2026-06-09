@@ -2,15 +2,18 @@ from pathlib import Path
 
 from research_assistant.chunker import chunk_clean_document
 from research_assistant.collector import group_sources_by_research_block, load_seed_sources
+from research_assistant.config import PipelineConfig
 from research_assistant.evidence import build_evidence_items, write_evidence_csv
 from research_assistant.evaluation import build_evaluation_summary
 from research_assistant.fetcher import fetch_sources_safe, raw_document_path
 from research_assistant.filtering import filter_chunks, rank_chunks_bm25
 from research_assistant.models import CleanDocument, RawDocument
 from research_assistant.parser import extract_html_text, parse_raw_document, parse_raw_documents_safe
+from research_assistant.pipeline import run_research_pipeline
 from research_assistant.planner import build_cltv_research_plan
 from research_assistant.quality_gate import run_quality_gate
 from research_assistant.report import render_markdown_report
+from research_assistant.sensitivity import check_query_sensitivity
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -229,3 +232,65 @@ def test_evaluation_report_and_quality_gate_flow(tmp_path) -> None:
     assert "## Evidence table" in report_markdown
     assert "## Unknowns" in report_markdown
     assert gate.status in {"pass", "warn"}
+
+
+def test_sensitivity_blocks_personal_data() -> None:
+    result = check_query_sensitivity("CLTV for client ivan@example.com")
+
+    assert result.decision == "block"
+    assert result.allowed is False
+
+
+def test_modular_pipeline_runs_offline_on_clean_fixtures(tmp_path) -> None:
+    seed_path = tmp_path / "data" / "seed_sources" / "cltv_sources_template.csv"
+    clean_dir = tmp_path / "data" / "clean"
+    raw_dir = tmp_path / "data" / "raw"
+    reports_dir = tmp_path / "reports"
+    seed_path.parent.mkdir(parents=True)
+    clean_dir.mkdir(parents=True)
+    raw_dir.mkdir(parents=True)
+
+    seed_path.write_text(
+        "\n".join(
+            [
+                "source_id,url,title,source_type,publisher,research_block,language,status,notes",
+                "seed_001,https://example.com/one,One,vendor,Example,definition_and_business_value,en,ready,",
+                "seed_002,https://example.com/two,Two,academic,Example,calculation_methods,en,ready,",
+                "seed_003,https://example.com/three,Three,consulting,Example,required_data,en,ready,",
+                "seed_004,https://example.com/four,Four,consulting,Example,banking_use_cases,en,ready,",
+                "seed_005,https://example.com/five,Five,consulting,Example,risks_and_limitations,en,ready,",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    fixture_texts = {
+        "seed_001": "Customer lifetime value banking use cases help banks prioritize retention and profitability.",
+        "seed_002": "Customer lifetime value calculation banking retention probability margin products risk.",
+        "seed_003": "Bank customer lifetime value data requirements transactions products campaigns channels.",
+        "seed_004": "CLTV next best action banking personalization retention cross sell customer analytics.",
+        "seed_005": "Customer lifetime value banking privacy bias explainability risks responsible AI.",
+    }
+    for source_id, text in fixture_texts.items():
+        (clean_dir / f"{source_id}.txt").write_text(text, encoding="utf-8")
+
+    config = PipelineConfig(
+        project_root=tmp_path,
+        seed_sources_path=seed_path,
+        raw_dir=raw_dir,
+        clean_dir=clean_dir,
+        reports_dir=reports_dir,
+        use_live_fetch=False,
+        chunk_min_chars=60,
+        filter_min_chars=60,
+        min_clean_documents=5,
+        min_evidence_items=3,
+        min_evidence_sources=2,
+    ).resolved()
+
+    result = run_research_pipeline("CLTV in foreign banks", config)
+
+    assert result.sensitivity.decision == "allow"
+    assert result.quality_gate.status in {"pass", "warn"}
+    assert result.evaluation_summary["clean_document_count"] == 5
+    assert result.report_path is not None
+    assert result.report_path.exists()

@@ -27,18 +27,13 @@
 - аналитик утверждает итоговый отчет;
 - сбор источников должен быть легитимным: API, RSS, официальные документы, отчеты и разрешенный web-доступ.
 
-## Текущий этап
+## Текущий статус
 
-Этап 0: подготовка проекта.
+Этап 1 закрыт: есть воспроизводимый Notebook MVP.
 
-На этом этапе репозиторий приводится к форме, в которой команда может совместно работать и быстро показывать прогресс:
+Этап 2 реализован: логика notebook вынесена в модульный Python-конвейер, который можно запускать через CLI и позже подключить к Streamlit/FastAPI UI.
 
-- структура папок;
-- документация;
-- демо-сценарий;
-- шаблон seed-источников;
-- каркас Python-пакета;
-- стартовый notebook.
+Ключевой результат Stage 2: `research_assistant.pipeline.run_research_pipeline()`.
 
 ## Структура проекта
 
@@ -78,23 +73,48 @@ pytest
 jupyter notebook notebooks/00_cltv_research_mvp.ipynb
 ```
 
+Запустить модульный pipeline без live-fetch, по cached clean documents:
+
+```bash
+PYTHONPATH=src python -m research_assistant.pipeline --topic "CLTV in foreign banks"
+```
+
+Получить JSON-summary:
+
+```bash
+PYTHONPATH=src python -m research_assistant.pipeline --topic "CLTV in foreign banks" --json
+```
+
+Запустить pipeline с live-fetch:
+
+```bash
+PYTHONPATH=src python -m research_assistant.pipeline --topic "CLTV in foreign banks" --live-fetch --fetch-limit 8
+```
+
 ## Основные документы
 
 - `docs/project_work_plan.md` - подробный план проекта до финального результата.
 - `docs/demo_scenario_cltv.md` - сценарий демонстрации по теме CLTV.
+- `docs/stage_1_notebook_mvp_summary.md` - закрытие Notebook MVP.
 - `data/seed_sources/cltv_sources_template.csv` - шаблон для списка источников.
+
+## Модульный pipeline
+
+Основные модули:
+
+- `config.py` - настройки путей и параметров pipeline;
+- `sensitivity.py` - проверка чувствительных запросов;
+- `planner.py` - research plan;
+- `collector.py` - seed-source collector;
+- `fetcher.py` - raw fetching;
+- `parser.py` - clean text extraction;
+- `chunker.py` - chunking;
+- `filtering.py` - noise filter и BM25 ranking;
+- `evidence.py` - evidence table;
+- `report.py` - template-based report;
+- `quality_gate.py` - проверки результата;
+- `pipeline.py` - orchestration.
 
 ## Ближайший практический шаг
 
-Следующий этап после подготовки: Notebook MVP.
-
-В нем нужно пройти end-to-end путь на seed-источниках:
-
-1. тема;
-2. research plan;
-3. загрузка источников;
-4. парсинг;
-5. фильтрация;
-6. evidence table;
-7. черновик отчета.
-
+Этап 3: Web/UI MVP. Быстрый путь для демонстрации - Streamlit-интерфейс поверх `run_research_pipeline()`.
