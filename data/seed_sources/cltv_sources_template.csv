@@ -1,0 +1,7 @@
+source_id,url,title,source_type,publisher,research_block,language,status,notes
+seed_001,,Customer lifetime value in banking - source placeholder,consulting,,definition_and_business_value,en,todo,Add a reliable consulting or bank source.
+seed_002,,CLTV calculation methods in financial services - source placeholder,academic,,calculation_methods,en,todo,Add paper or technical article.
+seed_003,,Bank personalization and next best action - source placeholder,vendor,,banking_use_cases,en,todo,Add vendor or official case study.
+seed_004,,Bank retention and customer value management - source placeholder,official_bank,,banking_use_cases,en,todo,Add official bank or annual report example.
+seed_005,,Privacy bias explainability in customer analytics - source placeholder,regulator,,risks_and_limitations,en,todo,Add regulator or responsible AI source.
+
