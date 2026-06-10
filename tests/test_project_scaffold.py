@@ -349,7 +349,12 @@ def test_evaluation_report_and_quality_gate_flow(tmp_path) -> None:
     )
 
     assert summary["clean_document_count"] == 5
-    assert "## Claim traceability" in report_markdown
+    assert summary["analyzed_sources"]
+    assert summary["interpretability_summary"]["source_diversity"] in {"medium", "high"}
+    assert "## Краткий ответ" in report_markdown
+    assert "## Паспорт результата" in report_markdown
+    assert "## Полный отчет по источникам и ресурсам" in report_markdown
+    assert "## Утверждения и доказательства" in report_markdown
     assert "## Knowledge graph links" in report_markdown
     assert "## Evidence table" in report_markdown
     assert "## Unknowns" in report_markdown

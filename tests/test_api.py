@@ -26,6 +26,7 @@ def test_demo_ui_shell_and_static_assets_are_served() -> None:
     assert "Source URLs" in ui_response.text
     assert "Public search" in ui_response.text
     assert "Загрузить документы" in ui_response.text
+    assert "Утверждения" in ui_response.text
     assert "/static/app.js" in ui_response.text
     assert app_js_response.status_code == 200
     assert "runResearchWithFiles" in app_js_response.text
@@ -138,7 +139,9 @@ def test_run_specific_report_and_evidence_endpoints_return_payloads() -> None:
     assert status_response.json()["run_id"] == run_id
     assert report_response.status_code == 200
     assert "# CLTV" in report_response.json()["markdown"]
-    assert "## Claim traceability" in report_response.json()["markdown"]
+    assert "## Краткий ответ" in report_response.json()["markdown"]
+    assert "## Полный отчет по источникам и ресурсам" in report_response.json()["markdown"]
+    assert "## Утверждения и доказательства" in report_response.json()["markdown"]
     assert "## Knowledge graph links" in report_response.json()["markdown"]
     assert evidence_response.status_code == 200
     evidence_items = evidence_response.json()["items"]

@@ -66,7 +66,7 @@ UI tabs:
 
 - `Отчёт`;
 - `Доказательства`;
-- `Претензии`;
+- `Утверждения`;
 - `Проверка`;
 - `Аудит`.
 
@@ -326,4 +326,11 @@ reports/api_runs/{run_id}/claims.csv
 - `confidence`;
 - `status`.
 
-The generated Markdown report also includes a `Claim traceability` table before the narrative sections.
+The generated Markdown report is structured for business review:
+
+- `Краткий ответ` first;
+- `Паспорт результата` with quality/source coverage metadata;
+- `Полный отчет по источникам и ресурсам`;
+- thematic analysis;
+- `Утверждения и доказательства`;
+- evidence table and unknowns.

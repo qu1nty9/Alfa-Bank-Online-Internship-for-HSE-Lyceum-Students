@@ -193,11 +193,13 @@ GET /research/runs/{run_id}/report
 
 Что показать:
 
-- `Executive summary`;
-- `Claim traceability`;
+- `Краткий ответ`;
+- `Паспорт результата`;
+- `Полный отчет по источникам и ресурсам`;
+- `Утверждения и доказательства`;
 - `Evidence table`;
 - `Unknowns`;
-- `Quality notes`.
+- ссылки на источники.
 
 Что сказать:
 
@@ -235,7 +237,7 @@ GET /research/runs/{run_id}/evidence
 В UI:
 
 ```text
-Претензии tab
+Утверждения tab
 ```
 
 Endpoint:
@@ -261,7 +263,7 @@ GET /research/runs/{run_id}/claims
 В UI:
 
 ```text
-Претензии tab -> graph summary
+Утверждения tab -> graph summary
 ```
 
 Endpoint:
