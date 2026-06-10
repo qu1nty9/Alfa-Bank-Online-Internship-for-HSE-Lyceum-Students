@@ -1,4 +1,4 @@
-"""Rule-based research planner for the first CLTV demo."""
+"""Rule-based research planners for demo and generic research topics."""
 
 from __future__ import annotations
 
@@ -13,6 +13,15 @@ CLTV_RESEARCH_BLOCKS = [
     "risks_and_limitations",
     "quality_metrics",
     "vendors_and_solutions",
+]
+
+GENERIC_RESEARCH_BLOCKS = [
+    "definition_and_context",
+    "use_cases_and_examples",
+    "methods_and_approaches",
+    "data_and_requirements",
+    "risks_and_limitations",
+    "implementation_considerations",
 ]
 
 
@@ -54,3 +63,56 @@ def build_cltv_research_plan(topic: str = "CLTV in foreign banks") -> ResearchPl
 
     return ResearchPlan(topic=topic, blocks=CLTV_RESEARCH_BLOCKS, queries=queries)
 
+
+def build_generic_research_plan(topic: str) -> ResearchPlan:
+    """Build a topic-aware research plan for arbitrary public research topics."""
+
+    clean_topic = topic.strip()
+    queries = [
+        SearchQuery(
+            query=f"{clean_topic} overview official report",
+            research_block="definition_and_context",
+            geography="global",
+            language="en",
+        ),
+        SearchQuery(
+            query=f"{clean_topic} use cases examples case study",
+            research_block="use_cases_and_examples",
+            geography="global",
+            language="en",
+        ),
+        SearchQuery(
+            query=f"{clean_topic} methods framework implementation approach",
+            research_block="methods_and_approaches",
+            geography="global",
+            language="en",
+        ),
+        SearchQuery(
+            query=f"{clean_topic} data requirements metrics inputs",
+            research_block="data_and_requirements",
+            geography="global",
+            language="en",
+        ),
+        SearchQuery(
+            query=f"{clean_topic} risks limitations regulation governance",
+            research_block="risks_and_limitations",
+            geography="global",
+            language="en",
+        ),
+    ]
+    return ResearchPlan(topic=clean_topic, blocks=GENERIC_RESEARCH_BLOCKS, queries=queries)
+
+
+def build_research_plan(topic: str) -> ResearchPlan:
+    """Build the best available research plan for a topic."""
+
+    if is_cltv_topic(topic):
+        return build_cltv_research_plan(topic)
+    return build_generic_research_plan(topic)
+
+
+def is_cltv_topic(topic: str) -> bool:
+    """Return whether the topic should use the curated CLTV demo plan."""
+
+    normalized_topic = topic.lower()
+    return any(term in normalized_topic for term in ("cltv", "clv", "customer lifetime value"))

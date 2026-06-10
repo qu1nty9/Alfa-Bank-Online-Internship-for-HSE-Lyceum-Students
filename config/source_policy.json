@@ -6,8 +6,11 @@
     "regulator",
     "consulting",
     "academic",
-    "vendor"
+    "vendor",
+    "encyclopedia",
+    "research_index"
   ],
+  "allow_unlisted_public_sources": true,
   "allowed_source_ids": [
     "seed_001",
     "seed_002",
@@ -31,7 +34,10 @@
     "bain.com",
     "arxiv.org",
     "experian.com",
-    "businesswire.com"
+    "businesswire.com",
+    "wikipedia.org",
+    "openalex.org",
+    "arxiv.org"
   ],
   "notes": [
     "Use curated public sources first.",

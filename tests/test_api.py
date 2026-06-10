@@ -14,6 +14,22 @@ def test_health_endpoint() -> None:
     assert response.json()["status"] == "ok"
 
 
+def test_demo_ui_shell_and_static_assets_are_served() -> None:
+    client = TestClient(app)
+
+    ui_response = client.get("/ui")
+    app_js_response = client.get("/static/app.js")
+
+    assert ui_response.status_code == 200
+    assert "text/html" in ui_response.headers["content-type"]
+    assert "Bank Research Console" in ui_response.text
+    assert "Source URLs" in ui_response.text
+    assert "Auto discover public sources" in ui_response.text
+    assert "/static/app.js" in ui_response.text
+    assert app_js_response.status_code == 200
+    assert "runResearch" in app_js_response.text
+
+
 def test_research_run_endpoint_offline() -> None:
     client = TestClient(app)
 
@@ -63,6 +79,31 @@ def test_research_run_blocks_sensitive_query() -> None:
     assert payload["quality_gate"] == "fail"
     assert payload["review"]["status"] == "not_applicable"
     assert payload["audit"]["logged"] is True
+
+
+def test_arbitrary_topic_without_sources_returns_no_evidence_instead_of_cltv_report() -> None:
+    client = TestClient(app)
+
+    response = client.post(
+        "/research/run",
+        json={
+            "topic": "AI fraud detection in insurance",
+            "use_live_fetch": False,
+            "auto_discover_sources": False,
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["quality_gate"] == "fail"
+    assert payload["evaluation_summary"]["planner_mode"] == "generic"
+    assert payload["evaluation_summary"]["source_mode"] == "no_topic_sources"
+    assert payload["evaluation_summary"]["evidence_item_count"] == 0
+    assert payload["source_policy"]["candidate_source_count"] == 0
+
+    report_response = client.get(payload["links"]["report"])
+    assert report_response.status_code == 200
+    assert report_response.json()["markdown"].startswith("# AI fraud detection in insurance")
 
 
 def test_reviewer_cannot_start_research_run() -> None:
@@ -220,6 +261,34 @@ def test_source_policy_admin_workflow_requires_admin_and_writes_audit() -> None:
         )
     finally:
         SOURCE_POLICY_PATH.write_text(original_policy_text, encoding="utf-8")
+
+
+def test_admin_audit_events_endpoint_requires_admin_and_returns_latest_events() -> None:
+    client = TestClient(app)
+    run_response = client.post(
+        "/research/run",
+        json={
+            "topic": "CLTV in foreign banks",
+            "actor_id": "test_analyst",
+            "actor_role": "analyst",
+        },
+    )
+    run_id = run_response.json()["run_id"]
+
+    forbidden_response = client.get(
+        "/admin/audit-events",
+        params={"actor_id": "test_analyst", "actor_role": "analyst"},
+    )
+    admin_response = client.get(
+        "/admin/audit-events",
+        params={"actor_id": "test_admin", "actor_role": "admin", "limit": 20},
+    )
+
+    assert forbidden_response.status_code == 403
+    assert admin_response.status_code == 200
+    payload = admin_response.json()
+    assert payload["count"] >= 1
+    assert any(event["run_id"] == run_id for event in payload["items"])
 
 
 def test_research_runs_list_contains_completed_run() -> None:

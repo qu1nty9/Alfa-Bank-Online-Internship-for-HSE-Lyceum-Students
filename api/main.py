@@ -2,17 +2,21 @@
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import PlainTextResponse
+from fastapi import FastAPI, HTTPException, Query
+from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.staticfiles import StaticFiles
 
 from research_assistant.audit import AuditEvent, append_audit_event
 from research_assistant.config import default_pipeline_config
-from research_assistant.collector import load_seed_sources
+from research_assistant.collector import build_sources_from_urls, load_seed_sources
 from research_assistant.llm_gateway import default_llm_gateway_metadata
-from research_assistant.pipeline import run_research_pipeline
+from research_assistant.pipeline import run_research_pipeline_with_sources
+from research_assistant.planner import is_cltv_topic
+from research_assistant.source_discovery import SourceDiscoveryConfig, discover_public_sources
 from research_assistant.source_policy import (
     load_source_policy_config,
     save_source_policy_config,
@@ -34,6 +38,7 @@ from .run_store import (
     save_run_metadata,
 )
 from .schemas import (
+    AuditEventsResponse,
     ClaimsResponse,
     EvidenceResponse,
     HealthResponse,
@@ -52,12 +57,28 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RUNS_DIR = PROJECT_ROOT / "reports" / "api_runs"
 AUDIT_LOG_PATH = PROJECT_ROOT / "reports" / "audit" / "research_runs.jsonl"
 SOURCE_POLICY_PATH = PROJECT_ROOT / "config" / "source_policy.json"
+UI_DIR = PROJECT_ROOT / "api" / "static"
 
 app = FastAPI(
     title="Bank Research Assistant API",
     version="0.1.0",
     description="API-first MVP for running the modular research assistant pipeline.",
 )
+app.mount("/static", StaticFiles(directory=UI_DIR), name="static")
+
+
+@app.get("/", include_in_schema=False)
+def index() -> FileResponse:
+    """Return the lightweight demo UI."""
+
+    return FileResponse(UI_DIR / "index.html")
+
+
+@app.get("/ui", include_in_schema=False)
+def ui() -> FileResponse:
+    """Return the lightweight demo UI."""
+
+    return FileResponse(UI_DIR / "index.html")
 
 
 @app.get("/health", response_model=HealthResponse)
@@ -75,25 +96,66 @@ def run_research(request: ResearchRunRequest) -> ResearchRunResponse:
 
     run_id = create_run_id()
     created_at = datetime.now(UTC)
-    request_settings = {
-        "use_live_fetch": request.use_live_fetch,
-        "fetch_limit": request.fetch_limit,
-    }
+    request_sources = build_sources_from_urls(
+        [str(url) for url in request.source_urls],
+        topic=request.topic,
+    )
     config = default_pipeline_config(PROJECT_ROOT).model_copy(
         update={
-            "use_live_fetch": request.use_live_fetch,
             "fetch_limit": request.fetch_limit,
+            "auto_discover_sources": request.auto_discover_sources,
+            "discovery_max_sources": request.discovery_max_sources,
         }
     )
-    sources = load_seed_sources(config.seed_sources_path)
+    discovered_sources = []
+    if not request_sources and not is_cltv_topic(request.topic) and request.auto_discover_sources:
+        discovered_sources = discover_public_sources(
+            request.topic,
+            config=SourceDiscoveryConfig(
+                enabled=True,
+                max_sources=request.discovery_max_sources,
+                timeout_seconds=config.discovery_timeout_seconds,
+            ),
+        )
+    sources = request_sources or discovered_sources
+    use_live_fetch = request.use_live_fetch or bool(sources)
+    request_settings = {
+        "use_live_fetch": use_live_fetch,
+        "fetch_limit": request.fetch_limit,
+        "source_url_count": len(request_sources),
+        "discovered_source_count": len(discovered_sources),
+        "auto_discover_sources": request.auto_discover_sources,
+        "discovery_max_sources": request.discovery_max_sources,
+    }
+    config = config.model_copy(
+        update={
+            "use_live_fetch": use_live_fetch,
+            "auto_discover_sources": False,
+        }
+    )
+    if not sources and is_cltv_topic(request.topic):
+        sources = load_seed_sources(config.seed_sources_path)
     source_policy_config = load_source_policy_config(SOURCE_POLICY_PATH)
     source_policy = summarize_source_policy(
         sources,
-        use_live_fetch=request.use_live_fetch,
+        use_live_fetch=use_live_fetch,
         fetch_limit=request.fetch_limit,
         policy=source_policy_config,
     )
-    result = run_research_pipeline(request.topic, config)
+    result = run_research_pipeline_with_sources(
+        request.topic,
+        config=config,
+        source_candidates=sources
+        if (request_sources or discovered_sources or not is_cltv_topic(request.topic))
+        else None,
+        source_mode="request_sources"
+        if request_sources
+        else "auto_discovery"
+        if discovered_sources
+        else "no_topic_sources"
+        if not is_cltv_topic(request.topic)
+        else None,
+    )
     model_gateway = result.model_gateway_metadata
     completed_at = datetime.now(UTC)
 
@@ -307,6 +369,24 @@ def update_source_policy(request: SourcePolicyUpdateRequest) -> SourcePolicyResp
     )
 
 
+@app.get("/admin/audit-events", response_model=AuditEventsResponse)
+def get_audit_events(
+    actor_id: str,
+    actor_role: str,
+    limit: int = Query(default=50, ge=1, le=200),
+) -> AuditEventsResponse:
+    """Return the latest audit events for the demo UI."""
+
+    _require_role(actor_role, "admin")
+    events = _load_audit_events(AUDIT_LOG_PATH, limit)
+    return AuditEventsResponse(
+        actor_id=actor_id,
+        count=len(events),
+        items=events,
+        links={"self": "/admin/audit-events"},
+    )
+
+
 @app.get("/research/report", response_class=PlainTextResponse)
 def get_latest_report() -> str:
     """Return the latest generated Markdown report for quick demos."""
@@ -414,3 +494,19 @@ def _validate_review_transition(current_status: str, decision: str) -> None:
             status_code=409,
             detail=f"Cannot move report review from '{current_status}' to '{decision}'",
         )
+
+
+def _load_audit_events(log_path: Path, limit: int) -> list[dict]:
+    if not log_path.exists():
+        return []
+
+    events: list[dict] = []
+    lines = log_path.read_text(encoding="utf-8").splitlines()[-limit:]
+    for line in lines:
+        if not line.strip():
+            continue
+        try:
+            events.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    return events

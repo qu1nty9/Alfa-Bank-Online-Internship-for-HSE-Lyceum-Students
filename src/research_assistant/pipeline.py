@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 from pydantic import BaseModel
@@ -17,12 +18,13 @@ from .evaluation import build_evaluation_summary, write_evaluation_json
 from .fetcher import fetch_sources_safe
 from .filtering import filter_chunks, rank_chunks_bm25
 from .llm_gateway import build_llm_gateway, llm_gateway_config_from_env
-from .models import ClaimItem, CleanDocument, FetchResult, ParseResult
+from .models import ClaimItem, CleanDocument, FetchResult, ParseResult, SourceCandidate
 from .parser import parse_raw_documents_safe
-from .planner import build_cltv_research_plan
+from .planner import build_research_plan, is_cltv_topic
 from .quality_gate import QualityGateResult, run_quality_gate
 from .report import render_markdown_report, write_markdown_report
 from .sensitivity import SensitivityResult, check_query_sensitivity
+from .source_discovery import SourceDiscoveryConfig, discover_public_sources
 
 
 class PipelineResult(BaseModel):
@@ -45,7 +47,19 @@ class PipelineResult(BaseModel):
 
 
 def run_research_pipeline(topic: str, config: PipelineConfig | None = None) -> PipelineResult:
-    """Run the CLTV Notebook MVP logic as a reusable Python pipeline."""
+    """Run the reusable research pipeline for a public research topic."""
+
+    return run_research_pipeline_with_sources(topic, config=config)
+
+
+def run_research_pipeline_with_sources(
+    topic: str,
+    *,
+    config: PipelineConfig | None = None,
+    source_candidates: list[SourceCandidate] | None = None,
+    source_mode: str | None = None,
+) -> PipelineResult:
+    """Run the research pipeline with optional user-provided source candidates."""
 
     cfg = (config or default_pipeline_config()).resolved()
     sensitivity = check_query_sensitivity(topic)
@@ -69,12 +83,18 @@ def run_research_pipeline(topic: str, config: PipelineConfig | None = None) -> P
             model_gateway_metadata=model_gateway_metadata,
         )
 
-    plan = build_cltv_research_plan(topic)
-    sources = load_seed_sources(cfg.seed_sources_path)
+    plan = build_research_plan(topic)
+    sources, source_mode = _resolve_sources_for_topic(
+        topic=topic,
+        config=cfg,
+        source_candidates=source_candidates,
+        source_mode=source_mode,
+    )
     fetch_results: list[FetchResult] = []
     parse_results: list[ParseResult] = []
+    use_live_fetch = cfg.use_live_fetch or source_mode == "auto_discovery"
 
-    if cfg.use_live_fetch:
+    if use_live_fetch:
         fetch_results = fetch_sources_safe(
             sources,
             cfg.raw_dir,
@@ -99,6 +119,7 @@ def run_research_pipeline(topic: str, config: PipelineConfig | None = None) -> P
         chunks,
         min_chars=cfg.filter_min_chars,
         min_domain_terms=cfg.filter_min_domain_terms,
+        domain_terms=_domain_terms_for_plan(topic, plan),
     )
     ranked_chunks = rank_chunks_bm25(
         filtered_chunks,
@@ -106,7 +127,7 @@ def run_research_pipeline(topic: str, config: PipelineConfig | None = None) -> P
         top_k_per_query=cfg.top_k_per_query,
     )
     evidence_items = build_evidence_items(ranked_chunks, max_items=cfg.max_evidence_items)
-    claim_items = build_claim_items(evidence_items)
+    claim_items = build_claim_items(evidence_items, topic=topic)
     model_gateway_metadata, llm_synthesis_markdown = _maybe_synthesize_with_llm(
         topic,
         evidence_items,
@@ -119,6 +140,13 @@ def run_research_pipeline(topic: str, config: PipelineConfig | None = None) -> P
         filtered_chunks=filtered_chunks,
         evidence_items=evidence_items,
     )
+    evaluation_summary["source_mode"] = source_mode
+    evaluation_summary["source_candidate_count"] = len(sources)
+    if source_mode == "no_topic_sources":
+        evaluation_summary["source_warning"] = (
+            "No topic-matched sources were available. Configure source discovery, "
+            "provide public source URLs, or connect Search/RSS."
+        )
     report_markdown = render_markdown_report(
         topic=topic,
         evidence_items=evidence_items,
@@ -135,15 +163,28 @@ def run_research_pipeline(topic: str, config: PipelineConfig | None = None) -> P
         min_evidence_sources=cfg.min_evidence_sources,
     )
 
-    claims_csv_path = write_claims_csv(claim_items, cfg.reports_dir / "claims_cltv.csv")
-    claims_jsonl_path = write_claims_jsonl(claim_items, cfg.reports_dir / "claims_cltv.jsonl")
-    evidence_csv_path = write_evidence_csv(evidence_items, cfg.reports_dir / "evidence_cltv.csv")
-    evidence_jsonl_path = write_evidence_jsonl(evidence_items, cfg.reports_dir / "evidence_cltv.jsonl")
+    artifact_slug = _topic_slug(topic)
+    claims_csv_path = write_claims_csv(claim_items, cfg.reports_dir / f"claims_{artifact_slug}.csv")
+    claims_jsonl_path = write_claims_jsonl(
+        claim_items,
+        cfg.reports_dir / f"claims_{artifact_slug}.jsonl",
+    )
+    evidence_csv_path = write_evidence_csv(
+        evidence_items,
+        cfg.reports_dir / f"evidence_{artifact_slug}.csv",
+    )
+    evidence_jsonl_path = write_evidence_jsonl(
+        evidence_items,
+        cfg.reports_dir / f"evidence_{artifact_slug}.jsonl",
+    )
     evaluation_json_path = write_evaluation_json(
         evaluation_summary,
-        cfg.reports_dir / "evaluation_cltv.json",
+        cfg.reports_dir / f"evaluation_{artifact_slug}.json",
     )
-    report_path = write_markdown_report(report_markdown, cfg.reports_dir / "report_cltv.md")
+    report_path = write_markdown_report(
+        report_markdown,
+        cfg.reports_dir / f"report_{artifact_slug}.md",
+    )
 
     return PipelineResult(
         topic=topic,
@@ -231,6 +272,67 @@ def _load_cached_clean_documents(
             )
         )
     return clean_documents
+
+
+def _resolve_sources_for_topic(
+    *,
+    topic: str,
+    config: PipelineConfig,
+    source_candidates: list[SourceCandidate] | None,
+    source_mode: str | None,
+) -> tuple[list[SourceCandidate], str]:
+    if source_candidates is not None:
+        return source_candidates, source_mode or "request_sources"
+
+    seed_sources = load_seed_sources(config.seed_sources_path)
+    if _is_default_cltv_seed(config.seed_sources_path) and not is_cltv_topic(topic):
+        discovered_sources = discover_public_sources(
+            topic,
+            config=SourceDiscoveryConfig(
+                enabled=config.auto_discover_sources,
+                max_sources=config.discovery_max_sources,
+                timeout_seconds=config.discovery_timeout_seconds,
+            ),
+        )
+        if discovered_sources:
+            return discovered_sources, "auto_discovery"
+        return [], "no_topic_sources"
+
+    return seed_sources, "seed_sources"
+
+
+def _is_default_cltv_seed(seed_path: Path | None) -> bool:
+    if seed_path is None:
+        return True
+    return seed_path.name == "cltv_sources_template.csv"
+
+
+def _domain_terms_for_plan(topic: str, plan) -> set[str]:
+    stop_words = {
+        "and",
+        "the",
+        "for",
+        "with",
+        "from",
+        "into",
+        "what",
+        "как",
+        "для",
+        "или",
+        "это",
+        "что",
+    }
+    terms: set[str] = set()
+    for value in [topic, *[query.query for query in plan.queries]]:
+        terms.update(token for token in re.findall(r"[a-zA-Zа-яА-Я0-9]+", value.lower()) if token not in stop_words)
+    if is_cltv_topic(topic):
+        terms.update({"bank", "banking", "banks", "customer", "cltv", "clv", "retention"})
+    return terms
+
+
+def _topic_slug(topic: str) -> str:
+    slug = re.sub(r"[^a-zA-Z0-9]+", "_", topic.lower()).strip("_")
+    return slug[:80] or "research"
 
 
 def _maybe_synthesize_with_llm(

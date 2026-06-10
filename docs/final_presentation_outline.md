@@ -91,11 +91,13 @@ docs/architecture.md
 
 Показать:
 
-1. `GET /admin/source-policy`.
-2. `POST /research/run`.
-3. `GET /research/runs/{run_id}/report`.
-4. `GET /research/runs/{run_id}/claims`.
-5. `POST /research/runs/{run_id}/review`.
+1. Demo UI: `http://127.0.0.1:8000/ui`.
+2. Run Research.
+3. Report tab.
+4. Evidence tab.
+5. Claims tab.
+6. Review tab.
+7. Audit tab.
 
 Demo script:
 
@@ -164,4 +166,3 @@ docs/evaluation_metrics.md
 Финальная фраза:
 
 > Мы построили фундамент безопасного research assistant: evidence-first, auditable, model-agnostic и готовый к интеграции в банковский контур.
-

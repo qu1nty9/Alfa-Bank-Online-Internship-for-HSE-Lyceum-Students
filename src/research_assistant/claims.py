@@ -16,14 +16,22 @@ BLOCK_CLAIM_PREFIXES = {
 }
 
 
-def build_claim_items(evidence_items: list[EvidenceItem], *, max_claims: int = 12) -> list[ClaimItem]:
+def build_claim_items(
+    evidence_items: list[EvidenceItem],
+    *,
+    topic: str | None = None,
+    max_claims: int = 12,
+) -> list[ClaimItem]:
     """Create traceable draft claims from selected evidence items."""
 
     claims: list[ClaimItem] = []
     for item in evidence_items[:max_claims]:
         evidence_id = evidence_item_id(item)
         block = item.research_block or "unknown"
-        prefix = BLOCK_CLAIM_PREFIXES.get(block, "The report draft contains a claim")
+        prefix = BLOCK_CLAIM_PREFIXES.get(
+            block,
+            f"{topic or 'The research topic'} has evidence relevant to {block}",
+        )
         claims.append(
             ClaimItem(
                 claim_id=f"claim_{len(claims) + 1:03d}",

@@ -1,8 +1,10 @@
 # Alfa-Bank Online Internship for HSE Lyceum Students
 
-Прототип банковского research assistant для автоматизированной аналитики по открытым источникам.
+Прототип open-source research assistant для автоматизированной аналитики по открытым источникам.
 
 Базовый демо-сценарий: исследование темы "Применение CLTV в иностранных банках".
+
+Core pipeline не ограничен CLTV: для произвольной темы он строит generic research plan, автоматически ищет публичные источники через no-key discovery connectors и дополнительно умеет принимать вручную переданные source URLs. Если источники не найдены, система честно возвращает `quality_gate=fail` и не подставляет CLTV evidence под чужую тему.
 
 ## Цель проекта
 
@@ -57,6 +59,7 @@
 ├── docs/                   # постановка, планы, материалы защиты
 ├── notebooks/              # эксперименты и Notebook MVP
 ├── reports/                # сгенерированные аналитические отчеты
+├── api/static/             # lightweight no-build demo UI
 ├── src/
 │   └── research_assistant/ # код прототипа
 └── tests/                  # проверки модулей
@@ -102,14 +105,23 @@ PYTHONPATH=src python -m research_assistant.pipeline --topic "CLTV in foreign ba
 PYTHONPATH=src python -m research_assistant.pipeline --topic "CLTV in foreign banks" --live-fetch --fetch-limit 8
 ```
 
+Для произвольной темы через API/UI можно просто ввести topic: auto discovery включен по умолчанию. Публичные source URLs можно добавить вручную, если нужно усилить или зафиксировать набор источников.
+
 Запустить FastAPI MVP:
 
 ```bash
 PYTHONPATH=.:src uvicorn api.main:app --reload
 ```
 
+Открыть demo UI:
+
+```text
+http://127.0.0.1:8000/ui
+```
+
 API endpoints:
 
+- `GET /` / `GET /ui` - lightweight demo UI
 - `GET /health`
 - `POST /research/run`
 - `GET /research/runs`
@@ -120,6 +132,7 @@ API endpoints:
 - `POST /research/runs/{run_id}/review`
 - `GET /admin/source-policy`
 - `PUT /admin/source-policy`
+- `GET /admin/audit-events`
 - `GET /research/report` - quick demo endpoint для последнего отчета
 - `GET /research/evidence` - quick demo endpoint для последней evidence CSV
 - Swagger UI: `http://127.0.0.1:8000/docs`
@@ -130,6 +143,22 @@ API endpoints:
 curl -X POST http://127.0.0.1:8000/research/run \
   -H "Content-Type: application/json" \
   -d '{"topic":"CLTV in foreign banks","use_live_fetch":false,"actor_id":"demo_analyst","actor_role":"analyst"}'
+```
+
+Пример произвольной темы с automatic source discovery:
+
+```bash
+curl -X POST http://127.0.0.1:8000/research/run \
+  -H "Content-Type: application/json" \
+  -d '{"topic":"AI fraud detection in insurance","actor_id":"demo_analyst","actor_role":"analyst","auto_discover_sources":true}'
+```
+
+Пример произвольной темы с пользовательскими источниками:
+
+```bash
+curl -X POST http://127.0.0.1:8000/research/run \
+  -H "Content-Type: application/json" \
+  -d '{"topic":"AI fraud detection in insurance","actor_id":"demo_analyst","actor_role":"analyst","auto_discover_sources":false,"source_urls":["https://example.com/public-report"]}'
 ```
 
 Локальная LLM для демо:
@@ -155,6 +184,7 @@ docs/local_llm.md
 - `docs/stage_5_final_defense_summary.md` - старт Stage 5: final defense package.
 - `docs/local_llm.md` - подключение Qwen3-1.7B, AlfaGen/GigaChat и OpenAI-compatible endpoints.
 - `api/README.md` - FastAPI MVP.
+- `api/static/` - no-build demo UI поверх FastAPI.
 - `config/source_policy.json` - file-backed source allowlist для admin-сценария.
 - `data/seed_sources/cltv_sources_template.csv` - шаблон для списка источников.
 
@@ -177,4 +207,4 @@ docs/local_llm.md
 
 ## Ближайший практический шаг
 
-Продолжить Stage 5: добавить минимальный demo UI поверх FastAPI или собрать финальную презентацию на основе `docs/final_presentation_outline.md`.
+Продолжить Stage 5: собрать финальную презентацию на основе `docs/final_presentation_outline.md` и прогнать demo script через `/ui`.

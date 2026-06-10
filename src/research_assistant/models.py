@@ -17,6 +17,8 @@ class SourceType(StrEnum):
     CONSULTING = "consulting"
     ACADEMIC = "academic"
     VENDOR = "vendor"
+    ENCYCLOPEDIA = "encyclopedia"
+    RESEARCH_INDEX = "research_index"
     NEWS = "news"
     OTHER = "other"
 

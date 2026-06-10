@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from collections import Counter
+from collections.abc import Iterable
 
 from .chunker import simple_tokenize
 from .models import SearchQuery, TextChunk
@@ -61,11 +62,13 @@ def filter_chunks(
     *,
     min_chars: int = 200,
     min_domain_terms: int = 2,
+    domain_terms: Iterable[str] | None = None,
 ) -> list[TextChunk]:
     """Remove short, duplicate, and obviously non-domain chunks."""
 
     filtered: list[TextChunk] = []
     seen_signatures: set[str] = set()
+    active_domain_terms = set(domain_terms or DOMAIN_TERMS)
 
     for chunk in chunks:
         if chunk.char_count < min_chars:
@@ -74,7 +77,7 @@ def filter_chunks(
             continue
 
         tokens = set(simple_tokenize(chunk.text))
-        if len(tokens & DOMAIN_TERMS) < min_domain_terms:
+        if min_domain_terms > 0 and len(tokens & active_domain_terms) < min_domain_terms:
             continue
 
         signature = _chunk_signature(chunk.text)

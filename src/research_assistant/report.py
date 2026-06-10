@@ -1,4 +1,4 @@
-"""Template-based Markdown report generation for the first MVP."""
+"""Template-based Markdown report generation for evidence-first drafts."""
 
 from __future__ import annotations
 
@@ -15,6 +15,11 @@ SECTION_TITLES = {
     "required_data": "Какие данные нужны",
     "banking_use_cases": "Как применяют CLTV в банках",
     "risks_and_limitations": "Риски и ограничения",
+    "definition_and_context": "Definition and context",
+    "use_cases_and_examples": "Use cases and examples",
+    "methods_and_approaches": "Methods and approaches",
+    "data_and_requirements": "Data and requirements",
+    "implementation_considerations": "Implementation considerations",
 }
 
 
@@ -28,9 +33,13 @@ def render_markdown_report(
 ) -> str:
     """Render a transparent evidence-first draft report without LLM synthesis."""
 
-    claims = claim_items if claim_items is not None else build_claim_items(evidence_items)
+    claims = (
+        claim_items
+        if claim_items is not None
+        else build_claim_items(evidence_items, topic=topic)
+    )
     lines: list[str] = [
-        "# CLTV в иностранных банках",
+        f"# {topic}",
         "",
         "## Executive summary",
         "",
@@ -82,7 +91,9 @@ def render_markdown_report(
     lines.append("")
 
     evidence_by_block = _group_evidence_by_block(evidence_items)
-    for block, title in SECTION_TITLES.items():
+    report_blocks = _ordered_report_blocks(evidence_by_block, evaluation_summary)
+    for block in report_blocks:
+        title = SECTION_TITLES.get(block, _humanize_block(block))
         lines.extend([f"## {title}", ""])
         block_items = evidence_by_block.get(block, [])
         if not block_items:
@@ -131,6 +142,7 @@ def render_markdown_report(
             "## Unknowns",
             "",
             "- Часть seed-источников могла не загрузиться из-за timeout, SSL или ограничений сайта.",
+            "- Для произвольных тем evidence зависит от качества auto discovery, source URLs или подключенного Search/RSS connector.",
             "- BM25 ранжирует по лексическим совпадениям и может пропускать семантически близкие фрагменты.",
             "- Текущий отчет является template-based черновиком, а не финальной LLM-сводкой.",
             "- Citation accuracy пока требует ручной проверки аналитиком.",
@@ -162,6 +174,22 @@ def _group_evidence_by_block(evidence_items: list[EvidenceItem]) -> dict[str, li
     for item in evidence_items:
         grouped[item.research_block or "unknown"].append(item)
     return dict(grouped)
+
+
+def _ordered_report_blocks(
+    evidence_by_block: dict[str, list[EvidenceItem]],
+    evaluation_summary: dict[str, Any],
+) -> list[str]:
+    required_blocks = evaluation_summary.get("required_blocks") or []
+    blocks = list(required_blocks)
+    for block in evidence_by_block:
+        if block not in blocks:
+            blocks.append(block)
+    return blocks or ["definition_and_context", "risks_and_limitations"]
+
+
+def _humanize_block(block: str) -> str:
+    return block.replace("_", " ").strip().capitalize()
 
 
 def _preview(text: str, *, max_chars: int = 280) -> str:

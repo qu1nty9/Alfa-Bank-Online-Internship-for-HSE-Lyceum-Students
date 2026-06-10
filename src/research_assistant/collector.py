@@ -1,10 +1,11 @@
-"""Seed-source collector for the first reproducible CLTV demo."""
+"""Source collectors for curated seed files and user-provided public URLs."""
 
 from __future__ import annotations
 
 import csv
 from collections import defaultdict
 from pathlib import Path
+from urllib.parse import urlparse
 
 from pydantic import ValidationError
 
@@ -71,6 +72,36 @@ def group_sources_by_research_block(
     for source in sources:
         grouped[source.research_block or "unknown"].append(source)
     return dict(grouped)
+
+
+def build_sources_from_urls(
+    urls: list[str],
+    *,
+    topic: str,
+    source_type: SourceType = SourceType.OTHER,
+) -> list[SourceCandidate]:
+    """Build source candidates from user-provided public URLs."""
+
+    sources: list[SourceCandidate] = []
+    for index, raw_url in enumerate(urls, start=1):
+        url = raw_url.strip()
+        if not url:
+            continue
+        domain = urlparse(url).netloc.replace("www.", "") or "provided source"
+        sources.append(
+            SourceCandidate(
+                source_id=f"user_{index:03d}",
+                url=url,
+                title=f"{topic} source {index} ({domain})",
+                source_type=source_type,
+                publisher=domain,
+                research_block="definition_and_context",
+                language="en",
+                status="ready",
+                notes="User-provided public source URL for an arbitrary topic run.",
+            )
+        )
+    return sources
 
 
 def _source_candidate_from_row(row: dict[str, str]) -> SourceCandidate:

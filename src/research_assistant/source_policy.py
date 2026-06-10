@@ -18,6 +18,8 @@ DEFAULT_ALLOWED_SOURCE_TYPES = [
     SourceType.CONSULTING,
     SourceType.ACADEMIC,
     SourceType.VENDOR,
+    SourceType.ENCYCLOPEDIA,
+    SourceType.RESEARCH_INDEX,
 ]
 
 DEFAULT_POLICY_NOTES = [
@@ -36,6 +38,7 @@ class SourcePolicyConfig(BaseModel):
     allowed_source_types: list[SourceType] = Field(
         default_factory=lambda: list(DEFAULT_ALLOWED_SOURCE_TYPES)
     )
+    allow_unlisted_public_sources: bool = True
     allowed_source_ids: list[str] = Field(default_factory=list)
     blocked_source_ids: list[str] = Field(default_factory=list)
     allowed_domains: list[str] = Field(default_factory=list)
@@ -98,6 +101,7 @@ def summarize_source_policy(
         "allowed_source_types": sorted(
             source_type.value for source_type in active_policy.allowed_source_types
         ),
+        "allow_unlisted_public_sources": active_policy.allow_unlisted_public_sources,
         "allowed_source_id_count": len(active_policy.allowed_source_ids),
         "allowed_domain_count": len(active_policy.allowed_domains),
         "source_type_counts": dict(
@@ -118,7 +122,11 @@ def _source_is_allowed(source: SourceCandidate, policy: SourcePolicyConfig) -> b
         return False
     if source.source_type not in set(policy.allowed_source_types):
         return False
-    if policy.allowed_source_ids and source.source_id not in set(policy.allowed_source_ids):
+    if (
+        policy.allowed_source_ids
+        and not policy.allow_unlisted_public_sources
+        and source.source_id not in set(policy.allowed_source_ids)
+    ):
         return False
     if policy.allowed_domains and not _domain_is_allowed(_source_domain(source), policy.allowed_domains):
         return False

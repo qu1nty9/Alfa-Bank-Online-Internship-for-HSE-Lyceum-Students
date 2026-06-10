@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bank Research Console</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Bank Research Assistant</p>
+          <h1>Research Console</h1>
+        </div>
+        <div class="topbar-actions">
+          <a class="ghost-link" href="/docs" target="_blank" rel="noreferrer">OpenAPI</a>
+          <button id="refreshRunsButton" class="icon-button" type="button" title="Refresh runs" aria-label="Refresh runs">Refresh</button>
+        </div>
+      </header>
+
+      <section class="control-grid" aria-label="Research controls">
+        <form id="runForm" class="panel run-panel">
+          <div class="section-title">
+            <h2>Run Research</h2>
+            <span id="runStatePill" class="pill neutral">Idle</span>
+          </div>
+          <label for="topicInput">Topic</label>
+          <textarea id="topicInput" rows="3">CLTV in foreign banks</textarea>
+
+          <label for="sourceUrlsInput">Source URLs</label>
+          <textarea id="sourceUrlsInput" rows="4" placeholder="Optional for arbitrary topics. Add one public URL per line."></textarea>
+
+          <div class="form-row">
+            <label>
+              Actor ID
+              <input id="actorInput" value="demo_analyst" autocomplete="off">
+            </label>
+            <label>
+              Role
+              <select id="actorRoleInput">
+                <option value="analyst">analyst</option>
+                <option value="reviewer">reviewer</option>
+                <option value="admin">admin</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="form-row compact">
+            <label class="checkbox-line">
+              <input id="autoDiscoverInput" type="checkbox" checked>
+              Auto discover public sources
+            </label>
+            <label class="checkbox-line">
+              <input id="liveFetchInput" type="checkbox">
+              Live fetch seed sources
+            </label>
+          </div>
+
+          <div class="form-row compact">
+            <label>
+              Fetch limit
+              <input id="fetchLimitInput" type="number" min="1" placeholder="default">
+            </label>
+            <label>
+              Discovery limit
+              <input id="discoveryLimitInput" type="number" min="1" max="20" value="8">
+            </label>
+          </div>
+
+          <button id="runButton" class="primary-button" type="submit">Run pipeline</button>
+        </form>
+
+        <aside class="panel status-panel">
+          <div class="section-title">
+            <h2>Run Status</h2>
+            <span id="qualityPill" class="pill neutral">not started</span>
+          </div>
+          <dl class="status-grid">
+            <div><dt>Run ID</dt><dd id="runIdValue">-</dd></div>
+            <div><dt>Status</dt><dd id="statusValue">-</dd></div>
+            <div><dt>Sensitivity</dt><dd id="sensitivityValue">-</dd></div>
+            <div><dt>Model</dt><dd id="modelValue">-</dd></div>
+            <div><dt>Synthesis</dt><dd id="synthesisValue">-</dd></div>
+            <div><dt>Allowed sources</dt><dd id="sourcesValue">-</dd></div>
+          </dl>
+        </aside>
+      </section>
+
+      <section class="workspace">
+        <aside class="panel runs-panel">
+          <div class="section-title">
+            <h2>Runs</h2>
+            <span id="runsCount" class="counter">0</span>
+          </div>
+          <div id="runsList" class="runs-list"></div>
+        </aside>
+
+        <section class="panel detail-panel">
+          <nav class="tabs" aria-label="Run detail tabs">
+            <button class="tab active" type="button" data-tab="report">Report</button>
+            <button class="tab" type="button" data-tab="evidence">Evidence</button>
+            <button class="tab" type="button" data-tab="claims">Claims</button>
+            <button class="tab" type="button" data-tab="review">Review</button>
+            <button class="tab" type="button" data-tab="audit">Audit</button>
+          </nav>
+
+          <div id="messageBar" class="message-bar" hidden></div>
+
+          <section id="reportTab" class="tab-panel active">
+            <pre id="reportOutput" class="markdown-output">Run research to load a report.</pre>
+          </section>
+
+          <section id="evidenceTab" class="tab-panel">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Source</th>
+                    <th>Type</th>
+                    <th>Block</th>
+                    <th>Score</th>
+                    <th>Text</th>
+                  </tr>
+                </thead>
+                <tbody id="evidenceTable"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="claimsTab" class="tab-panel">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Claim</th>
+                    <th>Confidence</th>
+                    <th>Evidence IDs</th>
+                    <th>Text</th>
+                  </tr>
+                </thead>
+                <tbody id="claimsTable"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="reviewTab" class="tab-panel">
+            <div class="review-grid">
+              <div>
+                <h3>Current Review</h3>
+                <dl class="status-grid small">
+                  <div><dt>Status</dt><dd id="reviewStatusValue">-</dd></div>
+                  <div><dt>Updated by</dt><dd id="reviewByValue">-</dd></div>
+                </dl>
+              </div>
+              <form id="reviewForm">
+                <label for="reviewerInput">Reviewer ID</label>
+                <input id="reviewerInput" value="demo_reviewer" autocomplete="off">
+                <label for="reviewNotesInput">Notes</label>
+                <textarea id="reviewNotesInput" rows="3">Evidence table and claim traceability checked.</textarea>
+                <div class="button-row">
+                  <button type="button" class="secondary-button" data-review-decision="reviewed">Mark reviewed</button>
+                  <button type="button" class="secondary-button approve" data-review-decision="approved">Approve</button>
+                  <button type="button" class="secondary-button reject" data-review-decision="rejected">Reject</button>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <section id="auditTab" class="tab-panel">
+            <div class="audit-header">
+              <div>
+                <h3>Audit Events</h3>
+                <p>Admin-only view of the latest append-only audit records.</p>
+              </div>
+              <button id="loadAuditButton" class="secondary-button" type="button">Load events</button>
+            </div>
+            <pre id="auditOutput" class="json-output">No audit events loaded.</pre>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

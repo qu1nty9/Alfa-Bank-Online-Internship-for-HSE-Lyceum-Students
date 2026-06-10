@@ -31,16 +31,13 @@ def build_evaluation_summary(
         if source.source_id in clean_source_ids
     )
 
-    required_blocks = [
-        "definition_and_business_value",
-        "calculation_methods",
-        "required_data",
-        "banking_use_cases",
-        "risks_and_limitations",
-    ]
+    required_blocks = list(plan.blocks[:5])
 
     return {
         "topic": plan.topic,
+        "planner_mode": "cltv_demo"
+        if "definition_and_business_value" in plan.blocks
+        else "generic",
         "seed_source_count": len(sources),
         "clean_document_count": len(clean_documents),
         "clean_source_ids": sorted(clean_source_ids),

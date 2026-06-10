@@ -10,6 +10,14 @@
 CLTV in foreign banks
 ```
 
+Дополнительная проверка универсальности:
+
+```text
+AI fraud detection in insurance
+```
+
+Для произвольной темы auto discovery включен по умолчанию. Публичные source URLs можно добавить вручную, если нужно зафиксировать или усилить набор источников. Если источники не найдены, система должна вернуть `quality_gate=fail`, а не подставить CLTV evidence.
+
 Главный тезис демо: система не просто генерирует текст, а строит проверяемый research-конвейер с source policy, evidence, claims, quality gate, review и audit.
 
 ## Перед демонстрацией
@@ -30,7 +38,7 @@ source .venv/bin/activate
 Ожидаемо:
 
 ```text
-29 passed
+37 passed
 ```
 
 ### 3. Выбрать LLM mode
@@ -73,9 +81,21 @@ PYTHONPATH=.:src uvicorn api.main:app --reload
 http://127.0.0.1:8000/docs
 ```
 
+Открыть demo UI:
+
+```text
+http://127.0.0.1:8000/ui
+```
+
 ## Demo Flow
 
 ### Шаг 1. Health check
+
+В UI:
+
+```text
+OpenAPI -> GET /health
+```
 
 Endpoint:
 
@@ -117,6 +137,12 @@ Query params:
 
 ### Шаг 3. Запустить research run
 
+В UI:
+
+```text
+Run Research -> Run pipeline
+```
+
 Endpoint:
 
 ```text
@@ -151,6 +177,12 @@ Body:
 
 ### Шаг 4. Открыть report
 
+В UI:
+
+```text
+Report tab
+```
+
 Endpoint:
 
 ```text
@@ -170,6 +202,12 @@ GET /research/runs/{run_id}/report
 > Отчет не является свободным ответом модели. Он связан с evidence и содержит неизвестные, которые нужно проверить дальше.
 
 ### Шаг 5. Открыть evidence
+
+В UI:
+
+```text
+Evidence tab
+```
 
 Endpoint:
 
@@ -192,6 +230,12 @@ GET /research/runs/{run_id}/evidence
 
 ### Шаг 6. Открыть claims
 
+В UI:
+
+```text
+Claims tab
+```
+
 Endpoint:
 
 ```text
@@ -211,6 +255,12 @@ GET /research/runs/{run_id}/claims
 > Это ключевое отличие от чат-бота: отчет можно разложить на проверяемые утверждения.
 
 ### Шаг 7. Reviewer workflow
+
+В UI:
+
+```text
+Review tab -> Mark reviewed -> Approve
+```
 
 Endpoint:
 
@@ -245,6 +295,12 @@ POST /research/runs/{run_id}/review
 > Аналитик не является единственной точкой контроля. Отчет проходит human-in-the-loop review.
 
 ### Шаг 8. Sensitive request check
+
+В UI:
+
+```text
+Topic = CLTV for ivan@example.com -> Run pipeline
+```
 
 Endpoint:
 
@@ -294,4 +350,3 @@ export LLM_EXTERNAL_CALLS_ENABLED=false
 ## Финальная фраза
 
 > Мы построили безопасный исследовательский ассистент для банковских команд. Он автоматизирует первичный сбор и структурирование открытой информации, сохраняет банковские данные внутри закрытого контура, работает через локальную или корпоративную LLM-платформу и выдает проверяемый отчет с источниками, confidence и списком неопределенностей.
-

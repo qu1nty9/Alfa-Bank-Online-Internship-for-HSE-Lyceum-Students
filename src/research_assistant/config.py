@@ -29,6 +29,9 @@ class PipelineConfig(BaseModel):
     min_clean_documents: int = 5
     min_evidence_items: int = 8
     min_evidence_sources: int = 4
+    auto_discover_sources: bool = True
+    discovery_max_sources: int = 8
+    discovery_timeout_seconds: int = 12
 
     def resolved(self) -> "PipelineConfig":
         """Return a config with all path defaults resolved."""

@@ -8,6 +8,8 @@ PYTHONPATH=src uvicorn api.main:app --reload
 
 Endpoints:
 
+- `GET /`
+- `GET /ui`
 - `GET /health`
 - `POST /research/run`
 - `GET /research/runs`
@@ -20,14 +22,49 @@ Endpoints:
 - `GET /research/evidence`
 - `GET /admin/source-policy`
 - `PUT /admin/source-policy`
+- `GET /admin/audit-events`
 
 Swagger UI:
 
 - `http://127.0.0.1:8000/docs`
 
+Demo UI:
+
+- `http://127.0.0.1:8000/ui`
+
+## Demo UI
+
+The API serves a lightweight no-build UI from `api/static/`.
+
+Routes:
+
+```text
+GET /
+GET /ui
+GET /static/app.js
+GET /static/styles.css
+```
+
+The UI is intentionally thin:
+
+- it calls the public FastAPI endpoints;
+- it has no Node.js build step;
+- it keeps the API as the integration contract;
+- it can be replaced by a bank frontend without changing the pipeline.
+
+UI tabs:
+
+- `Report`;
+- `Evidence`;
+- `Claims`;
+- `Review`;
+- `Audit`.
+
 ## Run contract
 
 `POST /research/run` runs the modular pipeline synchronously and stores an API run under `reports/api_runs/{run_id}/`.
+
+For the curated CLTV demo, the pipeline can use cached clean documents from the repository. For arbitrary topics, auto discovery is enabled by default and uses no-key public connectors. You can also pass public `source_urls` to fix or strengthen the source set. If no topic-matched sources are available, the run fails the quality gate instead of reusing unrelated CLTV evidence.
 
 The response includes:
 
@@ -64,7 +101,37 @@ POST /research/runs/{run_id}/review
   "topic": "CLTV in foreign banks",
   "use_live_fetch": false,
   "actor_id": "demo_analyst",
-  "actor_role": "analyst"
+  "actor_role": "analyst",
+  "source_urls": [],
+  "auto_discover_sources": true,
+  "discovery_max_sources": 8
+}
+```
+
+Arbitrary topic example:
+
+```json
+{
+  "topic": "AI fraud detection in insurance",
+  "actor_id": "demo_analyst",
+  "actor_role": "analyst",
+  "auto_discover_sources": true,
+  "discovery_max_sources": 8,
+  "source_urls": []
+}
+```
+
+Arbitrary topic with fixed source URLs:
+
+```json
+{
+  "topic": "AI fraud detection in insurance",
+  "actor_id": "demo_analyst",
+  "actor_role": "analyst",
+  "auto_discover_sources": false,
+  "source_urls": [
+    "https://example.com/public-report"
+  ]
 }
 ```
 

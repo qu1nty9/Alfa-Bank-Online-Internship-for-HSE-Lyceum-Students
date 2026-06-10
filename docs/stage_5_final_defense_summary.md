@@ -28,6 +28,8 @@ Stage 5 превращает рабочий прототип в понятный
    - AlfaGen через OpenAI-compatible endpoint;
    - GigaChat profile.
 9. Local Qwen3-1.7B установлен и проверен на машине участника.
+10. Lightweight no-build demo UI доступен на `/ui`.
+11. Generic planner, auto source discovery и `source_urls` позволяют запускать произвольные темы без CLTV-завязки.
 
 ## Stage 5 deliverables
 
@@ -71,9 +73,19 @@ docs/final_presentation_outline.md
 
 Задача: подготовить структуру финального pitch deck на 8-10 слайдов.
 
-## Рекомендуемый следующий шаг
+### 5. Lightweight demo UI
 
-Сделать минимальный UI поверх FastAPI:
+Файлы:
+
+```text
+api/static/index.html
+api/static/styles.css
+api/static/app.js
+```
+
+Задача: показать прототип без прямой работы в Swagger.
+
+UI включает:
 
 - поле ввода темы;
 - кнопка запуска;
@@ -81,5 +93,16 @@ docs/final_presentation_outline.md
 - badge текущей модели: `offline_template` / `local_qwen`;
 - кнопки reviewer workflow.
 
-Это улучшит визуальную сторону защиты, но не является блокером: Swagger UI уже достаточно для инженерного демо.
+Route:
 
+```text
+http://127.0.0.1:8000/ui
+```
+
+## Рекомендуемый следующий шаг
+
+Собрать финальную презентацию на основе:
+
+```text
+docs/final_presentation_outline.md
+```

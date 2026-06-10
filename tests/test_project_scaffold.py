@@ -2,7 +2,11 @@ from pathlib import Path
 
 from research_assistant.chunker import chunk_clean_document
 from research_assistant.claims import build_claim_items, write_claims_csv, write_claims_jsonl
-from research_assistant.collector import group_sources_by_research_block, load_seed_sources
+from research_assistant.collector import (
+    build_sources_from_urls,
+    group_sources_by_research_block,
+    load_seed_sources,
+)
 from research_assistant.config import PipelineConfig
 from research_assistant.evidence import build_evidence_items, write_evidence_csv
 from research_assistant.evaluation import build_evaluation_summary
@@ -15,14 +19,15 @@ from research_assistant.llm_gateway import (
     default_llm_gateway_metadata,
     llm_gateway_config_from_env,
 )
-from research_assistant.models import CleanDocument, RawDocument
+from research_assistant.models import CleanDocument, RawDocument, SourceCandidate, SourceType
 from research_assistant.parser import extract_html_text, parse_raw_document, parse_raw_documents_safe
-from research_assistant.pipeline import run_research_pipeline
-from research_assistant.planner import build_cltv_research_plan
+from research_assistant.pipeline import run_research_pipeline, run_research_pipeline_with_sources
+from research_assistant.planner import build_cltv_research_plan, build_research_plan
 from research_assistant.quality_gate import run_quality_gate
 from research_assistant.report import render_markdown_report
 from research_assistant.sensitivity import check_query_sensitivity
 from research_assistant.source_policy import SourcePolicyConfig, summarize_source_policy
+from research_assistant.source_discovery import SourceDiscoveryConfig, discover_public_sources
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -33,6 +38,14 @@ def test_cltv_research_plan_has_required_blocks() -> None:
     assert plan.topic == "CLTV in foreign banks"
     assert "banking_use_cases" in plan.blocks
     assert len(plan.queries) >= 5
+
+
+def test_generic_research_plan_uses_arbitrary_topic() -> None:
+    plan = build_research_plan("AI fraud detection in insurance")
+
+    assert plan.topic == "AI fraud detection in insurance"
+    assert "definition_and_context" in plan.blocks
+    assert any("AI fraud detection in insurance" in query.query for query in plan.queries)
 
 
 def test_seed_sources_load_real_ready_sources() -> None:
@@ -57,10 +70,49 @@ def test_seed_sources_can_be_grouped_by_research_block() -> None:
     assert grouped["calculation_methods"][0].source_id
 
 
+def test_user_sources_can_be_built_from_urls() -> None:
+    sources = build_sources_from_urls(
+        ["https://example.com/research"],
+        topic="Open banking fraud detection",
+    )
+
+    assert sources[0].source_id == "user_001"
+    assert sources[0].publisher == "example.com"
+    assert sources[0].research_block == "definition_and_context"
+
+
+def test_public_source_discovery_uses_public_api_payloads(monkeypatch) -> None:
+    def fake_load_json(url: str, timeout_seconds: int) -> dict:
+        if "wikipedia" in url:
+            return {"query": {"search": [{"title": "Fraud detection"}]}}
+        return {
+            "results": [
+                {
+                    "title": "Insurance fraud detection survey",
+                    "primary_location": {
+                        "landing_page_url": "https://example.org/fraud-survey"
+                    },
+                }
+            ]
+        }
+
+    monkeypatch.setattr("research_assistant.source_discovery._load_json", fake_load_json)
+
+    sources = discover_public_sources(
+        "AI fraud detection in insurance",
+        config=SourceDiscoveryConfig(max_sources=4),
+    )
+
+    assert [source.source_id for source in sources] == ["wiki_001", "openalex_002"]
+    assert sources[0].source_type.value == "encyclopedia"
+    assert sources[1].source_type.value == "research_index"
+
+
 def test_source_policy_config_filters_by_ids_types_and_domains() -> None:
     sources = load_seed_sources(PROJECT_ROOT / "data/seed_sources/cltv_sources_template.csv")
     policy = SourcePolicyConfig(
         allowed_source_types=["consulting"],
+        allow_unlisted_public_sources=False,
         allowed_source_ids=["seed_003"],
         allowed_domains=["bcg.com"],
     )
@@ -423,3 +475,76 @@ def test_modular_pipeline_runs_offline_on_clean_fixtures(tmp_path) -> None:
     assert result.claims_csv_path.exists()
     assert result.claims_jsonl_path is not None
     assert result.claims_jsonl_path.exists()
+
+
+def test_generic_pipeline_without_sources_fails_without_cltv_leakage(tmp_path) -> None:
+    clean_dir = tmp_path / "clean"
+    clean_dir.mkdir(parents=True)
+    config = PipelineConfig(
+        project_root=PROJECT_ROOT,
+        raw_dir=tmp_path / "raw",
+        clean_dir=clean_dir,
+        reports_dir=tmp_path / "reports",
+        use_live_fetch=False,
+        auto_discover_sources=False,
+    ).resolved()
+
+    result = run_research_pipeline("AI fraud detection in insurance", config)
+
+    assert result.quality_gate.status == "fail"
+    assert result.evaluation_summary["planner_mode"] == "generic"
+    assert result.evaluation_summary["source_mode"] == "no_topic_sources"
+    assert result.evaluation_summary["evidence_item_count"] == 0
+    assert result.report_path is not None
+    assert result.report_path.read_text(encoding="utf-8").startswith(
+        "# AI fraud detection in insurance"
+    )
+
+
+def test_generic_pipeline_runs_with_user_provided_cached_sources(tmp_path) -> None:
+    clean_dir = tmp_path / "clean"
+    reports_dir = tmp_path / "reports"
+    clean_dir.mkdir(parents=True)
+    source = SourceCandidate(
+        source_id="user_001",
+        url="https://example.com/ai-fraud",
+        title="AI fraud detection in insurance report",
+        source_type=SourceType.OTHER,
+        publisher="Example",
+        research_block="methods_and_approaches",
+        language="en",
+        status="ready",
+    )
+    (clean_dir / "user_001.txt").write_text(
+        (
+            "AI fraud detection in insurance uses anomaly detection, graph analytics, "
+            "claims history, payment behavior, identity signals, governance controls, "
+            "and model monitoring to reduce suspicious claims and operational risk."
+        ),
+        encoding="utf-8",
+    )
+    config = PipelineConfig(
+        project_root=tmp_path,
+        raw_dir=tmp_path / "raw",
+        clean_dir=clean_dir,
+        reports_dir=reports_dir,
+        use_live_fetch=False,
+        chunk_min_chars=40,
+        filter_min_chars=40,
+        min_clean_documents=1,
+        min_evidence_items=1,
+        min_evidence_sources=1,
+    ).resolved()
+
+    result = run_research_pipeline_with_sources(
+        "AI fraud detection in insurance",
+        config=config,
+        source_candidates=[source],
+    )
+
+    assert result.quality_gate.status in {"pass", "warn"}
+    assert result.evaluation_summary["planner_mode"] == "generic"
+    assert result.evaluation_summary["source_mode"] == "request_sources"
+    assert result.evaluation_summary["evidence_item_count"] >= 1
+    assert result.report_path is not None
+    assert result.report_path.name == "report_ai_fraud_detection_in_insurance.md"

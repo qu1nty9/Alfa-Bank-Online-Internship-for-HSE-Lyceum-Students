@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, HttpUrl
 
 from research_assistant.source_policy import SourcePolicyConfig
 
@@ -18,6 +18,9 @@ class ResearchRunRequest(BaseModel):
     fetch_limit: int | None = Field(default=None, ge=1)
     actor_id: str = Field(default="local_analyst", min_length=3)
     actor_role: str = Field(default="analyst", pattern="^(analyst|reviewer|admin)$")
+    source_urls: list[HttpUrl] = Field(default_factory=list, max_length=20)
+    auto_discover_sources: bool = True
+    discovery_max_sources: int = Field(default=8, ge=1, le=20)
 
 
 class ResearchReviewRequest(BaseModel):
@@ -81,6 +84,15 @@ class SourcePolicyResponse(BaseModel):
 
     policy: SourcePolicyConfig
     audit: dict[str, Any]
+    links: dict[str, str | None]
+
+
+class AuditEventsResponse(BaseModel):
+    """Latest audit events for admin/demo UI inspection."""
+
+    actor_id: str
+    count: int
+    items: list[dict[str, Any]]
     links: dict[str, str | None]
 
 

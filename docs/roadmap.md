@@ -24,24 +24,29 @@ Roadmap отделяет текущий MVP от production-ready банковс
 - LLM Gateway.
 - Local Qwen profile.
 - AlfaGen/GigaChat-ready gateway profiles.
+- Lightweight no-build demo UI.
+- Generic planner for arbitrary topics.
+- Auto source discovery through no-key public connectors.
+- User-provided public source URLs through API/UI.
 
 ## Ближайшие улучшения
 
 ### 1. Demo UI
 
-Сделать легкий UI поверх FastAPI:
+Сделано как lightweight no-build UI поверх FastAPI:
 
 - input темы;
-- переключатель LLM mode;
 - таблица runs;
 - tabs: report/evidence/claims/review/audit;
 - кнопки reviewer workflow;
-- export report.
+- audit events.
 
-Рекомендуемый путь:
+Файлы:
 
 ```text
-FastAPI static HTML + JavaScript
+api/static/index.html
+api/static/styles.css
+api/static/app.js
 ```
 
 Почему:
@@ -49,6 +54,13 @@ FastAPI static HTML + JavaScript
 - меньше инфраструктуры;
 - легче запускать open-source пользователю;
 - API остается главным integration contract.
+
+Следующее улучшение UI:
+
+- export report button;
+- source policy editor;
+- LLM mode indicator from environment;
+- run progress for async execution.
 
 ### 2. Source connectors
 
@@ -58,6 +70,13 @@ FastAPI static HTML + JavaScript
 - official APIs;
 - вручную одобренные public PDFs;
 - search API через обезличенные публичные queries.
+
+Сейчас произвольная тема поддерживается через:
+
+- generic planner;
+- auto source discovery;
+- source URLs, переданные пользователем как override/fallback;
+- честный `quality_gate=fail`, если evidence для темы отсутствует.
 
 Не делать ценностью проекта:
 
@@ -141,4 +160,3 @@ flowchart LR
 - доказывать production-grade безопасность.
 
 MVP показывает архитектурную зрелость и рабочий прототип, который можно развивать в банковском контуре.
-
