@@ -1,0 +1,178 @@
+[2506.22711] Potential Customer Lifetime Value in Financial Institutions: The Usage Of Open Banking Data to Improve CLV Estimation
+Quantitative Finance > Portfolio Management
+arXiv:2506.22711
+(q-fin)
+[Submitted on 28 Jun 2025]
+Title:
+Potential Customer Lifetime Value in Financial Institutions: The Usage Of Open Banking Data to Improve CLV Estimation
+Authors:
+João B. G. de Brito
+,
+Rodrigo Heldt
+,
+Cleo S. Silveira
+,
+Matthias Bogaert
+,
+Guilherme B. Bucco
+,
+Fernando B. Luce
+,
+João L. Becker
+,
+Filipe J. Zabala
+,
+Michel J. Anzanello
+View a PDF of the paper titled Potential Customer Lifetime Value in Financial Institutions: The Usage Of Open Banking Data to Improve CLV Estimation, by Jo\~ao B. G. de Brito and 7 other authors
+View PDF
+Abstract:
+Financial institutions increasingly adopt customer-centric strategies to enhance profitability and build long-term relationships. While Customer Lifetime Value (CLV) is a core metric, its calculations often rely solely on single-entity data, missing insights from customer activities across multiple firms. This study introduces the Potential Customer Lifetime Value (PCLV) framework, leveraging Open Banking (OB) data to estimate customer value comprehensively. We predict retention probability and estimate Potential Contribution Margins (PCM) from competitor data, enabling PCLV calculation. Results show that OB data can be used to estimate PCLV per competitor, indicating a potential upside of 21.06% over the Actual CLV. PCLV offers a strategic tool for managers to strengthen competitiveness by leveraging OB data and boost profitability by driving marketing efforts at the individual customer level to increase the Actual CLV.
+Subjects:
+Portfolio Management (q-fin.PM)
+; Computational Finance (q-fin.CP); Risk Management (q-fin.RM)
+Cite as:
+arXiv:2506.22711
+[q-fin.PM]
+(or
+arXiv:2506.22711v1
+[q-fin.PM]
+for this version)
+https://doi.org/10.48550/arXiv.2506.22711
+Focus to learn more
+arXiv-issued DOI via DataCite
+Submission history
+From: João B. G. De Brito [
+view email
+]
+[v1]
+Sat, 28 Jun 2025 01:29:04 UTC (174 KB)
+Full-text links:
+Access Paper:
+View a PDF of the paper titled Potential Customer Lifetime Value in Financial Institutions: The Usage Of Open Banking Data to Improve CLV Estimation, by Jo\~ao B. G. de Brito and 7 other authors
+View PDF
+view license
+Current browse context:
+q-fin.PM
+< prev
+|
+next >
+new
+|
+recent
+|
+2025-06
+Change to browse by:
+q-fin
+q-fin.CP
+q-fin.RM
+References & Citations
+NASA ADS
+Google Scholar
+Semantic Scholar
+export BibTeX citation
+Loading...
+BibTeX formatted citation
+×
+loading...
+Data provided by:
+Bookmark
+Bibliographic Tools
+Bibliographic and Citation Tools
+Bibliographic Explorer Toggle
+Bibliographic Explorer
+(
+What is the Explorer?
+)
+Connected Papers Toggle
+Connected Papers
+(
+What is Connected Papers?
+)
+Litmaps Toggle
+Litmaps
+(
+What is Litmaps?
+)
+scite.ai Toggle
+scite Smart Citations
+(
+What are Smart Citations?
+)
+Code, Data, Media
+Code, Data and Media Associated with this Article
+alphaXiv Toggle
+alphaXiv
+(
+What is alphaXiv?
+)
+Links to Code Toggle
+CatalyzeX Code Finder for Papers
+(
+What is CatalyzeX?
+)
+DagsHub Toggle
+DagsHub
+(
+What is DagsHub?
+)
+GotitPub Toggle
+Gotit.pub
+(
+What is GotitPub?
+)
+Huggingface Toggle
+Hugging Face
+(
+What is Huggingface?
+)
+ScienceCast Toggle
+ScienceCast
+(
+What is ScienceCast?
+)
+Demos
+Demos
+Replicate Toggle
+Replicate
+(
+What is Replicate?
+)
+Spaces Toggle
+Hugging Face Spaces
+(
+What is Spaces?
+)
+Spaces Toggle
+TXYZ.AI
+(
+What is TXYZ.AI?
+)
+Related Papers
+Recommenders and Search Tools
+Link to Influence Flower
+Influence Flower
+(
+What are Influence Flowers?
+)
+Core recommender toggle
+CORE Recommender
+(
+What is CORE?
+)
+Author
+Venue
+Institution
+Topic
+About arXivLabs
+arXivLabs: experimental projects with community collaborators
+arXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website.
+Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them.
+Have an idea for a project that will add value for arXiv's community?
+Learn more about arXivLabs
+.
+Which authors of this paper are endorsers?
+|
+Disable MathJax
+(
+What is MathJax?
+)

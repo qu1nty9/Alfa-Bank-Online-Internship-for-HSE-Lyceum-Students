@@ -54,8 +54,9 @@ Core pipeline не ограничен CLTV: для любой темы он ст
 ```text
 .
 ├── data/
-│   ├── clean/              # очищенные тексты
-│   ├── raw/                # сырые скачанные HTML/PDF/тексты
+│   ├── clean/              # очищенные тексты (локальный кэш, не в git)
+│   ├── raw/                # сырые скачанные HTML/PDF/тексты (локальный кэш, не в git)
+│   ├── seed_cache/         # закоммиченный снапшот clean-текстов реальных seed-источников
 │   └── seed_sources/       # подготовленные источники и шаблоны
 ├── config/                 # policy configs для банковского контура
 ├── docs/                   # постановка, планы, материалы защиты
@@ -77,7 +78,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Проверить каркас:
+Проверить каркас (работает на чистом клоне, сеть не нужна):
 
 ```bash
 pytest
@@ -95,7 +96,10 @@ jupyter notebook notebooks/00_cltv_research_mvp.ipynb
 PYTHONPATH=src python -m research_assistant.pipeline --topic "CLTV in foreign banks"
 ```
 
-Явный offline demo по подготовленному seed-набору:
+Явный offline demo по подготовленному seed-набору — без live-fetch и без сети,
+по закоммиченному снапшоту реальных seed-источников из `data/seed_cache/`
+(происхождение каждого файла описано в `data/seed_cache/README.md`; свежие
+файлы в `data/clean/` имеют приоритет над снапшотом):
 
 ```bash
 PYTHONPATH=src python -m research_assistant.pipeline --topic "CLTV in foreign banks" --source-strategy seed_sources
@@ -208,6 +212,7 @@ docs/local_llm.md
 - `api/static/` - no-build demo UI поверх FastAPI.
 - `config/source_policy.json` - file-backed source allowlist для admin-сценария.
 - `data/seed_sources/cltv_sources_template.csv` - явный offline demo fixture, не runtime fallback.
+- `data/seed_cache/README.md` - происхождение закоммиченного офлайн-снапшота seed-источников.
 
 ## Модульный pipeline
 

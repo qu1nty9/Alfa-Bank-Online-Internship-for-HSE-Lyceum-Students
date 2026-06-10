@@ -1,0 +1,314 @@
+Customer loyalty in retail banking: Global edition 2012 | Bain & Company
+Skip to Content
+Content added to saved items
+Saved items (
+0
+)
+Close
+Removed from saved items
+Saved items (
+0
+)
+Close
+Progress:
+en
+Key takeaways
+• This edition of Bain & Company's annual survey of consumer loyalty in retail banking covers 150,100 account holders in 14 markets: Australia, Canada, China, France, Germany, Hong Kong, India, Mexico, Singapore, South Korea, Spain, Thailand, the UK and the US. We followed up with 5,200 US customers to explore their banking habits and attitudes about interactions and channels.
+• The rewards of securing greater customer loyalty can be substantial, on the order of $10,000 more in net present value over the lifetime of an afﬂuent US promoter customer vs. a detractor.
+• Two major survey findings—a surge in mobile banking, and tepid loyalty scores given by afﬂuent customers in many markets—highlight the need to tailor digital and physical channels to the priorities of high-value customer segments, and integrate these channels closely with one another instead of running them in parallel.
+With banks facing increased competition from tech firms, our latest report examines how the banks can focus on what customers value most.
+Digital interactions in depth: The who, what, where and "wow"
+• Mobile banking via smartphone or tablet is coming on strong in many countries. In the US, mobile usage jumped to 32% of customers from 21% in 2011. Usage in 2012 ranges from 47% of respondents in South Korea to 37% in India to 16% in Germany.
+• Mobile banking is more likely to increase a US customer's likelihood of recommending the bank than any other channel interaction. US customers especially love sophisticated features such as remote deposit capture (a digital image of an endorsed check), and they value the convenience of mobile devices for straightforward tasks such as checking a balance.
+• In most European and Asian countries, customers cite online tools and transactions as having the strongest inﬂuence on their recommending a bank.
+• While US direct banks have the highest rate of mobile usage at 53% of customers, national banks follow closely behind at 41%, suggesting that these banks' heavy investments in mobile platforms are starting to pay off.
+• The 25 to 35-year-old age group are the heaviest mobile users in most countries. The biggest gainers in US mobile usage, though, were customers aged 36 to 45.
+• Digital channels don't just create "wow" experiences that make routine transactions fast and easy. They also can divert volumes from higher-cost brick-and-mortar channels if done correctly. While some 90% of US branch transactions consist of routine tasks, this volume is falling 5% to 10% per year, and once customers turned to mobile channels, roughly half of them report they made fewer visits to a branch.
+• Mobile functionality will become table stakes in the competition for loyal customers, so banks should invest now to lock in customers while features such as remote deposit capture still have the power to differentiate a bank.
+Winning the elusive hearts and minds of afﬂuent customers
+• Wealthier customers surveyed in the US and most European countries give lower loyalty scores than people of modest means. US national banks fared particularly poorly among the afﬂuent.
+• The picture is different in Asia and developing markets like Mexico, where many banks have developed differentiated modes of targeting and serving the affluent, combining primary banking services with wealth management. Here, the afﬂuent tend to give higher loyalty scores.
+• Afﬂuent customers generally insist on premium service and tailored, expert advice. They want personal banking relationships, not just the convenience of digital channels.
+• Moving afﬂuent or mass-afﬂuent customers from being detractors or passives to being promoters is worth roughly five times the economic value of turning mass-market customers into promoters.
+The future is here and its name is "omnichannel"
+• If banks can take out costs in the processes that handle routine transactions, they will be able to serve mass segments more profitably and invest disproportionately in high-margin services for the afﬂuent. The way to accomplish this is through an omnichannel approach—integrating disparate digital and physical channels into a single, seamless experience—tailored to address the priorities of each customer segment.
+• Channel innovations are proliferating. For instance, banks in Asia and the US have launched video teller machines that connect customers via video chat with service specialists at a central location. Replacing branch tellers with video has reduced costs for banks and expanded hours for customers.
+• In the omnichannel world, branches play a different role: more as product showrooms, sales centers and venues for expert financial advice on complex matters, and less as transaction mills. Light but sturdy branches include more self-service terminals for routine tasks or product application forms and interactive tutorials.
+Making loyalty pay off with better economics
+• Banks are struggling to translate greater loyalty scores into better financials, in part because they take an egalitarian approach to customers. Our survey suggests a set of critical next steps:
+-
+Get ruthlessly efficient in serving low-value customer segments in order to fund differentiation for high-value customers.
+A full accounting of cost-to-serve often reveals that a bank spends more to serve its lowest-value customers. Banks must reduce the cost to serve mass customers, while still providing service that is quick, easy and fee-free.
+-
+Craft offerings and channels to serve high-value segments effectively.
+Knowing the economics of loyalty, by segment, allows you to form a clear idea of what will yield the highest returns on investment. That's why loyalty leaders today take a distinctly differentiated tack. They are improving offerings for high-value customers and wrapping a terrific experience around those products.
+-
+Start channel redesign now to serve the mass market profitably—before outside disruptors do.
+Waiting to act on branch redesign until the branches are drained of all transactions will be too late.
+-
+Move beyond loyalty
+scores
+to build a complete loyalty
+system
+.
+A reliable metric such as Net Promoter®, which sorts customers into promoters, passives and detractors, helps a bank understand how it stacks up against competitors. But the real value of the Net Promoter system ﬂows from customer feedback to frontline employees and managers, whose creative energy can be harnessed to make process improvements large and small.
+1. Overview: Finally, mobile banking goes mainstream
+Mobile banking has come into its own with enormous potential to delight customers and turn them into strong advocates for their bank. Consider, for instance, Chase Bank, which has one of the highest rates in the US for mobile banking activity. Those smartphone-toting customers gave Chase much higher loyalty scores than customers who don't yet bank through mobile devices and helped make Chase one of the biggest gainers in loyalty scores for 2012. Mobile usage also tends to reduce the number of branch visits, helping Chase reduce costs. Similarly, across the world, Australian mortgage lender Commonwealth Bank has enjoyed a brisk uptake by customers of its "property guide" mobile app, which maps past home sales history, current listings and recent sales to a real-world view through a smartphone's camera of 95% of homes in the country.
+For retail bankers engaged in a battle to retain customers and increase share of spending, mobile and online channels can be a powerful means of building loyalty—if digital channels emphasize the right features and transactions, and dovetail nicely with branches, phone centers and all the other ways that banks touch their customers.
+In this report, the 2012 edition of Bain's annual survey of consumer loyalty in retail banking, we look closely at the interactions and channels that matter most to the challenge of strengthening loyalty—those moments of truth (such as resolving a fraudulent transaction) and "digital delight" moments (such as mobile bill pay) that prove decisive in winning either customers' advocacy or their derision. We delve deeper into how customers are using digital technologies. And we expand the survey's reach to create our first broadly international edition, covering 14 national markets. (For a country-by-country breakdown of the survey results, turn to page 19.)
+Working with market research firms Research Now and GMI, we polled 150,100 account holders from banks and credit unions across Australia, Canada, China, France, Germany, Hong Kong, India, Mexico, Singapore, South Korea, Spain, Thailand, the UK and the US. We then followed up with 5,200 customers in the US to explore in depth their habits and attitudes about various banking interactions and channels. (The surveys were conducted online and thus may have some upward bias for customers' online and mobile banking activities.)
+The survey results show how quickly digital channels are making inroads and how forcefully they inﬂuence customers' perceptions of banks.
+Mobile banking is coming on strong around the globe. In the US, 32% of customers surveyed in 2012 used their smartphones or tablets for some type of banking interaction during the previous three months, up sharply from 21% of respondents in 2011 (see Figure 1).
+Of course, penetration rates vary by country, with Asian markets leading the way in usage though not necessarily in functionality. In many cases, the capability is based more on text messaging confirmations than on complete mobile applications. (Demographic sampling differences among countries surveyed might also account for some of the variation.) Usage ranges from 47% of respondents in South Korea to 37% in India to just 16% in Germany (see Figure 2). Online interactions through PCs and laptops, meanwhile, are much more common in all countries, even in Germany, with 80% of respondents.
+What are customers doing in the digital domain? The follow-up US survey shows that customers use mobile devices mostly for straightforward tasks such as checking their balance or account activity. Yet people value the convenience of being able to accomplish such tasks quickly and easily, to the extent that these interactions often evoke a response of true delight. Indeed, in most countries we surveyed, digital technologies lead all interactions in raising the likelihood that someone will recommend his or her bank to other people.
+Catering to customers' growing affinity to go mobile is not all it takes to spur loyalty, however. Mobile banking usage increases with income, yet more afﬂuent, higher-value customers in many countries, particularly in the West, give their banks lower loyalty scores than do less afﬂuent customers. Banks in many Asian and emerging markets are earning stronger loyalty scores among afﬂuent households because of the differentiated products and services these banks provide, notably a highly qualified relationship manager, although their digital channels often have only rudimentary functionalities. Serving the very wealthy and mass-afﬂuent segments effectively thus will require a deft blend of personalized attention and digital efficiency.
+These two major survey findings—the surge in mobile banking, and the tepid loyalty scores given by afﬂuent customers in many markets—highlight the need to tailor digital and physical channels to the priorities of high-value customer segments, and integrate these channels closely with one another instead of running them in parallel. Retail banks that accelerate the integration of their disparate channels into a seamless "omnichannel" experience will be able to gain a durable edge over competitors.
+Why do we emphasize an omnichannel distribution and service strategy? Because it's a highly effective way to both reduce costs, and thereby serve a mass market efficiently, and to create new streams of profitable growth through stronger customer loyalty. To be sure, there are other ingredients for success, including a differentiated product offering that addresses each target customer segment's priorities, but these are not the focus of this report.
+Loyalty's path to growth
+The rewards of improving customer advocacy can be substantial. Loyal customers buy more banking products, stay longer, cost less to serve and urge others to become customers. Bain estimates the cumulative effect of a typical afﬂuent US customer who is a promoter of the bank as being nearly $10,000 more in net present value over the customer's lifetime than one who is a detractor. In the US, our analysis shows that banking models with the highest average loyalty scores over the past three years—direct banks such as ING Direct and credit unions—experienced the greatest deposit growth as well.
+The loyalty engine that many banks around the world have embraced is the Net Promoter system. Some banks do this out of a conviction that it's beneficial to their core strategy, while others do it because they have quantified the benefits of greater cross-selling, greater product penetration or the ability to diagnose and resolve problems in account opening or loan application processes. For all of these banks, the Net Promoter system serves as a highly pragmatic approach to improve their bottom-line economics over time. (We explain how this works in the section "
+How the Net Promoter system turns customer feedback into better products and processes
+" below.)
+Most senior banking executives realize that tightening the bonds of loyalty with existing customers has become more important than ever. Other routes to growth, such as mergers and interest rate spreads, have diminished. The great deleveraging of the financial system continues in the US and Europe. And regulatory backlash has imposed tougher new capital regulations, new liquidity ratios and, in some markets, new limits on customer fees.
+With banks struggling to find sources of growth and reduce costs, most of which reside in their branches, an omnichannel strategy can help to advance both goals. Those banks that invest early will raise the odds of securing more loyal customers and improving their economics. Conventional banks that wait too long risk being left behind.
+2. Digital interactions in depth: The who, what, where and "wow"
+Last year, our survey of banks in the Americas confirmed that digital banking channels were gaining steam and impressing customers with their convenience and speed. For example, when we looked at the share of customer interactions by channel, online was roughly tied with the sum of branch plus ATM. Customers were going online mainly to check their balances and pay bills.
+The 2012 survey shows that digital now trumps physical channels in many countries. In the US, online interactions exceed the sum of branch plus ATM interactions, and mobile interactions now exceed those on the phone. Online usage, moreover, has become quite routine worldwide, with slightly more or less than 80% of respondents in many of the countries we surveyed banking online. As a result, digital transactions are now among the most common ways that consumers interact with their banks. Beneath these broad strokes, the details of who uses digital channels for which type of interactions, and how that affects loyalty, hold useful implications for banking executives:
+An opportunity for larger banks
+: Sorting US mobile usage by bank model, direct banks have the highest rate, at 53% of customers. National banks follow close behind, at 41% of customers, suggesting that these banks' heavy investments in mobile platforms are starting to pay off. Mobile usage then tapers off among customers of regional banks, credit unions and community banks.
+Routine activities unplugged
+: US consumers who currently use their smartphones and tablets for mobile banking say the functions they would most value include checking their balances (64%), remote deposit capture through a digital image of an endorsed check (41%) and paying bills through their mobile device (26%). Other interactions that drew favorable responses include sending money to another person, making an in-store purchase, paying a credit card bill or mortgage and buying items through the mobile Web.
+Youth dominates, but older generations are learning new tricks
+: Younger people comprise the largest group of mobile users, with 49% of US respondents under age 35 banking through smartphones, compared with 31% of those aged 36 to 55 and 12% of the group over 55. That trend holds across all other countries.
+The biggest gainers in US mobile usage, though, were customers aged 36 to 45, rising to 38% from 22% the year before (see Figure 3). Mobile banking is catching on with middle generations as the applications become more practical and easier to use.
+Income spurs mobility
+: Mobile usage rises with income in most countries surveyed, which is surprising because of the greater expense of a smartphone or tablet plus a carrier's data plan. For instance, 36% of US customers whose household earns more than $100,000 per year engaged in mobile banking, vs. just 29% of customers with incomes under $50,000. But the afﬂuent are less impressed by digital tools alone; as we will see, they also put great stock in personal banking relationships.
+Digital delighters
+: As digital banking spreads, banks have new opportunities to create more "wow" experiences that use new technologies to delight customers, and it's worth looking closely at this phenomenon. In every Asian country we surveyed, for example, customers cite online or mobile tools and transactions as the strongest or second-strongest delighter. (In India and Thailand, ATMs held the edge over online and mobile channels.)
+Which specific activities evoke positive reactions? In the US, while mobile remote deposit capture remains just a sliver of branch and ATM deposits, it's the most effective of all channel tasks in raising a customer's likelihood to recommend the bank—more than twice the effectiveness of other channels. (Ironically, one of the most appealing mobile capabilities tackles the lingering legacy of paper checks in the US.) Even routine mobile transactions, such as balance inquiries and transfers among accounts, have a strong inﬂuence on loyalty (see Figure 4).
+The digital love affair doesn't seem to wane with habit, either. Customers with a higher frequency of mobile transactions are more likely to recommend their bank than low-frequency users. This is not a function of the customer's age or the type of bank: Our US follow-up survey found a very large difference in loyalty scores for mobile vs. nonmobile users within, say, the 25 to 35 age group or for customers of national banks and regional banks. And mobile provides the biggest lift in loyalty—a 12 percentage point difference—to national banks, which tend to have developed more advanced mobile functionality than their community and credit union counterparts (see Figure 5).
+For national and large regional banks, the survey findings suggest a clear mandate: Continue investing in digital platforms to emphasize intuitive, fast self-service while gradually filling out the offerings. Banorte in Mexico, for instance, was among the early adopters of mobile banking. Although its offerings remain fairly basic, Banorte's emphasis on reliability and consistency in its mobile platform has paid off in high loyalty scores for the bank relative to its competitors.
+One key area for improvement is to streamline more complex digital interactions, including account opening and account service. These moments of truth, when handled digitally, remain more likely to annoy than to delight customers in the US. Turning that trend around, by making it easier for customers to do their research through digital channels and then talk to a service specialist for advice, could yield big gains in customer advocacy (see Figure 6).
+Mobility will not be special for long
+Along with that mandate, a note of caution: It won't take long for mobile functionality to become table stakes in the competition for loyal customers. Just as automotive companies have copied innovations such as airbags and integrated Bluetooth until they become standard features, mobile banking platforms will become commonplace within a few years. The time horizon will vary by regional market, but it's important to invest now while features such as remote deposit capture still have the power to differentiate a bank. However, the benefits will not be ﬂeeting. In the same way as online bill payment reduces the likelihood of customers switching banks when they move, customers reliant on mobile banking will be less likely to switch banks.
+Besides the potential to enhance loyalty, digital channels have another benefit: They can divert volumes from higher-cost brick-and-mortar channels if done correctly. In many countries, high-frequency routine branch transactions either don't have a big impact on loyalty or are more prone to annoy than delight customers, and they are quite costly when performed through human tellers. This is an acute problem in the US, where the average customer reported making more branch visits per year than in other developed markets, such as Australia, France and the UK (see Figure 7); worse, roughly 90% of US branch interactions consist of routine transactions.
+Transaction volumes at many US bank branches are falling 5% to 10% every year, Bain case experience shows, a rate that far outpaces any reductions in branch operating costs. Once customers turned to mobile channels, roughly half of them made fewer visits to a branch: 29% of the US mobile converts reported making between one-tenth and one-half fewer visits, while 18% said they reduced the number of their visits by half or more.
+This behavior strongly suggests that mobile conversion could help accelerate redesign of the branch network—and none too soon, given the scale of the challenge. For the largest 635 US banks to break even—meaning to earn their 13.5% cost of equity in 2011—they would have to either close half their branches or increase revenue by 18% on average, according to Bain analysis.
+ATMs and in-person branch interactions still matter, of course, but not necessarily in the way that many banks currently structure them. Banks can upgrade to more versatile ATMs that make customers' lives easier by, say, allowing cash or check deposits without having to fill out a slip, buying airline tickets or paying parking fines, as some banks in Thailand and Singapore rolled out several years ago. Live sales and service transactions also merit an upgrade at many banks to handle moments of truth such as filing a complaint and inquiring about a loan. In many cases, a bank's frontline staff operates with inadequate training, cumbersome IT systems or fragmented processes that prevent a fast resolution to customers' pressing issues. Upgrading or simplifying systems and processes in response to customer feedback will go a long way toward cementing loyalty.
+3. Winning the elusive hearts and minds of afﬂuent customers
+The appeal of afﬂuent customers is easy to grasp: "Go where the money is, and go there often," wrote celebrity bank robber Willy Sutton in his memoirs. Wealthy households don't simply stash more assets in bank accounts; our survey shows that they own more banking products as well. Afﬂuent customers who are promoters, moreover, own more products at a bank than do afﬂuent detractors and tend to recommend their bank to afﬂuent friends and family. For example, our survey finds that wealthy US promoters at national and regional banks are 80% more likely than detractors to have investment products from their bank, 42% more likely to have a home equity line and 32% more likely to have a credit card.
+Cross-selling opportunities, in short, expand with wealthier segments. For a large national bank, turning an afﬂuent or mass-afﬂuent detractor customer into a promoter has five times the economic value of winning the loyalty of an average mass-market customer. Turning just 1% (or 50,000) of these detractors into promoters would generate an incremental $250 million in lifetime net present value, Bain estimates.
+So how do retail banks perform with these high-profit, high-value segments? The answer depends on the country market.
+In the US, the good news is that Net Promoter® scores (NPS®) increased substantially from 2011 to 2012 among all customer segments, with the biggest increase among customers who have more than $1 million in investable assets; their score rose from 8% to 21%. Similar gains came when customers were sorted by income.
+Now for the bad news: Wealthier customers surveyed in the US, Australia, Canada, France and the UK still give the lowest loyalty scores. US national banks fared particularly poorly, with a negative 8% NPS among households with more than $1 million of investable assets, compared with 4% for those with assets under $100,000. In contrast, smaller institutions, including direct banks, community banks and credit unions, made a stronger showing among afﬂuent customers, with loyalty scores in the 60s. Moreover, large monoline providers, such as American Express, Charles Schwab and Vanguard, have managed to capture a large share of spending among afﬂuent customers while earning high scores.
+Lessons from Asia
+The picture is quite different in Asia and developing markets, where banks have developed differentiated modes of targeting and serving the afﬂuent and have far more extensive wealth management operations than in the US. Many Mexican banks, for instance, offer lavish, personalized service for afﬂuent customers, whereas the average customer must endure red tape and long waits. As a result, wealthy customers in Mexico give their banks higher loyalty scores than do customers of modest means (see Figure 8).
+Citibank, Asia's largest wealth manager with approximately $200 billion in assets under management, has built its business mainly through the Citigold brand. Citigold serves afﬂuent and mass-afﬂuent customers in dedicated wealth centers, which are more like premier lounges than conventional branches. Citigold has thrived by differ entiating in several ways:
+Excellent customer service achieved through constant performance measurement and improvement.
+The bank has an intense focus on goals and metrics, such as responding to customer inquiries within a certain number of hours. The payoff: About half of Citigold's new customers who did not already have a Citibank account are referrals from existing customers.
+A strong sales culture through investments in training and technology.
+Relationship managers receive continual training in customer service, Citi products, customer behavior and risk management. They're required to deepen the customer relationship every three months, with performance tracked and rewarded accordingly. And they're supported by software that tracks customer propensities and portfolio review schedules.
+Careful segmentation and tailored offerings.
+In Singapore, for example, Citigold has a dedicated center and a targeted offering just for nonresident Indians.
+US and European banks can learn from the more segmented, differentiated offerings and service of Citigold, Axis Bank in India and other banks in Asia and emerging markets. Even where regulations make it more difficult to capture the full share of a customer's financial services spending (as with US regulations that force a division between banking and investment advice), banks can compete more effectively.
+Wealthy customers generally insist on premium service and tailored, expert advice. They often have a greater choice of providers, and they're accustomed to tiered service levels in credit card companies and investment houses—not to mention airlines and luxury goods merchants. They want personal banking relationships, not just the convenience of digital channels. Retail banks thus must step up their service standards in order to win over afﬂuent segments.
+4. The future is here and its name is "omnichannel"
+The two major themes of this year's survey findings—a surge in mobile banking and the challenge of earning greater loyalty from afﬂuent customers—point to a logical way forward. If banks can take out costs in the processes that handle routine transactions, they will be able to serve mass segments more profitably and invest disproportionately in high-margin services for the afﬂuent. But a finer segmentation of customers, along with a more tiered product line, will only be successful if banks redesign their distribution channels to deal with the digital revolution that's sweeping through retail banking.
+Within a few years, smartphones will be almost ubiquitous in many developed countries, and customers will demand more banking functions through their devices. Expert personal consultation will become even more important for certain high-value activities, and branches, call centers and ATMs will find new roles. So like the digital disruptions that have occurred in other industries ranging from music to travel, this will require banks to get smarter about channel design. (See the Bain brief "
+The digital challenge to retail banks
+," October 2012 for a full treatment of the issues raised by digitalization.)
+Customers have been out front in the digital revolution while many banks appear to be stuck in an archaic era, their branches cluttered with low-value routine interactions rather than designed and primed for moments of truth. This problem is particularly acute in the US, because of the high frequency of branch visits.
+Channel redesign to take out costs...
+Alternative channels can reduce costs. A transaction that typically costs a bank $4.25 in its branch would cost $2.40 through a call center and $0.20 online, estimates Diebold, the maker of ATMs and other banking products (see Figure 9). At one large bank we've worked with, branch employees spend an average of 60% of their time on low-value transactions, administration and idle time. Removing many tellers from the branches and replacing them with next-generation ATMs would allow this bank to eliminate 15% of branch staff and redeploy them on high-value activities.
+This type of tactic is increasingly common in many regions, though it's still at an early stage in the US. Banks have started to introduce more varied formats into the branch network, ranging from large hub branches in high-traffic urban crossroads to small, low-cost spoke branches, to fast-service kiosks in supermarkets or metro stations, to sales and service specialty branches in afﬂuent suburbs. Some innovators are also sharing resources across local branches as a way to better balance staff and capabilities.
+...and to improve the customer experience
+The imperative to redesign branches is not just about taking out cost, however. Alternative channels such as kiosks and virtual tellers can improve the customer experience through shorter wait times and better service.
+Consider the experience of Coastal Federal, a credit union in the US state of North Carolina, which does not employ a single teller behind the counter at its 15 branches. Coastal began moving to video teller machines in 2008 in order to reduce the number of tellers at overstaffed branches and to use the time of the remaining tellers more productively. The credit union now relies on 64 machines connected via computer screens to 44 tellers at headquarters.
+The move seems to have paid off. Coastal reduced the physical size of its branches and cut teller costs by 40% while increasing service hours by 45%. Customers can now talk with tellers from 7 a.m. to 7 p.m. every day. The credit union has also managed to reduce training time and turnover—all while customer satisfaction has increased because of shorter lines, faster service and sharper teller focus.
+1
+Other banks have launched promising variations of the technology. In Japan, some banks use unstaffed credit centers that connect via video camera to remote offices for credit applications. ASB, a New Zealand bank owned by Commonwealth Bank of Australia, uses the Facebook online platform for video chat with service specialists on specific topics. But what works in one country may not work elsewhere; the few experiments in Germany to date have largely failed because consumers didn't embrace them.
+Smart technology deployed appropriately can help banks win the "triple crown" of more satisfied, loyal customers who lead to sustainable revenue growth at a reduced cost to serve. To that end, banks have a broad agenda in front of them, which we discussed at length in last year's report:
+Industrialize routine transactions to drive down costs.
+Banks are beginning to steer customers to low-cost channels for everyday transactions through more intuitive ATM screens and standalone automated kiosks.
+Double down on "moments of truth."
+Whether resolving fraudulent account activity or receiving advice from an expert, these high-stakes moments are where the battle for loyalty is won or lost. Banks that listen to customer feedback and use the insights gathered to improve their processes can create experiences that truly delight customers.
+Invest in digital delighters.
+Providing new, easy ways for customers to do routine transactions through self service channels siphons off volume from high-cost live channels. Banks that are first to market with digital innovations that exceed customers' expectations also stand to get a head start generating positive word of mouth and referrals.
+Each element of that agenda holds true today. But over the past year, drawing on promising efforts by banks worldwide as well as Bain's channel experience in other industries, we have refined our thinking about how to address customers' desire for fully integrated service wherever and whenever they want to bank. We believe that retail banking will be morphing into omnichannel banking.
+Omnichannel does not mean digital layered on top, or to the side of other channels. Rather, it refers to the integration of disparate channels into a seamless experience. Before they set foot in a branch, customers are increasingly comfortable using the Internet to seek advice and gather product and service information. They expect to be able to choose the channel most convenient for them, and they will insist that all channels work together harmoniously. Many customers would prefer to complete applications for accounts, mortgages or wealth management planning online, preferably with their basic information automatically filled in.
+Bain introduced the omnichannel concept for the retail industry, where many traditional retailers, such as Circuit City and Borders, have been decimated by the likes of Amazon.2 Success in retailing—indeed, survival—hinges on designing digital and physical arenas that complement one another instead of substituting, thereby increasing sales and lowering costs.
+A 2015 scenario
+What will omnichannel banking look like? By 2015, we expect that a homebuyer will use her mobile application to enter a house price range, desired location and other requirements on her bank's website. Consultation with her financial adviser to prequalify for a mortgage would occur via Skype, and she could check mortgage-comparison websites to make sure the bank's terms are competitive. Location-based technology would alert her smartphone that a nearby house meeting her criteria is for sale, and a mobile video chat would allow her to schedule a tour and get the pro forma financial estimates under way.
+Stopping by the bank branch, she would meet with the adviser to review the electronic worksheets he had prepared and then have a video chat with a mortgage specialist across town, who could answer more detailed questions using graphical displays and a scenario simulation of different terms and durations. Once the bid is accepted, the homebuyer would fill out the formal application online, then track the loan's progress online until the final closing at the branch.
+All of these technological components exist today. Customers make online appointments for Apple's in-store Genius Bar or reservations for a Zipcar. They make Skype video calls to friends on the other side of the world. Smartphone location trackers now provide information on restaurants and even potential dating matches in the vicinity.
+In the omnichannel world, consumers will hop from channel to channel depending on the task at hand, with the expectation that all relevant information will be available through all channels. Here, branches play a different role: more as product showrooms, sales centers and venues for expert financial advice on complex matters and less as transaction mills. Consumers may want to shop for a mortgage online, but they'll want to talk with a person for advice, play with scenarios on a tablet and complete the final paperwork in a branch or at home. Branch staff skills must adapt accordingly, with a greater investment in raising sales productivity and developing financial advisers and multitalented customer service representatives.
+The branch is dead—long live the branch
+The demise of the branch, long predicted, is still nowhere in sight. We believe branches will not disappear, but their current main role must end and shift to a new role and form. This change is already occurring, with some pioneers converting their branch network into lighter but sturdier alternatives (see Figure 10). A few examples show the range of possibilities:
+Denmark's Jyske Bank has incorporated sleek "AskBar" concierge stations and "TestBar" product tutorial centers in some branches.
+Fortis and easyCredit in Germany operate self-service terminals where customers can fill out the first stage of a credit application or pick up product packages to complete online at home.
+Citibank is piloting tech-intensive branches at high-traffic locations in Asia that lack counters and teller windows and rely instead on touch-screen walls, iPads and teleconference facilities. The point is to raise customer engagement with advisory services, while providing faster self-service for routine transactions through Internet kiosks.
+Most customers will embrace such initiatives if the self-service channels are intuitive, efficient and convenient. Executing the details well will be critical. Does the bank prepopulate certain fields on application forms with customer data it already has? Do branch employees actively inform every walk-in customer about mobile applications? Do IT systems allow specialist experts to communicate to customers through all nodes of the network, not just phone and email? Does the core system provide a single master view of the customer, or does it have to patch together several different account views? Banks face a big job of managing customer expectations as they start to build an omnichannel approach. The challenge is to integrate seamlessly, not simply substitute to reduce costs.
+5. Making loyalty pay off with better economics
+Retail banks around the world have embarked on measuring customer loyalty and using customer feedback to improve their loyalty scores. Yet many banks remain frustrated on a couple of fronts. Most Net Promoter and other loyalty programs have made more gains by reducing detractors, which is relatively easy, than by creating new promoters, which is harder. And many banks have not yet managed to translate greater loyalty scores into better financials. They may be nicer to customers and get happier responses, but they're not selling one iota more of their products, capturing a greater share of wallet or substantially reducing their cost to serve.
+Part of the problem lies in banks' egalitarian approach to customers. To monetize loyalty requires that banks focus disproportionately on service and product improvements first for the most valuable customers. Moreover, although this report has analyzed how banking interactions and channels inﬂuence loyalty, other elements of the business model come into play. These include effective targeting of segments; developing the right product proposition for each segment; making improvements to the customer experience that can reinforce the bank's brand promise; and ensuring that sales and distribution processes are structured to promote cross-selling and greater share of wallet.
+Effecting such changes throughout an organization is, of course, an enormous challenge for senior management. To help executives connect loyalty with bank economics, we would emphasize a small set of critical next steps.
+Get ruthlessly efficient in serving low-value customer segments in order to fund differentiation for high-value customers.
+The first step is to understand the economics of loyalty. At many banks, a full accounting of cost to serve often reveals that the bank spends more to serve its lowest-value customers, those who frequent branches for routine but time-consuming teller transactions.
+One valuable exercise, then, will be to measure cost to serve and NPS for different customer segments. Understanding the loyalty profile for afﬂuent customers—specifically, what aspects of their banking experience have the greatest inﬂuence on loyalty—can be translated into a net present value calculation that can inform subsequent omnichannel initiatives. Banks have to know their customer well enough, and have the information readily at hand by mining various databases, to present the right product to the right person at the right time.
+In many cases, banks are finding that a sharp focus on a narrower set of segments allows them to better address their customers' priorities. M&T Bank, a regional US bank based in the state of New York, has chosen to compete mainly in second-tier cities and supported small businesses in these communities during the financial crisis and recent recession. Giving local branch managers strong decision rights has helped M&T to maintain relatively high loyalty scores.
+Craft offerings and channels to serve high-value segments effectively.
+Knowing the economics of loyalty, by segment, allows a bank to form a clear idea of what will yield the highest returns on investment. Early efforts to boost loyalty were hardly differentiated at all. Banks maintained a big, expensive footprint, cut fees for everyone and offered free candy at the counter. They grew deposits at the expense of margin and neglected development of high-margin products and cross-selling capabilities.
+Loyalty leaders today take a distinctly differentiated tack. They are improving offerings for high-value customers and wrapping a terrific experience around those products. Features can include knowledgeable relationship managers and expedited service. Citi's Banamex in Mexico, for instance, offers segment-aware "take a number" routing for customers who come into a branch, so that high-value customers discreetly move to the head of the line. Afﬂuent customers may also require advanced video chat connections with their relationship managers or a separate online platform that contains premium tools.
+Start channel redesign now to serve the mass market profitably—before outside disruptors do.
+Other segments, such as pensioners or lower-income middle-aged customers, can be served effectively—and profitably—with "good-enough" products and service through light-branch concepts. Waiting to act on branch redesign until the branches are drained of all transactions will be too late.
+For all customer segments, commodity transactions should be automated wherever possible. Some banks will have to swallow hard in order to embrace branches that have ATMs but no tellers. But after they calculate the fully loaded cost to serve of a teller—not just the average cost—the medicine might taste sweeter. As experiences with video teller machines are showing, customers can benefit from expanded hours. And freed-up funds can then be reinvested in more or better relationship managers for the afﬂuent segments.
+Industrializing commodity transactions is particularly urgent for US banks, given their extensive, expensive legacy branch networks. US banks lag competitors elsewhere in developing capabilities through digital channels and in experimenting with low-cost formats.
+Radical branch redesign, while daunting, can be done through test-and-learn experiments in trial markets. USAA Bank historically served its 9 million active and retired military members and their families only through mail, phone and online channels, garnering top loyalty and customer satisfaction scores in the process. But recently, USAA has opened physical service centers at key locations, often near military bases. At these centers, USAA associates orient their members to the bank's services and technologies, show them how to complete routine transactions through various self-service channels and assist them with video conferencing and other technology for more complicated transactions.
+Move beyond loyalty scores to build a complete loyalty system.
+A reliable metric that sorts customers into promoters, passives and detractors will help a bank understand how it stacks up against competitors. NPS provides that view, by querying customers after moments of truth and key touchpoints.
+But the real value of the Net Promoter system ﬂows from the analysis of the feedback and actions taken to change employees' day-to-day behaviors. For example, when managers follow up with detractors within 24 hours of the survey, as the brokerage and bank Charles Schwab does, many customers are impressed by that action alone.
+High-velocity feedback to frontline employees and managers allows banks to regularly track their performance and identify improvements large and small. The closed-loop nature of the system promotes testing and learning on product and process refinements. And employees feel more engaged because they regularly hear what customers think of recent interactions with them, and they see clearly how their individual and team performance contributes to the outcomes of the larger enterprise.
+One of the important aspects of the Net Promoter system involves giving employees more decision-making autonomy, because people on the front lines have a great inﬂuence over the quality of the customer experience. At the typical bank call center, employees read from a script like a machine and have rigid protocols for every interaction, which tends to leave them feeling constrained and irritated. In contrast, an investment management company that we will call Alpha listened to feedback from its high-net-worth customers and its call center representatives. Based on that feedback, Alpha gave its call center representatives much greater autonomy in dealing with these ﬂagship customers. For instance, if a customer fills out an application incorrectly, the representative can send it back overnight, despite the higher cost, and can include a handwritten note.
+The notion of more autonomy on the front lines might make bank compliance and risk officers nervous. Some loyalty leaders address this "anything goes" concern by nesting their practices in an explicit decision framework, where employees have clear rights and accountabilities for the daily operational decisions that can add or destroy a lot of value.
+Here again, US banks have an especially acute need to raise both customer loyalty and employee engagement. They are still rebuilding trust lost during the financial crisis. And unlike most other regions of the world, they are competing with monoline credit card and wealth management firms, which have very high loyalty scores year after year.
+Beyond the US, for any bank in any country, securing greater customer loyalty is the key to profitable growth. A successful omnichannel distribution and service strategy should deliver lower costs and a better experience for customers. We're likely to see more channel innovations in the coming year among banks that closely track their customer feedback—and the banks that redesign their digital and physical arenas to complement each other will be well positioned for success.
+6.
+Loyalty trends worldwide
+When it comes to loyalty rankings, it's all relative. As banks review their Net Promoter scores, those with high scores may be tempted to compare across markets and declare themselves "best national bank" or "best credit union" globally.
+That would be misleading. Different countries exhibit structural differences in loyalty scores. We consistently find easier grading in some markets (the US and Mexico, among others) and very tough grading in others (the UK and France). Even within the US, we find variance among regions.
+What matters most to an individual bank is its rank relative to its peer group. Retail banking remains a largely local business, as consumers compare one bank with other realistic alternatives in the local market. Increasingly, though, the peer group for banks in a local market includes direct banks, such as ING Direct, and in the US, monoline credit card companies and investment houses.
+Our 2012 loyalty scores and highlights show strong regional variations among the 14 countries we surveyed.
+Country profiles:
+Americas
+Europe
+Asia-Pacific
+Canada
+France
+Australia
+Singapore
+Mexico
+Germany
+China
+South Korea
+United States
+Spain
+Hong Kong
+Thailand
+United Kingdom
+India
+How the Net Promoter system turns customer feedback into better products and processes
+Many banking executives are familiar with Net Promoter® scores (NPS®), derived from a method of measuring customer loyalty. These banks regularly survey their customers on two questions:
+On a zero-to-10 scale, how likely is it that you would recommend us (or this product or service) to a friend or colleague?
+What is the primary reason for your score?
+Customers' responses to the first question allow a bank to classify them as promoters (9-10), passives (7-8) and detractors (zero-6). Then one creates a score that is simply the percentage of promoters minus the percentage of detractors. Banks can analyze the score by product line, region or any other subcategory and track it from week to week.
+But it's the entire Net Promoter system that has helped some banks reach or remain in the top ranks of their market. Net Promoter companies commit to a set of values and processes that help everyone focus on earning the passionate loyalty of customers and the focused engagement of employees. Engaged employees go the extra mile to deliver. They provide better experiences for customers, approach the job with energy—which enhances productivity—and come up with creative product, process and service improvements. In turn, they help to create passionate customers who buy more, stay longer and tell their friends about their bank—generating sustainable growth.
+The Net Promoter system creates the conditions for real change and improvement. Besides running a regular customer survey, loyalty leaders in banking and other industries develop processes for short-cycle, closed-loop feedback, learning and action. "Closing the loop" involves sharing feedback from a customer on a specific interaction—as soon as possible after it is received—with the employees most responsible for creating that customer's experience. By contacting select customers, one can probe deeper into their experience, remedy individual problems where possible and begin to address systemic issues. Closing the loop also serves to find out what a bank is doing right—what sorts of interactions are wowing customers and turning them into promoters—so the bank can do more of it.
+Customer feedback should inform decisions up and down the organizational ranks. Many leading Net Promoter companies put senior executives and board members in direct touch with customers and frontline employees so they can hear the feedback from both groups themselves. Some ask customers to attend executive team and board meetings or ask top leaders to review customer feedback every week. By engaging senior leaders directly in the closed-loop process, these companies help them stay closer to customers, become more aware of the realities of customers' interactions with the company, and gain a visceral and practical view of what it's like to be on the front lines.
+Visit
+www.netpromotersystem.com
+for a complete description of the Net Promoter system and how scores of companies, including banks, are using Net Promoter to help realize culture change, process improvements and broad business impact.
+Return to main report
+Appendix: Methodology
+Bain & Company partnered with Research Now, the online global market research organization, to survey consumer panels in Australia, Canada, France, Germany, Mexico, Spain, the UK and the US. The survey's purpose was to gauge customers' loyalty to their principal bank and the underlying reasons they hold the views they do. Conducted in the summer of 2012, the survey polled 139,500 customers of national branch network banks, regional banks, private banks, direct banks, community banks and credit unions in the eight geographies listed. We included in the individual bank analysis only those banks for which we received at least 100 valid responses, though in most countries, sample sizes exceeded 200 for each bank included. We grouped all community banks and credit unions together and evaluated the responses we received from their customers as a single business-model category.
+Bain worked with Global Market Insight (GMI) to survey a further 10,500 account holders in China, Hong Kong, India, Singapore, South Korea and Thailand. Given the smaller overall sample size of the Asian surveys, individual Net Promoter scores are based on the responses of between 100 and 200 participants.
+Survey questions
+Respondents were first asked to identify their primary bank, after which they were asked the following three questions to assess their loyalty to that institution:
+On a scale of zero to 10, where zero represents "not at all likely" and 10 represents "extremely likely," how likely are you to recommend your primary bank to a friend or relative?
+Tell us why you gave your primary bank the score you did.
+In the last year, how many times did you recommend your primary bank to a friend or relative?
+Respondents were then asked to identify the major products they hold with their bank and the channels they use to do their banking. We also asked whether and the extent to which the use of the channel had inﬂuenced their likelihood to recommend their primary bank. The remaining questions elicited demographic profile information: household income, investable assets and region of residence.
+We followed up with 5,200 US respondents to ask more detailed questions about their experiences with specific transaction types and touchpoints: whether they had conducted a specific type of transaction, channel used to conduct the transaction, frequency with which they had used the channel, and the impact that the touchpoint had on the respondents' likelihood to recommend their institution. We also asked a number of questions about their mobile banking behavior.
+On the question of statistical significance, the results of our data analysis are robust both for the measurement of bank NPS by region and for respondent NPS for each demographic category. The NPS measured for each bank included in the US regional rankings is statistically significant to an 80% confidence level, with a two-tailed test of the confidence interval ranging from plus or minus 1.5% (n=5,000) to plus or minus 6.6% (n=230). In geographies where sample sizes were smaller, confidence intervals are wider, ranging from 2.0% (n=3,100) to 8.9% (n=105).
+For the analysis of NPS by demographic subcategories of respondents' ages, incomes, genders and investable assets, we again aimed for results that would be statistically significant at the 80% confidence level. Given the large size of our overall sample in the US and its overweighting in some age, income and afﬂuence categories, the confidence interval for most demographic subgroups is plus or minus 0.9%. For the numerically smallest subcategory of respondents in the US (those having investable assets greater than $1 million), the number in our survey sample was 2,100, yielding a confidence interval of plus or minus 2.3%.
+Acknowledgments
+This report was prepared by Gerard du Toit, leader of Bain's Banking practice in the Americas; Maureen Burns, a partner in Bain's Financial Services practice; Beth Johnson, leader of Bain's Customer Strategy & Marketing practice in the Americas; Peter Sidebottom, a partner in Bain's Financial Services practice; and a team led by Christy de Gooyer, Financial Services practice area manager.
+The authors thank Bain partners in each of the countries covered in the report for their valuable input and John Campbell for his editorial support.
+This work is based on secondary market research, analysis of financial information available or provided to Bain & Company and a range of interviews with industry participants. Bain & Company has not independently verified any such information provided or available to Bain and makes no representation or warranty, express or implied, that such information is accurate or complete. Projected market and financial information, analyses and conclusions contained herein are based on the information described above and on Bain & Company's judgment, and should not be construed as definitive forecasts or guarantees of future performance or results. The information and analysis herein does not constitute advice of any kind, is not intended to be used for investment purposes, and neither Bain & Company nor any of its subsidiaries or their respective officers, directors, shareholders, employees or agents accept any responsibility or liability with respect to the use of or reliance on any information or analysis contained in this document. This work is copyright Bain & Company and may not be published, transmitted, broadcast, copied, reproduced or reprinted in whole or in part without the explicit written permission of Bain & Company.
+Net Promoter® and NPS® are registered trademarks of Bain & Company, Inc., Fred Reichheld and Satmetrix Systems, Inc.
+1
+Jennifer Alsever, "An ATM unlike any other," Fortune, September 11, 2012, accessed November 12, 2012,
+http://tech.fortune.cnn.com/tag/automated-teller-machine/
+.
+2
+See "
+The Future of Shopping
+" by Bain partner Darrell Rigby, Harvard Business Review, December 2011.
+Related Industries
+Financial Services
+Financial Services
+The digital challenge to retail banks
+Financial institutions that successfully apply digital technologies will embrace deep strategic, operational and organizational changes.
+Read More
+Financial Services
+New rules of the road for banks
+Overcoming the regulatory challenges to growth.
+Read More
+Financial Services
+Wolf in Sheep's Clothing: Disruption Ahead for Transaction Banking
+The field is getting crowded and technology-intensive. How can banks stand out?
+Read More
+Financial Services
+What Financial Services Leaders Are Wrestling with on AI and Organizational Transformation
+At Bain’s AI in Financial Services Summit, leaders agreed on some ways the operating model must shift to adapt to AI and disagreed on others.
+Read More
+Financial Services
+Accelerating the AI Transformation
+Broad AI adoption, anchored in clear strategic priorities, is compounding into outsize performance. Fragmented efforts and delay are becoming irreversible disadvantages.
+Read More
+Published in December 2012
+Tags
+Financial Services
+How We've Helped Clients
+Strategy
+A Bold New Strategy Restores a Bank to a Leadership Position
+Read case study
+Mergers and Acquisitions
+A bank and a grocer build a fruitful alliance
+Read case study
+Strategy
+A financial services leader gains market confidence
+Read case study
+Ready to talk?
+I want to talk to your experts in:
+Financial Services
+Advanced Manufacturing & Services
+Aerospace & Defense
+Agribusiness
+Automotive
+Aviation
+Building Products & Technologies
+Chemicals
+Construction & Infrastructure
+Consumer Products
+Energy & Natural Resources
+Healthcare & Life Sciences
+Higher Education
+Machinery & Equipment
+Media & Entertainment
+Metals
+Mining
+Oil & Gas
+Paper & Packaging
+Private Equity
+Public Sector
+Real Estate
+Retail
+Social Impact
+Technology
+Telecommunications
+Transportation
+Travel & Leisure
+Utilities & Renewables
+Please select an industry from the dropdown list
+We work with ambitious leaders who want to define the future, not hide from it. Together, we achieve extraordinary outcomes.
+Your email
+Please enter a valid email address
+CONTACT US
+Contact Bain
+How can we help you?
+Business inquiry
+Career information
+Press relations
+Partnership request
+Speaker request
+See all offices

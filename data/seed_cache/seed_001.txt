@@ -1,0 +1,14 @@
+Customer Lifetime Value in Banking | Teradata
+Skip to main content
+Customer Lifetime Value in Banking
+Customer lifetime value (CLV) is emerging as a cornerstone metric for banks aiming to deepen customer relationships and drive long-term profitability. This brief outlines how CLV goes beyond simple revenue tracking to quantify the full economic contribution of each customer—factoring in product usage, channel engagement, and behavioral patterns. By integrating diverse data sources and applying predictive analytics, banks can forecast attrition, identify high-value segments, and tailor retention strategies that align with customer needs and financial goals.
+CLV offers a powerful lens to evaluate campaign impact, prioritize service adoption, and guide digital migration efforts. The brief emphasizes shifting from “product push” to “services pull” marketing—encouraging behaviors like direct deposit and bill pay that increase stickiness. It also advocates using CLV to assess the financial impact of customer acquisition, retention, and win-back programs, helping banks make smarter investment decisions. Ultimately, CLV enables banks to connect customer engagement with enterprise value, making it a vital tool for strategic marketing and brand growth.
+Download now
+Download white paper
+Financial services
+White papers
+Continue exploring
+Also of Interest
+Application of Customer Lifetime Value Models...
+Data-Driven Customer Retention Strategies for 2025
+Grow customer value with Autonomous Customer...

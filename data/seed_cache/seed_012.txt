@@ -1,0 +1,271 @@
+Customer Value and Banking in the Digital Age | BCG
+Financial Institutions
+Taking Digital Banking Beyond Customer Journeys
+By
+Jungkiu Choi
+,
+Mark Dynes
+,
+Yashraj Erande
+, and
+Diana Rosioru
+Article
+July 05, 2022
+Save It For Later
+Saved To
+My Saved Content
+Download Article
+Share
+Link copied
+Subscribe
+Stay ahead with BCG insights on financial institutions
+Stay ahead with BCG insights on financial institutions
+You are subscribed to BCG's eAlert on financial institutions.
+Manage Subscriptions
+Subscribe
+Many of the missteps that banks make can be avoided by building their digital transformation programs around a full front-to-back approach focused on customer value streams.
+When it comes to
+digital transformations
+, financial institutions have the second-highest success rate after the
+technology, media, and telecommunications
+sector. But six out of ten financial services companies still fail to achieve their transformation goals. One reason, as our past research has shown, is that most companies, including banks, do not have all of the six requisite
+digital success factors
+in place. In addition, our experience with more than 100 cases involving more than 50 clients over the last five years suggests that too many financial institutions do not base their transformation programs on fully meeting their customers' needs.
+Banks have become adept at focusing transformations on
+customer journeys
+—the process that customers go through to meet a need, such as opening an account, borrowing money, or securing help with transactions or payments. This is a great first step, but banks often fail to take the critical next steps required to redesign and digitize their organizations and operating models around customer value streams: the value-adding activities that support those customer journeys from end to end.
+A value stream approach encompasses all the activities and interactions a bank needs to manage from the front (customer facing) end to the back end (process operations, risk, legal and compliance, and technology). Since this kind of full overhaul also requires agile ways of working to enable the necessary speed and flexibility, it can become a heavy organizational lift.
+Banks have ample reasons to get their digital transformations right. Customers are moving to digital channels faster than they have in the past. Our
+2021 retail banking report
+found that the use of online banking had increased by 23% and mobile banking use was up 30% over the previous year. Meanwhile, digital banks and fintech insurgents are on the rise. We reported last year that there are about 250 digital challenger banks worldwide, with more on the way. Investment in fintech firms totaled $93 billion in the third quarter of 2021 alone, according to BCG’s
+FinTech Control Tower
+.
+Banks often fail to take the critical steps required to redesign and digitize their organizations and operating models around customer value streams.
+But perhaps the strongest reason is the results that successful digital transformations deliver. For banks, our case experience shows cost reductions of 15% to 20% (through decreases in the current cost base or avoidance of future cost increases), improvements of 20% to 40% in efficiency and error rate reduction, increases of 20 to 30 points in customer satisfaction scores, and two- to fourfold acceleration in the delivery of new products and services.
+In our experience, many of the missteps that banks make—such as putting solutions before problems, pursuing an internal focus, treating transformation as a tech issue, digitizing before improving the underlying process, and not adjusting the enabling operating model—can be avoided by going beyond customer journeys and taking a full front-to-back value stream approach. Here’s how.
+The Banking Customer Journey
+The customer journey comprises the series of interactions that begins when a customer perceives a need, such as resolving a service issue or buying a home, and continues until the need is met. It involves numerous decision-making events that customers encounter in their physical or virtual interactions with one or more financial institutions. Each interaction, in turn, sets off a chain reaction behind the scenes, which cuts across multiple parts of the banking organization affecting both the customer and the employee experience. This chain of activity extends across the operating model and bank processes, including functions that are not visible to customers, such as risk and compliance, technology, and change management and agile delivery. (See Exhibit 1.)
+1
+/
+1
+In each major line of business (retail banking, wealth management, small- and medium-enterprise banking, and commercial or corporate banking), banks typically handle about 50 customer journeys that can grouped into five broad “megajourneys.” (See Exhibit 2.) These include:
+Helping the customer open a new account
+Helping the customer borrow money
+Helping to promote the customer's financial well-being
+Helping the customer with transactions and payments
+Helping to solve the customer's problems and issues
+1
+/
+1
+Successful banks start with the understanding that these journeys encompass the entire customer experience from beginning to end, and they organize themselves to address customer needs in ways that mirror customers’ perspective. They also leverage the resulting transformation of the bank from a product and service focus to a customer-centric focus to motivate people to go above and beyond the basic requirements for every customer.
+Customer Value Streams
+When banks seek to digitize, they often make one of four mistakes:
+They make big investments in digital solutions that are focused on the customer experience, forgetting to wire the improvements through to the back end (process steps, regulatory policies, and risk assessment after the customer's application or request is received). This can lead to improvements in customer satisfaction, but the bank gets no benefit from back-end alignments and improvements—such as straight-through processing—and therefore limited ROI.
+They make big investments in automating the back end, which lead to incremental gains but do not fundamentally resolve customers’ pain points or address their needs, or it takes too long to realize the intended improvements.
+They invest in transforming and modernizing legacy technology but do not address the disconnects or misalignments between IT and business processes, resulting in partial or delayed impact.
+They make fragmented investments across silos and end up more or less maintaining the status quo in a more digitized state or achieving only incremental improvements.
+Front-to-back digitization of the customer journey requires developing a data- and analytics-powered digital experience that provides personalized engagement, efficiency, and convenience throughout the journey at low cost. Based on real-life situations, such digitized journeys anticipate demands and introduce touchpoints with offerings or suggestions drawn from the bank’s full portfolio of products, services, and capabilities. Properly managed, they involve interactions that leverage new technologies and insights about user behavior and add value on all channels for all users, be they customers, agents, or employees. Because the journeys cut across service channels and business divisions—which for many banks means breaking down siloed operations—digitizing them requires a transformation in how the bank does business. Hence the move by successful banks to organize customer journeys around customer value streams and agile ways of working.
+Successful banks start with the understanding that customer journeys encompass the entire customer experience from beginning to end, and they organize themselves to address customer needs in ways that mirror customers’ perspective.
+Value streams and agile are also vehicles for change. Incumbents, in particular, face embedded organizations, entrenched silos, and longstanding ways of working that slow and sometimes thwart digital initiatives. (See “The Challenge for Incumbents.”) To overcome such impediments, banks need to consolidate digitization initiatives by integrating cross-functional design and delivery teams and gain a single view of investments and improvements in current and reimagined products and services. They can then build critical new capabilities, such as data-driven customer engagement, as part of the digitization program and leverage them across the appropriate value streams. Management can prioritize the backlog of in-process digitization initiatives according to an objective, consistent assessment of their desirability, viability, and feasibility—an analysis known as DVF.
+The Challenge for Incumbents
+Many banks are coming to realize that despite multiple attempts and programs involving millions spent on digital technology and digitization, agile, and automation, the pace of digitization is still slow. In addition, the change is fragmented and the benefits are less than expected, with suboptimal results in terms of the customer experience, cost, revenue, and overall business impact.
+Nobody claims success is simple. Customer journeys are complicated and hard to predict. Incumbent financial institutions are complex organizations. They typically have a combination of customer and internal value streams that span five core interactions: transact, borrow, save and invest, protect, and service. Each core interaction generates about 50 customer journeys in both retail and corporate banking, with approximately 300 processes needed to sustain operations. This leads to an estimated 4,000 activities needed to run all customer interactions and journeys across the bank.
+There is an urgent need to get digitization right. COVID-19 moved many banking relationships online, and they are staying there. BCG’s most recent retail banking consumer survey found that three-quarters of customers use online and mobile banking channels regularly, and satisfaction with these channels is higher—often significantly higher—than with either physical or remote channels, such as branches and contact centers. And customer expectations continue to rise rapidly owing to users’ digital experience with companies in other sectors. Both B2C and B2B customers receive personalized treatment, frictionless omnichannel interaction, and responses that are consistent across channels anytime anywhere.
+The bottom line: customers need financial services, but they don’t necessarily need banks. As we pointed out before, with retail and corporate customers moving online, banks’ position at the intersection of customers and financial services is coming under attack. A stacked industry landscape, with different types of players competing at each level, is taking shape. Nonbank insurgents are making strong inroads in distribution, threatening to commoditize many banking products. From 2019 to November 2021, the number of global fintech startups more than doubled, from about 12,200 to more than 26,300, according to Statista. Traditional banks are at serious risk of losing their customer base to others.
+Properly organized, value streams and agile ways of working deliver capabilities and features that are optimized for customer and employee needs as well as for process cost and controls. Rethinking the digitization business case on the basis of end-to-end customer journeys realigns the bank’s resources into multifunctional teams around the resulting value streams. The digitization levers—automation, artificial intelligence, lean operations, digital sales, and data and digital-technology platforms—can be deployed in a coordinated manner, value stream by value stream, until the bank’s organization and operations have been thoroughly transformed.
+The value stream approach unlocks cost and experience improvements not otherwise possible. And the value can come quickly. For example, the small-business unsecured lending value stream for one Asian bank registered improvements of 800% in applications, 400% in approvals, and 500% (in dollar terms) in credit lines approved—all based on its first minimum viable product (MVP) release. Another bank found that a new app generated more than the equivalent of a full month of its sales staff’s total business after release of the second-generation MVP.
+You Have to Be Agile
+One of the six key success factors for
+digital transformation
+is adoption of an agile mindset. Agile companies address roadblocks quickly, adapt to changing contexts, and drive cross-functional, mission-oriented, “fail fast and learn fast” behavior into the wider organization. They deal with individual challenges without losing sight of the broader goals.
+BCG has published extensively on agile ways of working and their strong link to digital transformations. (See “BCG on Agile.”) Writing about the rise of
+digital banking in Asia-Pacific
+in 2021, we observed that successfully building and scaling a digital bank requires a focus on three pillars that stimulate customer engagement and ensure critical business agility: customer obsession, scalable and flexible technology, and agile organization and governance. The third of these has become critical not only to digital operations but to the transformation itself.
+BCG on Agile
+BCG has written for many years on agile, agile transformations, and agile in financial institutions. Here are some examples of our work.
+Agile and Agile Transformations
+Taking Agile Transformations Beyond the Tipping Point
+Five Secrets to Scaling Up Agile
+Why Agile Works
+How CEOs Keep Agile Transformations Moving
+Agile Works—but Are You Measuring the Impact?
+When the Ground Shifts, It Pays to Be Agile
+Why Your Agile Coaching Isn’t Working—and How to Fix It
+Outcome-Oriented Governance Unleashes Agile at Scale
+Agile in Financial Institutions
+Finland’s Biggest Financial Group Goes All In on Agile
+The Sun Is Setting on Traditional Banking
+Banks Brace for a New Wave of Digital Disruption
+The Future of Customer Service Is Fast, Lean, and Agile
+Winning the Digital Banking Battle in Asia-Pacific
+There are a couple of key reasons. First, evidence indicates that digital banks work best when run independently, allowing them to focus on their own success through rapid decision making and execution. Second, organizational structures should enable collaboration between digital talent—including IT staff—and bankers. An agile structure echoes the growth strategies of successful technology firms. An iterative process of testing and execution underpins a flexible and efficient organization, but the bank must capture this approach in the governance framework of systems, controls, and processes. A clear division of roles and corresponding decision rights and responsibilities among business functions legitimizes and balances interactions.
+Like digital transformations themselves, achieving
+agile at scale
+requires that companies address their full operating model. Now more than ever, they need to extend agile deeper into their business and culture. And while agile values are consistent—including a strong customer focus and empowered cross-functional teams working with autonomy toward aligned goals and working iteratively in short “sprints” to allow for transparency and reprioritization—each bank needs to adopt the agile approach to its own operating model. For example, OP Financial Group, Finland’s largest financial institution, followed seven guiding principles when
+adapting its operating model
+to an agile approach. (See Exhibit 3.)
+1
+/
+1
+The impact can be substantial. We have seen banks achieve a 10% to 20% increase in customer satisfaction and return on digital investment, two to four times faster time to market and new-product development, a 15% to 25% reduction in development costs, and a better than 90% improvement in employee engagement.
+Still, far too many banks continue to follow a waterfall approach to product development or process improvement. Here, the full specs are set at the start—often based on imprecise or ill-defined goals; the product or process is designed, developed, and tested sequentially, with many handovers; and delivery (which can take 12 months) is often delayed and the project over budget. In the end, requirements have changed, the product or process is out of date, or the customer doesn’t get what he or she really needs.
+Digitizing Front to Back
+The best way for banks to undertake front-to-back transformation is to operate at the intersection of the four major pieces of the puzzle shown in Exhibit 4.
+1
+/
+1
+First, customer journey digitization. This is about delivering a “Wow!” customer experience through world-class interfaces and workflows. The major effort should be getting the workflow process right from the customer perspective using human-centric design principles.
+Second, scalable tech-ops, or ensuring that the process doesn’t stand on bamboo shoots. Our best clients have leveraged cloud technologies and advanced-technology architecture to power customer journeys. Cyberfusion—unifying security and related functions—and digital-fraud prevention are a big part of this. Good technology infrastructure is flexible, scalable, and reliable.
+Third, intelligent systems: using data science to ensure that the processes and operations are smart. Every time a customer goes through a journey, the system becomes smarter about two things: the customer and the process. This continuous improvement requires creating a data lake infrastructure that can absorb process DNA and customer DNA to generate insights.
+Fourth, the right governance and policy guardrails. The customer journey, technology, and market intelligence should all flow through risk policies and governance policies and procedures that the institution is comfortable with. These guardrails are established and then codified into the rule engines, models, workflows, deviations, escalations, flags, access privileges, and so on.
+All four pieces of the puzzle are required for a truly sustainable front-to back transformation, and they must be pursued with expertise, rigor, and effective change management discipline.
+In our experience, successful banks transform their operations one or a few value streams at a time, following a multistep process for each one. We outline this process below.
+One of the six key success factors for digital transformation is adoption of an agile mindset.
+Establish the purpose and objectives.
+Each bank is different, but most will set goals for their transformations that reflect what they want to deliver for both customers and the bank. For customers, the goals will involve reinventing journeys for greater satisfaction and improved experience (faster turnaround time, optional branch visits, or greater transparency on processes, for example). Common goals for the bank include increasing customer satisfaction across the interactions that make up the journey (typically measured by net promoter scores), improving the cost-to-income ratio (through operational process efficiencies and automation), and building the enterprise’s agility and digital capabilities to improve speed to market and execution.
+For most banks, the key ingredients of success will include the following:
+Reimagined Capabilities:
+Identifying and addressing capability gaps and improving processes, approach, and culture. This includes acquiring zero-based design capabilities and in-sourcing digital tools that enable agile development cycles, such as collaboration tools, design systems, and common code libraries. All these moves can help shift the bank towards a lean and agile organization, establish automated development processes, and eliminate work and redundant capabilities throughout product development and value delivery to customers.
+Bold Business Outcomes:
+Establishing targets based on the art of the possible rather than incrementalism; replacing siloed, functional-service-level agreement metrics with full front-to-back measurements of success. For example, targets can include reducing turnaround time by more than half, reducing error rates by more than half, and doubling or quadrupling digital sales.
+Simplified and Automated Processes:
+Reducing work and rework across sales, operations, and service; centralizing, simplifying, eliminating, and standardizing work before implementing automation; and eliminating management errors at the back end by fixing front-to-back communication and alignment.
+Improved Risk Controls:
+Building risk and compliance into design instead of adding them later, organizing to allow risk and compliance and business teams to jointly solve problems, and implementing robust, user-friendly, efficient controls. Operations risk controls can be built as algorithmic modules so they are traceable and auditable.
+Transformed Technology:
+Tying technology, digital, and data investments to use cases; removing technology duplication across silos; and integrating design and delivery to eliminate waste. This technology transformation can be accomplished using cloud platforms (discussed below).
+Put fully cross-functional teams in place.
+A customer journey involves many moving parts, including some that have no direct contact with customers. Behind-the-scenes functions, such as operations, compliance, legal, risk, and technology, must be included in the customer value stream teams from the start. These are often brought in too late, and even functions that have direct customer impact, such as marketing and operations, are sometimes neglected. Generally, any function that has a meaningful role in shaping the customer experience, even if only in the background, should have a seat at the value stream table.
+In addition to spanning the full value stream and technology stack, teams need a dedicated leader who is 100% assigned to the role. (See Exhibit 5.) Other expert roles and support functions may require only a partial time commitment but should carry clearly defined accountability. Some topics (such as process simplification and technology architecture) may require setting up subteams to fully flesh out solutions.
+1
+/
+1
+Teams need to be trained in agile ways of working so they learn how to work in quick sprints, establish strong feedback loops with customers (both external and internal), and pursue a process of continuous product or service improvement at each stage of the value stream.
+Achieving success typically requires fully empowering the teams and making them permanent components of the organization, creating a supporting ecosystem, and putting cross-functional value stream work at the top of the organization’s change agenda.
+Understand the current state of the customer journey.
+In a 2019 white paper on better
+understanding wealth management clients
+, BCG observed that while private banks and wealth managers collect a lot of data, they generally focus on
+what
+is happening rather than on the
+why
+—what caused a certain customer behavior or decision. As a result, they miss or misunderstand specific customer pain points and fail to use digital tools and platforms to full effect. Offerings are not integrated into the customer journey and digital investment is dedicated to standalone deliverables.
+A true understanding of customer behaviors establishes a baseline for analyzing the current customer journey from both customers’ and bank employees’ points of view. It sets the foundation for the future journey and the products and services that will be designed, as well as for the supporting operational, financial, marketing, legal and compliance, and technology ramifications.
+Any function that has a meaningful role in shaping the customer experience, even if only in the background, should have a seat at the value stream table.
+One often overlooked method that can help develop this level of understanding is ethnographic research, or the study of human behavior in context. Design experts are trained to observe customer behaviors from multiple perspectives by applying a wide set of research tools and methods. They can unveil what traditional marketing research methods sometimes overlook: why customers behave in a certain way and what is the underlying motivation behind the behavior. The key principle is not to ask customers directly about the decisions they are making but to step into their shoes and observe them in the context of a given situation. Researchers monitor or interact with study participants in their real-life environment.
+In a banking context, this may involve observing a couple having a conversation about their financial plans for retirement, following a young professional performing tasks at a branch, or studying a client meeting with a relationship manager. Ethnographic research enables designers to identify recurring pain points in the customer’s journey that would not necessarily be visible out of context.
+When well conducted, ethnographic research leads to a better understanding of customers’ motivations for using the products and services in question. It uncovers their feelings towards brands and competitors; their reactions to new ideas, products, and services; and their experiences with products and services. The research findings can be used to conduct value stream mapping of the current journey that explains the behaviors and unmet needs of customers, frames the problems to be solved, and identifies the product and service features most likely to drive business value.
+In addition, at this stage, the bank should assess its processes, end-to-end error rates, turnaround times, regulatory policies and requirements, risk appetite and control measures, and relevant technology modules. Most banks find that their assumptions do not accurately reflect reality. They discover that many documents are outdated, for example, and that identifying relevant regulatory policies is not easy unless they have a well-managed knowledge management system with the right taxonomy and enterprise search capabilities. Policies are often written in a confusing way. Gaining an accurate understanding of current circumstances is critical to determining what needs to be changed and improved.
+Design the desired end state and prioritize the initiatives needed to get there.
+Based on their ethnographic research, value stream mapping, and assessment of current processes, banks can design an ideal journey that addresses both the customer interfaces and the back-end implications. They should approach the challenge unconstrained by the realities of their current situation, setting aside such considerations as regulatory requirements, tech platform, ways of working, and embedded processes in order to reimagine the possible. With the new end state in hand, they can then seek feedback and alignment with those responsible for the various stages of the value stream. This will identify the changes in processes, regulatory policies, risk appetite, and digital tools and modules needed to make the desired customer journey a reality. The outcomes should include a definition of the end-state customer journey that addresses customer and employee pain points and barriers to implementation, a prioritized list of change initiatives to enable the new journey, the features of the early MVPs that will form the basis of implementation, and a list of quick wins.
+The customer journey itself can be defined as a bundle of functionalities, each of which can be prioritized and broken down into a series of tasks that will form the work backlog of the value stream teams. Prioritization should be based on a DVF analysis: how important is each task to customers, does it have an attractive value to the bank, and can we do it? Typically, internal changes are addressed first and customer changes later, once the internal foundations are in place. The criteria for prioritizing changes should include the expected weight of impact and an assessment of their feasibility for key functions such as technology, risk, compliance, sales, and operations.
+The top-priority initiatives can then be bundled into a series of MVPs, each with a defined scope of features. A single MVP can take the form of a change in process, regulatory policies, an app or website, or tech solution architecture, among other things. An overall MVP roadmap sets out how many MVPs are needed to move from the current to the desired state of the customer journey. What's important is to take an integrated perspective and determine priorities based on DVF. In most cases, 70% to 80% of the total impact can be realized in the first two MVPs.
+A true understanding of customer behaviors establishes a baseline for analyzing the current customer journey from both customers’ and bank employees’ points of view.
+Two practical principles should drive MVP prioritization. First, early MVPs should focus on back-end features rather than customer interface features, improving and de-risking them before launch. Second, banks should put a strong emphasis on feasibility in the beginning and limit the features to be changed to about 20 in number. More balanced DVF weightings can be assigned later.
+Use cloud platforms.
+Many banks, especially in emerging markets, run their operations using legacy on-premises technology, which is time-consuming, inefficient, and expensive to update. Banks that successfully transform digitally move their operations, data, and workloads to the cloud, often employing “sandbox” platforms, or isolated testing environments, in the process.
+When technology layers—including customer and frontline engagement, integration and APIs, data and analytics, security, and infrastructure—are moved to or built on the cloud, new-technology and application development is faster, more reliable, and more easily scalable. Significant innovations in cloud platforms and the increasing availability of cloud-based tools provide banks with greater flexibility and speed. In time, the cloud can take over most, if not all, legacy on-premises functions, and most of the analytics tools that banks will want to incorporate, such as AI and machine learning, will run better as a result.
+Design and prototype the first MVP.
+This phase has three main steps that most successful banks follow, although they may iterate several times within each one. The goal is to sprint through each step toward an MVP that can be tested with users to generate the feedback needed to refine and improve it. (See Exhibit 6.)
+1
+/
+1
+The first step involves an in-depth analysis of the task. This includes defining a process with desirable user workflows (for both customers and employees), setting up the tech development environment in the cloud, and translating the user workflow into a tech workflow for designing the solution. It also involves redefining relevant regulatory policies and risk control measures.
+Next comes MVP design. In this step, the team develops an illustrative wireframe—a two-dimensional illustration of how the application will work—clarifies the business requirements for the tech team, and translates these into a software requirements specification containing the detailed functional requirements for development of the MVP.
+Moving from design to prototype involves designing and refining the user interface (front and back ends) in accordance with feedback from user tests (with both customers and employees). The interfaces can then be coded, implemented, and integrated with internal systems. It may also be necessary to develop new regulatory-policy packages and risk control measures that reflect input from relevant stakeholders.
+Pilot, learn, and prepare to scale up.
+Piloting the MVP with users is about validating hypotheses, collecting information on users’ adoption behaviors, and deriving the lessons that can form the basis for a process of continuous improvement. Pilots can also be used to test whether intended improvements work as designed. The key steps are:
+Defining the key hypothesis to be validated
+Developing a clear customer acquisition approach and sales force engagement plan
+Building a rigorous measurement approach and key performance indicators to monitor such factors as error rate, turnaround time, new customers acquired, and new-customer inquiries
+Developing an in-depth qualitative feedback loop to collect insights to be acted on—the “why” behind the actual performance
+At the same time, banks can develop a plan for rolling out or scaling up the new product. This involves identifying the target customer segments, setting quantitative and qualitative KPIs, and readying the branch network and sales team for rollout, including sufficient training for branch, operations, and sales staff.
+After launching the first MVP, the team can apply validated learnings in subsequent MVPs while continuing to test, learn, and refine the initial pilot. The first MVPs can then be scaled up. The next MVPs follow the same design, develop, pilot, learn, and scale cycle.
+The Resourcing Requirements Will Evolve
+The front-to-back approach is a structured process for executing the transformation and digitization of each value stream. The agile teams assigned to design and implement the components of the transformation constitute permanent modifications to the bank’s organization and operating model. Individual teams' makeup will evolve over time as they work through the MVP iteration process and move from addressing one part of the value stream to the next. (See Exhibits 7 and 8.) For example, the ratio of coordinators (those who coordinate across various business units and functions) to generators (those who generate ideas to improve and design the solutions) to doers (those who incorporate the solutions into systems and processes) will shift from 50-50-0 to 5-15-80 as the team’s work evolves from designing the vision and strategy to reimagining the customer journey to designing and implementing the MVPs. Each bank’s roadmap will be different, determined by such factors as the number of changes the bank can digest at once, the adjustment of features based on MVP piloting and testing, and the availability and capability of IT platforms and resources.
+1
+/
+1
+1
+/
+1
+Leading banks are already organizing solution delivery around customer value streams. They have defined the critical steps, assigned cross-functional teams that use agile ways of working to each one, and given those teams responsibility for product management and change, including product revenues and delivery.
+The front-to-back value stream approach represents a huge opportunity for banks that have not yet tackled full digital transformation, as well as for those that have tried to transform and come up short. The steps described above are straightforward, but it pays to remember a few key principles. Put customer and employee needs first—and keep them there. Perfection is an enemy of speed. Test, learn, adapt, modify, and move on. Agile is a prerequisite and a high-impact way of thinking, working, and executing. Dream big and transformational, but be practical in your approach.
+Authors
+Jungkiu Choi
+Senior Advisor
+Singapore
+Mark Dynes
+Alumnus
+Diana Rosioru
+Lead Strategic Designer
+Platinion – Milan
+Related Content
+Banking
+Article
+November 29, 2018
+What Do Corporate Banking Customers Really Want?
+Simple, straightforward transactions like the ones they enjoy on retail websites. But most corporate banks lag far behind when it comes to offering convenient online tools.
+Learn More
+Marketing and Sales
+Article
+November 8, 2019
+Transform Customer Journeys at Scale—and Transform Your Business
+Reconfiguring the company around journeys does more than improve the customer experience. It advances digital transformation and strengthens the capacity for ongoing change.
+Learn More
+Insurance Industry
+Article
+August 18, 2016
+Digitizing Customer Journeys and the New Insurance IT Model
+The flaw in insurers’ attempts to digitize is that they try to apply new technologies to existing products and processes while customers expect convenient digital solutions.
+Learn More
+Digital, Technology, and Data
+Article
+April 28, 2016
+Ensuring Digital Readiness in Financial Services
+Rising customer expectations and intensifying competition are spurring banks and insurers to overhaul their digital capabilities. What are the critical steps to success?
+Learn More
+Banking
+Focus
+September 26, 2019
+Retail Banking Distribution 2025: Up Close and Personal
+Today’s retail banking customers want more than they’re getting. Digital has transformed their expectations, and banks need to respond now.
+Learn More
+Banking
+Report
+January 26, 2021
+Global Retail Banking 2021: The Front-to-Back Digital Retail Bank
+Leading banks are already organizing solution delivery around customer value streams and taking customer engagement to the next level.
+Learn More
+ABOUT BOSTON CONSULTING GROUP
+Boston Consulting Group partners with leaders in business and society to tackle their most important challenges and capture their greatest opportunities. BCG was the pioneer in business strategy when it was founded in 1963. Today, we work closely with clients to embrace a transformational approach aimed at benefiting all stakeholders—empowering organizations to grow, build sustainable competitive advantage, and drive positive societal impact.
+Our diverse, global teams bring deep industry and functional expertise and a range of perspectives that question the status quo and spark change. BCG delivers solutions through leading-edge management consulting, technology and design, and corporate and digital ventures. We work in a uniquely collaborative model across the firm and throughout all levels of the client organization, fueled by the goal of helping our clients thrive and enabling them to make the world a better place.
+© Boston Consulting Group 2026. All rights reserved.
+For information or permission to reprint, please contact BCG at
+permissions@bcg.com
+. To find the latest BCG content and register to receive e-alerts on this topic or others, please visit
+bcg.com
+. Follow Boston Consulting Group on
+Facebook
+and
+X (formerly Twitter)
+.
+Hide
+Save It For Later
+Saved To
+My Saved Content
+Subscribe
+Stay ahead with BCG insights on financial institutions
+Stay ahead with BCG insights on financial institutions
+You are subscribed to BCG's eAlert on financial institutions.
+Manage Subscriptions
+Subscribe
+Download Article
+Share
+Link copied
+Save It For Later
+Saved To
+My Saved Content
+Subscribe
+Download Article
+Expand
