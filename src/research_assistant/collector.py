@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 from collections import defaultdict
 from pathlib import Path
 from urllib.parse import urlparse
@@ -83,14 +84,19 @@ def build_sources_from_urls(
     """Build source candidates from user-provided public URLs."""
 
     sources: list[SourceCandidate] = []
+    seen_urls: set[str] = set()
     for index, raw_url in enumerate(urls, start=1):
         url = raw_url.strip()
-        if not url:
+        if not url or url in seen_urls:
             continue
+        seen_urls.add(url)
         domain = urlparse(url).netloc.replace("www.", "") or "provided source"
+        # Stable, URL-unique id: the shared fetch cache is keyed by source_id,
+        # so a positional counter would reuse another URL's cached content.
+        url_hash = hashlib.sha256(url.encode("utf-8")).hexdigest()[:12]
         sources.append(
             SourceCandidate(
-                source_id=f"user_{index:03d}",
+                source_id=f"user_{url_hash}",
                 url=url,
                 title=f"{topic} source {index} ({domain})",
                 source_type=source_type,
