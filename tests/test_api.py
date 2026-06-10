@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 
@@ -13,10 +14,13 @@ def fake_public_discovery_and_fetch(monkeypatch) -> None:
     """Keep API tests offline while exercising the auto-discovery path."""
 
     def fake_discover_public_sources(topic: str, *, config=None, queries=None):
+        # Mirror the production contract: discovery returns URL-hash ids,
+        # never positional counters (those poisoned the shared fetch cache).
+        url = "https://example.com/research-report"
         return [
             SourceCandidate(
-                source_id="auto_001",
-                url="https://example.com/research-report",
+                source_id="auto_" + hashlib.sha256(url.encode("utf-8")).hexdigest()[:12],
+                url=url,
                 title=f"{topic} research report",
                 source_type=SourceType.RESEARCH_INDEX,
                 publisher="Example Research",

@@ -111,14 +111,30 @@ def test_public_source_discovery_uses_public_api_payloads(monkeypatch) -> None:
         ),
     )
 
-    assert [source.source_id for source in sources] == ["wiki_001", "openalex_001"]
+    wiki_hash = hashlib.sha256(
+        b"https://en.wikipedia.org/wiki/Fraud_detection"
+    ).hexdigest()[:12]
+    openalex_hash = hashlib.sha256(b"https://example.org/fraud-survey").hexdigest()[:12]
+    assert [source.source_id for source in sources] == [
+        f"wiki_{wiki_hash}",
+        f"openalex_{openalex_hash}",
+    ]
+    assert [str(source.url) for source in sources] == [
+        "https://en.wikipedia.org/wiki/Fraud_detection",
+        "https://example.org/fraud-survey",
+    ]
     assert sources[0].source_type.value == "encyclopedia"
     assert sources[1].source_type.value == "research_index"
     assert sources[0].research_block == "definition_and_context"
 
     repeat_sources = discover_public_sources(
         "AI fraud detection in insurance",
-        config=SourceDiscoveryConfig(max_sources=4),
+        config=SourceDiscoveryConfig(
+            max_sources=4,
+            include_arxiv=False,
+            include_crossref=False,
+            include_searxng=False,
+        ),
     )
     assert [source.source_id for source in repeat_sources] == [
         source.source_id for source in sources

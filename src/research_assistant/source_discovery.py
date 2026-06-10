@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -343,13 +344,15 @@ def _deduplicate_sources(sources: list[SourceCandidate]) -> list[SourceCandidate
 
 
 def _renumber_sources(sources: list[SourceCandidate]) -> list[SourceCandidate]:
-    counters: dict[str, int] = {}
+    # Final ids must be URL-unique, not positional: the fetch cache in data/raw
+    # and the clean cache in data/clean are keyed by source_id, so a per-request
+    # counter would attribute another URL's cached content across runs and topics.
     renumbered: list[SourceCandidate] = []
     for source in sources:
         prefix = source.source_id.split("_raw_", 1)[0]
-        counters[prefix] = counters.get(prefix, 0) + 1
+        url_hash = hashlib.sha256(str(source.url).encode("utf-8")).hexdigest()[:12]
         renumbered.append(
-            source.model_copy(update={"source_id": f"{prefix}_{counters[prefix]:03d}"})
+            source.model_copy(update={"source_id": f"{prefix}_{url_hash}"})
         )
     return renumbered
 
