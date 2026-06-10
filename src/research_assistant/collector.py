@@ -78,7 +78,7 @@ def build_sources_from_urls(
     urls: list[str],
     *,
     topic: str,
-    source_type: SourceType = SourceType.OTHER,
+    source_type: SourceType = SourceType.USER_PROVIDED,
 ) -> list[SourceCandidate]:
     """Build source candidates from user-provided public URLs."""
 

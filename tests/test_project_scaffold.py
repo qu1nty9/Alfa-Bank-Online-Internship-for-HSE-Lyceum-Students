@@ -12,6 +12,7 @@ from research_assistant.evidence import build_evidence_items, write_evidence_csv
 from research_assistant.evaluation import build_evaluation_summary
 from research_assistant.fetcher import fetch_sources_safe, raw_document_path
 from research_assistant.filtering import filter_chunks, rank_chunks_bm25
+from research_assistant.knowledge_graph import build_knowledge_graph
 from research_assistant.llm_gateway import (
     LLMGatewayConfig,
     LLMGatewayError,
@@ -179,6 +180,34 @@ def test_parse_raw_document_writes_clean_text(tmp_path) -> None:
     assert "Banking CLV depends on retention." in clean_document.text
 
 
+def test_parse_markdown_upload_as_clean_text(tmp_path) -> None:
+    source = SourceCandidate(
+        source_id="upload_test_001",
+        url="https://local.upload/run_test/research.md",
+        title="research.md",
+        source_type=SourceType.UPLOADED_DOCUMENT,
+        publisher="local upload",
+        research_block="definition_and_context",
+        status="ready",
+    )
+    raw_path = tmp_path / "research.md"
+    raw_path.write_text(
+        "# Fraud analytics\n\nAI fraud detection in insurance uses claims signals.",
+        encoding="utf-8",
+    )
+    raw_document = RawDocument(
+        source_id=source.source_id,
+        url=source.url,
+        path=raw_path,
+        content_type="text/markdown",
+    )
+
+    clean_document = parse_raw_document(raw_document, source, tmp_path / "clean")
+
+    assert clean_document.parser_name == "markdown_text"
+    assert "AI fraud detection" in clean_document.text
+
+
 def test_safe_parse_keeps_successful_documents(tmp_path) -> None:
     source = load_seed_sources(PROJECT_ROOT / "data/seed_sources/cltv_sources_template.csv")[0]
     raw_path = tmp_path / "seed_001.html"
@@ -321,9 +350,36 @@ def test_evaluation_report_and_quality_gate_flow(tmp_path) -> None:
 
     assert summary["clean_document_count"] == 5
     assert "## Claim traceability" in report_markdown
+    assert "## Knowledge graph links" in report_markdown
     assert "## Evidence table" in report_markdown
     assert "## Unknowns" in report_markdown
     assert gate.status in {"pass", "warn"}
+
+
+def test_knowledge_graph_links_claims_evidence_and_sources() -> None:
+    graph = build_knowledge_graph(
+        evidence_items=[
+            {
+                "source_id": "upload_test_001",
+                "chunk_id": "upload_test_001_chunk_001",
+                "source_type": "uploaded_document",
+                "research_block": "definition_and_context",
+                "text": "AI fraud detection in insurance uses claim history.",
+            }
+        ],
+        claim_items=[
+            {
+                "claim_id": "claim_001",
+                "confidence": "high",
+                "evidence_ids": ["upload_test_001/upload_test_001_chunk_001"],
+                "claim_text": "AI fraud detection has evidence in the uploaded file.",
+            }
+        ],
+    )
+
+    assert graph["summary"]["source_count"] == 1
+    assert graph["summary"]["edge_count"] == 2
+    assert any(edge["relation"] == "supported_by" for edge in graph["edges"])
 
 
 def test_sensitivity_blocks_personal_data() -> None:

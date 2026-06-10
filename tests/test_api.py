@@ -24,10 +24,11 @@ def test_demo_ui_shell_and_static_assets_are_served() -> None:
     assert "text/html" in ui_response.headers["content-type"]
     assert "Bank Research Console" in ui_response.text
     assert "Source URLs" in ui_response.text
-    assert "Auto discover public sources" in ui_response.text
+    assert "Public search" in ui_response.text
+    assert "Загрузить документы" in ui_response.text
     assert "/static/app.js" in ui_response.text
     assert app_js_response.status_code == 200
-    assert "runResearch" in app_js_response.text
+    assert "runResearchWithFiles" in app_js_response.text
 
 
 def test_research_run_endpoint_offline() -> None:
@@ -60,6 +61,7 @@ def test_research_run_endpoint_offline() -> None:
     assert payload["links"]["report"].endswith("/report")
     assert payload["links"]["evidence"].endswith("/evidence")
     assert payload["links"]["claims"].endswith("/claims")
+    assert payload["links"]["graph"].endswith("/graph")
     assert payload["links"]["review"].endswith("/review")
 
 
@@ -130,12 +132,14 @@ def test_run_specific_report_and_evidence_endpoints_return_payloads() -> None:
     report_response = client.get(f"/research/runs/{run_id}/report")
     evidence_response = client.get(f"/research/runs/{run_id}/evidence")
     claims_response = client.get(f"/research/runs/{run_id}/claims")
+    graph_response = client.get(f"/research/runs/{run_id}/graph")
 
     assert status_response.status_code == 200
     assert status_response.json()["run_id"] == run_id
     assert report_response.status_code == 200
     assert "# CLTV" in report_response.json()["markdown"]
     assert "## Claim traceability" in report_response.json()["markdown"]
+    assert "## Knowledge graph links" in report_response.json()["markdown"]
     assert evidence_response.status_code == 200
     evidence_items = evidence_response.json()["items"]
     assert len(evidence_items) >= 1
@@ -145,6 +149,60 @@ def test_run_specific_report_and_evidence_endpoints_return_payloads() -> None:
     assert len(claim_items) >= 1
     assert claim_items[0]["claim_id"].startswith("claim_")
     assert claim_items[0]["evidence_ids"]
+    assert graph_response.status_code == 200
+    graph = graph_response.json()["graph"]
+    assert graph["summary"]["claim_count"] >= 1
+    assert graph["summary"]["edge_count"] >= 1
+
+
+def test_research_run_with_uploaded_markdown_file() -> None:
+    client = TestClient(app)
+    markdown = """
+    # AI fraud detection in insurance
+
+    AI fraud detection in insurance uses anomaly detection, claims history, provider
+    behavior, document checks, and transaction signals to prioritize suspicious claims.
+    Business analysts compare fraud detection methods by precision, recall, operational
+    review cost, explainability, and customer friction. Implementation considerations
+    include data quality, model governance, false positives, privacy controls, and audit
+    trails for every decision. Insurance teams also need reporting workflows that connect
+    each claim about fraud detection to exact evidence from internal policy documents.
+    """
+
+    response = client.post(
+        "/research/run-with-files",
+        data={
+            "topic": "AI fraud detection in insurance",
+            "actor_id": "test_analyst",
+            "actor_role": "analyst",
+            "auto_discover_sources": "false",
+            "use_live_fetch": "false",
+        },
+        files={
+            "files": (
+                "fraud_detection.md",
+                markdown.encode("utf-8"),
+                "text/markdown",
+            )
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "completed"
+    assert payload["quality_gate"] in {"pass", "warn"}
+    assert payload["evaluation_summary"]["source_mode"] == "uploaded_documents"
+    assert payload["evaluation_summary"]["clean_document_count"] == 1
+    assert payload["evaluation_summary"]["evidence_item_count"] >= 1
+    assert payload["request_settings"]["uploaded_source_count"] == 1
+    assert payload["request_settings"]["uploaded_files"][0]["parsed"] is True
+    assert payload["source_policy"]["source_type_counts"]["uploaded_document"] == 1
+
+    graph_response = client.get(payload["links"]["graph"])
+    assert graph_response.status_code == 200
+    graph = graph_response.json()["graph"]
+    assert graph["summary"]["source_count"] == 1
+    assert graph["summary"]["claim_count"] >= 1
 
 
 def test_report_review_workflow_requires_reviewer_and_valid_transition() -> None:

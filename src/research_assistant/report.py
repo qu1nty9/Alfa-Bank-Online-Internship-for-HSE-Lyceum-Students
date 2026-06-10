@@ -90,6 +90,32 @@ def render_markdown_report(
         )
     lines.append("")
 
+    lines.extend(
+        [
+            "## Knowledge graph links",
+            "",
+            (
+                "Этот слой переносит идею persistent research wiki в MVP: "
+                "источники остаются source of truth, а claims и evidence становятся "
+                "явными связанными узлами для проверки и повторного использования."
+            ),
+            "",
+            "| claim_id | supported_by_evidence | source_ids |",
+            "| --- | --- | --- |",
+        ]
+    )
+    for item in claims:
+        lines.append(
+            "| "
+            f"{item.claim_id} | "
+            f"{', '.join(item.evidence_ids)} | "
+            f"{', '.join(item.source_ids)} |"
+        )
+    lines.extend(["", "### Source coverage", ""])
+    for source_id, blocks in _source_block_links(evidence_items).items():
+        lines.append(f"- `{source_id}` связан с блоками: {', '.join(blocks)}.")
+    lines.append("")
+
     evidence_by_block = _group_evidence_by_block(evidence_items)
     report_blocks = _ordered_report_blocks(evidence_by_block, evaluation_summary)
     for block in report_blocks:
@@ -186,6 +212,13 @@ def _ordered_report_blocks(
         if block not in blocks:
             blocks.append(block)
     return blocks or ["definition_and_context", "risks_and_limitations"]
+
+
+def _source_block_links(evidence_items: list[EvidenceItem]) -> dict[str, list[str]]:
+    links: dict[str, set[str]] = defaultdict(set)
+    for item in evidence_items:
+        links[item.source_id].add(item.research_block or "unknown")
+    return {source_id: sorted(blocks) for source_id, blocks in sorted(links.items())}
 
 
 def _humanize_block(block: str) -> str:

@@ -26,6 +26,9 @@ def parse_raw_document(
     if suffix == ".pdf" or _is_pdf(raw_document):
         text = extract_pdf_text(raw_path)
         parser_name = "pypdf"
+    elif suffix == ".md" or _is_markdown(raw_document):
+        text = raw_path.read_text(encoding="utf-8", errors="ignore")
+        parser_name = "markdown_text"
     elif suffix == ".txt" or _is_plain_text(raw_document):
         text = raw_path.read_text(encoding="utf-8", errors="ignore")
         parser_name = "plain_text"
@@ -149,6 +152,13 @@ def _is_pdf(raw_document: RawDocument) -> bool:
 
 def _is_plain_text(raw_document: RawDocument) -> bool:
     return (raw_document.content_type or "").split(";", 1)[0].strip().lower() == "text/plain"
+
+
+def _is_markdown(raw_document: RawDocument) -> bool:
+    return (raw_document.content_type or "").split(";", 1)[0].strip().lower() in {
+        "text/markdown",
+        "text/x-markdown",
+    }
 
 
 class _VisibleTextHTMLParser(HTMLParser):

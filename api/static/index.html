@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,108 +7,119 @@
     <link rel="stylesheet" href="/static/styles.css">
   </head>
   <body>
-    <main class="shell">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">Bank Research Assistant</p>
+    <main class="app-shell">
+      <aside class="history-panel" aria-label="История запросов">
+        <div class="brand-block">
+          <p class="eyebrow">Open-source analytics</p>
           <h1>Research Console</h1>
         </div>
-        <div class="topbar-actions">
-          <a class="ghost-link" href="/docs" target="_blank" rel="noreferrer">OpenAPI</a>
-          <button id="refreshRunsButton" class="icon-button" type="button" title="Refresh runs" aria-label="Refresh runs">Refresh</button>
+        <div class="history-header">
+          <h2>История</h2>
+          <button id="refreshRunsButton" class="icon-button" type="button" title="Обновить историю">↻</button>
         </div>
-      </header>
+        <div id="runsList" class="runs-list"></div>
+      </aside>
 
-      <section class="control-grid" aria-label="Research controls">
-        <form id="runForm" class="panel run-panel">
-          <div class="section-title">
-            <h2>Run Research</h2>
-            <span id="runStatePill" class="pill neutral">Idle</span>
+      <section class="main-workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Evidence-first pipeline</p>
+            <h2>Автоматизированная аналитика по открытым источникам</h2>
           </div>
-          <label for="topicInput">Topic</label>
-          <textarea id="topicInput" rows="3">CLTV in foreign banks</textarea>
+          <div class="topbar-actions">
+            <span id="runsCount" class="counter">0</span>
+            <a class="ghost-link" href="/docs" target="_blank" rel="noreferrer">OpenAPI</a>
+          </div>
+        </header>
 
-          <label for="sourceUrlsInput">Source URLs</label>
-          <textarea id="sourceUrlsInput" rows="4" placeholder="Optional for arbitrary topics. Add one public URL per line."></textarea>
+        <form id="runForm" class="prompt-card" aria-label="Запуск исследования">
+          <div id="selectedFiles" class="file-chip-row" aria-live="polite"></div>
+          <div id="promptDropZone" class="prompt-box">
+            <textarea
+              id="topicInput"
+              rows="2"
+              placeholder="Введите тему исследования"
+            >CLTV in foreign banks</textarea>
 
-          <div class="form-row">
-            <label>
-              Actor ID
-              <input id="actorInput" value="demo_analyst" autocomplete="off">
-            </label>
-            <label>
-              Role
-              <select id="actorRoleInput">
-                <option value="analyst">analyst</option>
-                <option value="reviewer">reviewer</option>
-                <option value="admin">admin</option>
-              </select>
-            </label>
+            <div class="prompt-actions">
+              <div class="attach-wrap">
+                <button id="attachButton" class="round-button" type="button" title="Добавить файл">+</button>
+                <div id="attachMenu" class="attach-menu" hidden>
+                  <button id="uploadDocsButton" type="button">Загрузить документы</button>
+                  <button id="clearFilesButton" type="button">Очистить файлы</button>
+                </div>
+                <input
+                  id="fileInput"
+                  type="file"
+                  multiple
+                  accept=".md,.txt,.pdf,.html,.htm,text/markdown,text/plain,text/html,application/pdf"
+                  hidden
+                >
+              </div>
+              <label class="toggle-line">
+                <input id="autoDiscoverInput" type="checkbox" checked>
+                Public search
+              </label>
+              <label class="toggle-line">
+                <input id="liveFetchInput" type="checkbox">
+                Live fetch
+              </label>
+              <button id="runButton" class="send-button" type="submit">Запустить</button>
+            </div>
           </div>
 
-          <div class="form-row compact">
-            <label class="checkbox-line">
-              <input id="autoDiscoverInput" type="checkbox" checked>
-              Auto discover public sources
-            </label>
-            <label class="checkbox-line">
-              <input id="liveFetchInput" type="checkbox">
-              Live fetch seed sources
-            </label>
-          </div>
-
-          <div class="form-row compact">
-            <label>
-              Fetch limit
-              <input id="fetchLimitInput" type="number" min="1" placeholder="default">
-            </label>
-            <label>
-              Discovery limit
-              <input id="discoveryLimitInput" type="number" min="1" max="20" value="8">
-            </label>
-          </div>
-
-          <button id="runButton" class="primary-button" type="submit">Run pipeline</button>
+          <details class="settings-panel">
+            <summary>Параметры интеграции</summary>
+            <div class="settings-grid">
+              <label>
+                Source URLs
+                <textarea id="sourceUrlsInput" rows="3" placeholder="Один публичный URL на строку"></textarea>
+              </label>
+              <label>
+                Actor ID
+                <input id="actorInput" value="demo_analyst" autocomplete="off">
+              </label>
+              <label>
+                Role
+                <select id="actorRoleInput">
+                  <option value="analyst">analyst</option>
+                  <option value="reviewer">reviewer</option>
+                  <option value="admin">admin</option>
+                </select>
+              </label>
+              <label>
+                Fetch limit
+                <input id="fetchLimitInput" type="number" min="1" placeholder="default">
+              </label>
+              <label>
+                Discovery limit
+                <input id="discoveryLimitInput" type="number" min="1" max="20" value="8">
+              </label>
+            </div>
+          </details>
         </form>
 
-        <aside class="panel status-panel">
-          <div class="section-title">
-            <h2>Run Status</h2>
-            <span id="qualityPill" class="pill neutral">not started</span>
-          </div>
-          <dl class="status-grid">
-            <div><dt>Run ID</dt><dd id="runIdValue">-</dd></div>
-            <div><dt>Status</dt><dd id="statusValue">-</dd></div>
-            <div><dt>Sensitivity</dt><dd id="sensitivityValue">-</dd></div>
-            <div><dt>Model</dt><dd id="modelValue">-</dd></div>
-            <div><dt>Synthesis</dt><dd id="synthesisValue">-</dd></div>
-            <div><dt>Allowed sources</dt><dd id="sourcesValue">-</dd></div>
-          </dl>
-        </aside>
-      </section>
+        <section class="status-strip" aria-label="Статус исследования">
+          <div><span>Run</span><strong id="runIdValue">-</strong></div>
+          <div><span>Status</span><strong id="statusValue">-</strong></div>
+          <div><span>Quality</span><strong id="qualityPill" class="pill neutral">not started</strong></div>
+          <div><span>Sources</span><strong id="sourcesValue">-</strong></div>
+          <div><span>Model</span><strong id="modelValue">-</strong></div>
+        </section>
 
-      <section class="workspace">
-        <aside class="panel runs-panel">
-          <div class="section-title">
-            <h2>Runs</h2>
-            <span id="runsCount" class="counter">0</span>
-          </div>
-          <div id="runsList" class="runs-list"></div>
-        </aside>
-
-        <section class="panel detail-panel">
-          <nav class="tabs" aria-label="Run detail tabs">
-            <button class="tab active" type="button" data-tab="report">Report</button>
-            <button class="tab" type="button" data-tab="evidence">Evidence</button>
-            <button class="tab" type="button" data-tab="claims">Claims</button>
-            <button class="tab" type="button" data-tab="review">Review</button>
-            <button class="tab" type="button" data-tab="audit">Audit</button>
+        <section class="detail-panel">
+          <nav class="tabs" aria-label="Разделы результата">
+            <button class="tab active" type="button" data-tab="report">Отчёт</button>
+            <button class="tab" type="button" data-tab="evidence">Доказательства</button>
+            <button class="tab" type="button" data-tab="claims">Претензии</button>
+            <button class="tab" type="button" data-tab="review">Проверка</button>
+            <button class="tab" type="button" data-tab="audit">Аудит</button>
           </nav>
 
           <div id="messageBar" class="message-bar" hidden></div>
 
           <section id="reportTab" class="tab-panel active">
-            <pre id="reportOutput" class="markdown-output">Run research to load a report.</pre>
+            <pre id="reportOutput" class="markdown-output">Запустите исследование, чтобы получить отчёт.</pre>
           </section>
 
           <section id="evidenceTab" class="tab-panel">
@@ -129,6 +140,10 @@
           </section>
 
           <section id="claimsTab" class="tab-panel">
+            <div class="graph-strip">
+              <div id="graphSummary" class="graph-summary"></div>
+              <div id="graphList" class="graph-list"></div>
+            </div>
             <div class="table-wrap">
               <table>
                 <thead>
@@ -147,7 +162,7 @@
           <section id="reviewTab" class="tab-panel">
             <div class="review-grid">
               <div>
-                <h3>Current Review</h3>
+                <h3>Review state</h3>
                 <dl class="status-grid small">
                   <div><dt>Status</dt><dd id="reviewStatusValue">-</dd></div>
                   <div><dt>Updated by</dt><dd id="reviewByValue">-</dd></div>
@@ -159,7 +174,7 @@
                 <label for="reviewNotesInput">Notes</label>
                 <textarea id="reviewNotesInput" rows="3">Evidence table and claim traceability checked.</textarea>
                 <div class="button-row">
-                  <button type="button" class="secondary-button" data-review-decision="reviewed">Mark reviewed</button>
+                  <button type="button" class="secondary-button" data-review-decision="reviewed">Reviewed</button>
                   <button type="button" class="secondary-button approve" data-review-decision="approved">Approve</button>
                   <button type="button" class="secondary-button reject" data-review-decision="rejected">Reject</button>
                 </div>
@@ -169,10 +184,7 @@
 
           <section id="auditTab" class="tab-panel">
             <div class="audit-header">
-              <div>
-                <h3>Audit Events</h3>
-                <p>Admin-only view of the latest append-only audit records.</p>
-              </div>
+              <h3>Audit Events</h3>
               <button id="loadAuditButton" class="secondary-button" type="button">Load events</button>
             </div>
             <pre id="auditOutput" class="json-output">No audit events loaded.</pre>

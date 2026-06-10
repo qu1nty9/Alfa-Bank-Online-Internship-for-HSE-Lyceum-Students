@@ -30,6 +30,8 @@ Stage 5 превращает рабочий прототип в понятный
 9. Local Qwen3-1.7B установлен и проверен на машине участника.
 10. Lightweight no-build demo UI доступен на `/ui`.
 11. Generic planner, auto source discovery и `source_urls` позволяют запускать произвольные темы без CLTV-завязки.
+12. Multipart upload endpoint позволяет добавлять `.md`, `.txt`, `.pdf`, `.html` документы как локальные источники.
+13. Lightweight graph layer показывает связи `claim -> evidence -> source`.
 
 ## Stage 5 deliverables
 
@@ -87,9 +89,11 @@ api/static/app.js
 
 UI включает:
 
-- поле ввода темы;
-- кнопка запуска;
-- tabs: `Report`, `Evidence`, `Claims`, `Review`, `Audit`;
+- единое поле ввода темы;
+- plus menu для загрузки `.md`, `.txt`, `.pdf`, `.html`;
+- историю запусков слева;
+- tabs: `Отчёт`, `Доказательства`, `Претензии`, `Проверка`, `Аудит`;
+- graph summary внутри claims-раздела;
 - badge текущей модели: `offline_template` / `local_qwen`;
 - кнопки reviewer workflow.
 

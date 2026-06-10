@@ -7,6 +7,7 @@ from .evidence import build_evidence_items
 from .evaluation import build_evaluation_summary
 from .fetcher import fetch_source, fetch_sources_safe
 from .filtering import filter_chunks, rank_chunks_bm25
+from .knowledge_graph import build_knowledge_graph
 from .llm_gateway import (
     LLMGatewayConfig,
     LLMGatewayMetadata,
@@ -27,6 +28,7 @@ from .models import (
     ResearchPlan,
     SearchQuery,
     SourceCandidate,
+    SourceType,
     TextChunk,
 )
 from .parser import parse_raw_document, parse_raw_documents_safe
@@ -62,9 +64,11 @@ __all__ = [
     "SourceCandidate",
     "SourceDiscoveryConfig",
     "SourcePolicyConfig",
+    "SourceType",
     "TextChunk",
     "build_evidence_items",
     "build_generic_research_plan",
+    "build_knowledge_graph",
     "build_llm_gateway",
     "build_research_plan",
     "build_sources_from_urls",

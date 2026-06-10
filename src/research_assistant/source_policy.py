@@ -20,6 +20,8 @@ DEFAULT_ALLOWED_SOURCE_TYPES = [
     SourceType.VENDOR,
     SourceType.ENCYCLOPEDIA,
     SourceType.RESEARCH_INDEX,
+    SourceType.USER_PROVIDED,
+    SourceType.UPLOADED_DOCUMENT,
 ]
 
 DEFAULT_POLICY_NOTES = [
@@ -128,7 +130,14 @@ def _source_is_allowed(source: SourceCandidate, policy: SourcePolicyConfig) -> b
         and source.source_id not in set(policy.allowed_source_ids)
     ):
         return False
-    if policy.allowed_domains and not _domain_is_allowed(_source_domain(source), policy.allowed_domains):
+    is_unlisted_allowed_source = (
+        policy.allow_unlisted_public_sources and source.source_id not in set(policy.allowed_source_ids)
+    )
+    if (
+        policy.allowed_domains
+        and not is_unlisted_allowed_source
+        and not _domain_is_allowed(_source_domain(source), policy.allowed_domains)
+    ):
         return False
     return True
 

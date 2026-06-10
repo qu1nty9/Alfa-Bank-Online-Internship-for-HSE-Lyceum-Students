@@ -117,6 +117,13 @@ class ClaimsResponse(BaseModel):
     items: list[dict[str, Any]]
 
 
+class KnowledgeGraphResponse(BaseModel):
+    """Claim/evidence/source graph for one run."""
+
+    run_id: str
+    graph: dict[str, Any]
+
+
 class HealthResponse(BaseModel):
     """Service health payload."""
 

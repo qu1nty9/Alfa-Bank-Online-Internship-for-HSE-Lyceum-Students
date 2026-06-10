@@ -4,7 +4,7 @@
 
 Базовый демо-сценарий: исследование темы "Применение CLTV в иностранных банках".
 
-Core pipeline не ограничен CLTV: для произвольной темы он строит generic research plan, автоматически ищет публичные источники через no-key discovery connectors и дополнительно умеет принимать вручную переданные source URLs. Если источники не найдены, система честно возвращает `quality_gate=fail` и не подставляет CLTV evidence под чужую тему.
+Core pipeline не ограничен CLTV: для произвольной темы он строит generic research plan, автоматически ищет публичные источники через no-key discovery connectors, принимает вручную переданные source URLs и умеет анализировать загруженные `.md`, `.txt`, `.pdf`, `.html` документы. Если источники не найдены, система честно возвращает `quality_gate=fail` и не подставляет CLTV evidence под чужую тему.
 
 ## Цель проекта
 
@@ -39,13 +39,15 @@ Core pipeline не ограничен CLTV: для произвольной те
 
 Этап 4 закрыт: добавлены audit log, actor metadata, role enforcement, report review workflow, claim/evidence traceability, source allowlist config, admin workflow и формальный LLM Gateway contract.
 
-Этап 5 начат: добавлены материалы финальной защиты, demo script, метрики качества, roadmap и структура презентации.
+Этап 5 в работе: добавлены материалы финальной защиты, demo script, метрики качества, roadmap, структура презентации и единое demo UI с topic input, upload-файлами, историей запусков и claim/evidence/source graph.
 
 Ключевой результат Stage 2: `research_assistant.pipeline.run_research_pipeline()`.
 
 Ключевой результат Stage 3: API-запуски с `run_id`, хранилищем metadata и endpoints для получения статуса, отчета и evidence по конкретному запуску.
 
 Ключевой результат Stage 4: каждый API-запуск оставляет audit trail, отчет проходит reviewer workflow, ключевые claims связаны с evidence, source allowlist управляется через admin API, а LLM Gateway заменяем между offline, local Qwen, AlfaGen/GigaChat и OpenAI-compatible endpoints.
+
+Ключевой результат текущего Stage 5: продуктовый no-build UI поверх FastAPI, multipart upload endpoint, поддержка uploaded knowledge-base documents и lightweight graph layer `claim -> evidence -> source`.
 
 ## Структура проекта
 
@@ -105,7 +107,7 @@ PYTHONPATH=src python -m research_assistant.pipeline --topic "CLTV in foreign ba
 PYTHONPATH=src python -m research_assistant.pipeline --topic "CLTV in foreign banks" --live-fetch --fetch-limit 8
 ```
 
-Для произвольной темы через API/UI можно просто ввести topic: auto discovery включен по умолчанию. Публичные source URLs можно добавить вручную, если нужно усилить или зафиксировать набор источников.
+Для произвольной темы через API/UI можно просто ввести topic: auto discovery включен по умолчанию. Публичные source URLs можно добавить вручную, если нужно усилить или зафиксировать набор источников. В UI также можно загрузить `.md`, `.txt`, `.pdf`, `.html` файлы: они будут распарсены локально и пройдут через тот же noise filtering, evidence extraction, report, review и audit контур.
 
 Запустить FastAPI MVP:
 
@@ -124,11 +126,13 @@ API endpoints:
 - `GET /` / `GET /ui` - lightweight demo UI
 - `GET /health`
 - `POST /research/run`
+- `POST /research/run-with-files`
 - `GET /research/runs`
 - `GET /research/runs/{run_id}/status`
 - `GET /research/runs/{run_id}/report`
 - `GET /research/runs/{run_id}/claims`
 - `GET /research/runs/{run_id}/evidence`
+- `GET /research/runs/{run_id}/graph`
 - `POST /research/runs/{run_id}/review`
 - `GET /admin/source-policy`
 - `PUT /admin/source-policy`
@@ -159,6 +163,17 @@ curl -X POST http://127.0.0.1:8000/research/run \
 curl -X POST http://127.0.0.1:8000/research/run \
   -H "Content-Type: application/json" \
   -d '{"topic":"AI fraud detection in insurance","actor_id":"demo_analyst","actor_role":"analyst","auto_discover_sources":false,"source_urls":["https://example.com/public-report"]}'
+```
+
+Пример произвольной темы с локальным markdown-документом:
+
+```bash
+curl -X POST http://127.0.0.1:8000/research/run-with-files \
+  -F "topic=AI fraud detection in insurance" \
+  -F "actor_id=demo_analyst" \
+  -F "actor_role=analyst" \
+  -F "auto_discover_sources=false" \
+  -F "files=@./research_note.md;type=text/markdown"
 ```
 
 Локальная LLM для демо:
@@ -196,11 +211,13 @@ docs/local_llm.md
 - `sensitivity.py` - проверка чувствительных запросов;
 - `planner.py` - research plan;
 - `collector.py` - seed-source collector;
+- `source_discovery.py` - no-key public source discovery;
 - `fetcher.py` - raw fetching;
 - `parser.py` - clean text extraction;
 - `chunker.py` - chunking;
 - `filtering.py` - noise filter и BM25 ranking;
 - `evidence.py` - evidence table;
+- `knowledge_graph.py` - lightweight claim/evidence/source graph;
 - `report.py` - template-based report;
 - `quality_gate.py` - проверки результата;
 - `pipeline.py` - orchestration.

@@ -12,11 +12,13 @@ Endpoints:
 - `GET /ui`
 - `GET /health`
 - `POST /research/run`
+- `POST /research/run-with-files`
 - `GET /research/runs`
 - `GET /research/runs/{run_id}/status`
 - `GET /research/runs/{run_id}/report`
 - `GET /research/runs/{run_id}/claims`
 - `GET /research/runs/{run_id}/evidence`
+- `GET /research/runs/{run_id}/graph`
 - `POST /research/runs/{run_id}/review`
 - `GET /research/report`
 - `GET /research/evidence`
@@ -52,19 +54,29 @@ The UI is intentionally thin:
 - it keeps the API as the integration contract;
 - it can be replaced by a bank frontend without changing the pipeline.
 
+The current UI has one analyst window:
+
+- topic input;
+- plus menu for `.md`, `.txt`, `.pdf`, `.html` uploads;
+- optional public source URLs;
+- run history on the left;
+- compact tabs for result inspection.
+
 UI tabs:
 
-- `Report`;
-- `Evidence`;
-- `Claims`;
-- `Review`;
-- `Audit`.
+- `Отчёт`;
+- `Доказательства`;
+- `Претензии`;
+- `Проверка`;
+- `Аудит`.
 
 ## Run contract
 
 `POST /research/run` runs the modular pipeline synchronously and stores an API run under `reports/api_runs/{run_id}/`.
 
-For the curated CLTV demo, the pipeline can use cached clean documents from the repository. For arbitrary topics, auto discovery is enabled by default and uses no-key public connectors. You can also pass public `source_urls` to fix or strengthen the source set. If no topic-matched sources are available, the run fails the quality gate instead of reusing unrelated CLTV evidence.
+`POST /research/run-with-files` accepts the same research settings as multipart form data and adds uploaded documents as local sources. Supported file types: `.md`, `.txt`, `.pdf`, `.html`, `.htm`.
+
+For the curated CLTV demo, the pipeline can use cached clean documents from the repository. For arbitrary topics, auto discovery is enabled by default and uses no-key public connectors. You can also pass public `source_urls` to fix or strengthen the source set, or upload local knowledge-base documents. If no topic-matched sources are available, the run fails the quality gate instead of reusing unrelated CLTV evidence.
 
 The response includes:
 
@@ -78,7 +90,7 @@ The response includes:
 - `model_gateway` - model mode and external-call boundary;
 - `review` - report review state;
 - `audit` - audit log status;
-- `links` - API paths for status, report, claims, evidence, and review.
+- `links` - API paths for status, report, claims, evidence, graph, and review.
 
 The run-specific endpoints should be used by integrations:
 
@@ -87,6 +99,7 @@ GET /research/runs/{run_id}/status
 GET /research/runs/{run_id}/report
 GET /research/runs/{run_id}/claims
 GET /research/runs/{run_id}/evidence
+GET /research/runs/{run_id}/graph
 POST /research/runs/{run_id}/review
 ```
 
@@ -134,6 +147,31 @@ Arbitrary topic with fixed source URLs:
   ]
 }
 ```
+
+Arbitrary topic with an uploaded markdown document:
+
+```bash
+curl -X POST http://127.0.0.1:8000/research/run-with-files \
+  -F "topic=AI fraud detection in insurance" \
+  -F "actor_id=demo_analyst" \
+  -F "actor_role=analyst" \
+  -F "auto_discover_sources=false" \
+  -F "files=@./research_note.md;type=text/markdown"
+```
+
+Uploaded files are saved under ignored `data/raw/uploads/{run_id}/`, parsed into ignored `data/clean/`, and represented as `source_type=uploaded_document` in policy/evidence metadata.
+
+## Knowledge graph
+
+`GET /research/runs/{run_id}/graph` returns a plain JSON graph:
+
+- `source` nodes;
+- `evidence` nodes;
+- `claim` nodes;
+- `supported_by` edges from claim to evidence;
+- `from_source` edges from evidence to source.
+
+This is the lightweight implementation of the persistent research-wiki idea: the raw documents remain source of truth, while reusable links between claims, evidence, and sources become explicit integration artifacts.
 
 Each run appends an audit event to:
 

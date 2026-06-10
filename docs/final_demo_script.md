@@ -18,6 +18,8 @@ AI fraud detection in insurance
 
 Для произвольной темы auto discovery включен по умолчанию. Публичные source URLs можно добавить вручную, если нужно зафиксировать или усилить набор источников. Если источники не найдены, система должна вернуть `quality_gate=fail`, а не подставить CLTV evidence.
 
+Дополнительный сценарий knowledge-base scan: загрузить `.md`, `.txt`, `.pdf` или `.html` документ через plus menu в UI и получить тот же report/evidence/claims/audit контур по локальному файлу.
+
 Главный тезис демо: система не просто генерирует текст, а строит проверяемый research-конвейер с source policy, evidence, claims, quality gate, review и audit.
 
 ## Перед демонстрацией
@@ -38,7 +40,7 @@ source .venv/bin/activate
 Ожидаемо:
 
 ```text
-37 passed
+40 passed
 ```
 
 ### 3. Выбрать LLM mode
@@ -140,7 +142,7 @@ Query params:
 В UI:
 
 ```text
-Run Research -> Run pipeline
+Введите тему -> Запустить
 ```
 
 Endpoint:
@@ -233,7 +235,7 @@ GET /research/runs/{run_id}/evidence
 В UI:
 
 ```text
-Claims tab
+Претензии tab
 ```
 
 Endpoint:
@@ -254,7 +256,62 @@ GET /research/runs/{run_id}/claims
 
 > Это ключевое отличие от чат-бота: отчет можно разложить на проверяемые утверждения.
 
-### Шаг 7. Reviewer workflow
+### Шаг 7. Открыть graph links
+
+В UI:
+
+```text
+Претензии tab -> graph summary
+```
+
+Endpoint:
+
+```text
+GET /research/runs/{run_id}/graph
+```
+
+Что показать:
+
+- `source_count`;
+- `evidence_count`;
+- `claim_count`;
+- `edge_count`;
+- связи `claim -> evidence -> source`.
+
+Что сказать:
+
+> Мы применяем lightweight-вариант research wiki: raw sources остаются source of truth, а связи между источниками, evidence и claims становятся отдельным JSON-артефактом для интеграции.
+
+### Шаг 8. Upload knowledge-base document
+
+В UI:
+
+```text
++ -> Загрузить документы -> выбрать .md/.txt/.pdf/.html -> Запустить
+```
+
+Endpoint:
+
+```text
+POST /research/run-with-files
+```
+
+Пример:
+
+```bash
+curl -X POST http://127.0.0.1:8000/research/run-with-files \
+  -F "topic=AI fraud detection in insurance" \
+  -F "actor_id=demo_analyst" \
+  -F "actor_role=analyst" \
+  -F "auto_discover_sources=false" \
+  -F "files=@./research_note.md;type=text/markdown"
+```
+
+Что сказать:
+
+> Это важно для open-source и банковской интеграции: тот же движок может работать не только по public discovery, но и по локальным справочникам, регламентам или загруженным материалам без отправки документов наружу.
+
+### Шаг 9. Reviewer workflow
 
 В UI:
 
@@ -294,7 +351,7 @@ POST /research/runs/{run_id}/review
 
 > Аналитик не является единственной точкой контроля. Отчет проходит human-in-the-loop review.
 
-### Шаг 8. Sensitive request check
+### Шаг 10. Sensitive request check
 
 В UI:
 

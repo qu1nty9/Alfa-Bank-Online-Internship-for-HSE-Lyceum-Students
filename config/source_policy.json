@@ -8,7 +8,9 @@
     "academic",
     "vendor",
     "encyclopedia",
-    "research_index"
+    "research_index",
+    "user_provided",
+    "uploaded_document"
   ],
   "allow_unlisted_public_sources": true,
   "allowed_source_ids": [
@@ -37,7 +39,8 @@
     "businesswire.com",
     "wikipedia.org",
     "openalex.org",
-    "arxiv.org"
+    "arxiv.org",
+    "local.upload"
   ],
   "notes": [
     "Use curated public sources first.",

@@ -14,6 +14,7 @@ numpy>=1.26
 
 # API, MVP UI, and notebooks
 fastapi>=0.111
+python-multipart>=0.0.9
 uvicorn[standard]>=0.30
 streamlit>=1.35
 jupyter>=1.0

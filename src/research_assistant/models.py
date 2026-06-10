@@ -19,6 +19,8 @@ class SourceType(StrEnum):
     VENDOR = "vendor"
     ENCYCLOPEDIA = "encyclopedia"
     RESEARCH_INDEX = "research_index"
+    USER_PROVIDED = "user_provided"
+    UPLOADED_DOCUMENT = "uploaded_document"
     NEWS = "news"
     OTHER = "other"
 
