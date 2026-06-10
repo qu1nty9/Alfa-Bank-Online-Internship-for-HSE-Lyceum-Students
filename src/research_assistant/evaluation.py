@@ -41,7 +41,7 @@ def build_evaluation_summary(
         "planner_mode": "cltv_demo"
         if "definition_and_business_value" in plan.blocks
         else "generic",
-        "seed_source_count": len(sources),
+        "source_candidate_count": len(sources),
         "clean_document_count": len(clean_documents),
         "clean_source_ids": sorted(clean_source_ids),
         "clean_block_coverage": dict(sorted(clean_blocks.items())),

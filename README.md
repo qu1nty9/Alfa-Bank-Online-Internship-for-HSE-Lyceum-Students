@@ -2,9 +2,9 @@
 
 Прототип open-source research assistant для автоматизированной аналитики по открытым источникам.
 
-Базовый демо-сценарий: исследование темы "Применение CLTV в иностранных банках".
+Один из демо-сценариев: исследование темы "Применение CLTV в иностранных банках".
 
-Core pipeline не ограничен CLTV: для произвольной темы он строит generic research plan, автоматически ищет публичные источники через no-key discovery connectors, принимает вручную переданные source URLs и умеет анализировать загруженные `.md`, `.txt`, `.pdf`, `.html` документы. Если источники не найдены, система честно возвращает `quality_gate=fail` и не подставляет CLTV evidence под чужую тему.
+Core pipeline не ограничен CLTV: для любой темы он строит generic research plan, расширяет запросы, автоматически ищет публичные источники через discovery connectors, принимает вручную переданные source URLs и умеет анализировать загруженные `.md`, `.txt`, `.pdf`, `.html` документы. CLTV больше не является особым runtime-режимом: это только пример темы и demo fixture.
 
 ## Цель проекта
 
@@ -12,7 +12,7 @@ Core pipeline не ограничен CLTV: для произвольной те
 
 1. принять тему исследования;
 2. построить план исследования;
-3. собрать открытые источники или использовать подготовленный seed-набор;
+3. собрать открытые источники через единый discovery layer;
 4. очистить и отфильтровать информационный шум;
 5. сохранить проверяемые evidence-фрагменты;
 6. сформировать аналитическую записку с источниками;
@@ -89,10 +89,16 @@ pytest
 jupyter notebook notebooks/00_cltv_research_mvp.ipynb
 ```
 
-Запустить модульный pipeline без live-fetch, по cached clean documents:
+Запустить модульный pipeline через единый auto-discovery режим:
 
 ```bash
 PYTHONPATH=src python -m research_assistant.pipeline --topic "CLTV in foreign banks"
+```
+
+Явный offline demo по подготовленному seed-набору:
+
+```bash
+PYTHONPATH=src python -m research_assistant.pipeline --topic "CLTV in foreign banks" --source-strategy seed_sources
 ```
 
 Получить JSON-summary:
@@ -107,7 +113,7 @@ PYTHONPATH=src python -m research_assistant.pipeline --topic "CLTV in foreign ba
 PYTHONPATH=src python -m research_assistant.pipeline --topic "CLTV in foreign banks" --live-fetch --fetch-limit 8
 ```
 
-Для произвольной темы через API/UI можно просто ввести topic: auto discovery включен по умолчанию. Публичные source URLs можно добавить вручную, если нужно усилить или зафиксировать набор источников. В UI также можно загрузить `.md`, `.txt`, `.pdf`, `.html` файлы: они будут распарсены локально и пройдут через тот же noise filtering, evidence extraction, report, review и audit контур.
+Для любой темы через API/UI можно просто ввести topic: auto discovery включен по умолчанию. Публичные source URLs можно добавить вручную, если нужно усилить или зафиксировать набор источников. В UI также можно загрузить `.md`, `.txt`, `.pdf`, `.html` файлы: они будут распарсены локально и пройдут через тот же noise filtering, evidence extraction, report, review и audit контур.
 
 Запустить FastAPI MVP:
 
@@ -149,7 +155,7 @@ curl -X POST http://127.0.0.1:8000/research/run \
   -d '{"topic":"CLTV in foreign banks","use_live_fetch":false,"actor_id":"demo_analyst","actor_role":"analyst"}'
 ```
 
-Пример произвольной темы с automatic source discovery:
+Пример любой темы с automatic source discovery:
 
 ```bash
 curl -X POST http://127.0.0.1:8000/research/run \
@@ -157,7 +163,7 @@ curl -X POST http://127.0.0.1:8000/research/run \
   -d '{"topic":"AI fraud detection in insurance","actor_id":"demo_analyst","actor_role":"analyst","auto_discover_sources":true}'
 ```
 
-Пример произвольной темы с пользовательскими источниками:
+Пример любой темы с пользовательскими источниками:
 
 ```bash
 curl -X POST http://127.0.0.1:8000/research/run \
@@ -165,7 +171,7 @@ curl -X POST http://127.0.0.1:8000/research/run \
   -d '{"topic":"AI fraud detection in insurance","actor_id":"demo_analyst","actor_role":"analyst","auto_discover_sources":false,"source_urls":["https://example.com/public-report"]}'
 ```
 
-Пример произвольной темы с локальным markdown-документом:
+Пример любой темы с локальным markdown-документом:
 
 ```bash
 curl -X POST http://127.0.0.1:8000/research/run-with-files \
@@ -201,7 +207,7 @@ docs/local_llm.md
 - `api/README.md` - FastAPI MVP.
 - `api/static/` - no-build demo UI поверх FastAPI.
 - `config/source_policy.json` - file-backed source allowlist для admin-сценария.
-- `data/seed_sources/cltv_sources_template.csv` - шаблон для списка источников.
+- `data/seed_sources/cltv_sources_template.csv` - явный offline demo fixture, не runtime fallback.
 
 ## Модульный pipeline
 
@@ -210,8 +216,8 @@ docs/local_llm.md
 - `config.py` - настройки путей и параметров pipeline;
 - `sensitivity.py` - проверка чувствительных запросов;
 - `planner.py` - research plan;
-- `collector.py` - seed-source collector;
-- `source_discovery.py` - no-key public source discovery;
+- `collector.py` - ручные source URLs и explicit seed fixtures;
+- `source_discovery.py` - public source discovery: Wikipedia, OpenAlex, arXiv, Crossref, optional SearXNG/Search endpoint;
 - `fetcher.py` - raw fetching;
 - `parser.py` - clean text extraction;
 - `chunker.py` - chunking;

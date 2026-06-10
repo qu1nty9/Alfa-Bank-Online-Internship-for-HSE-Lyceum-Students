@@ -26,7 +26,7 @@ GENERIC_RESEARCH_BLOCKS = [
 
 
 def build_cltv_research_plan(topic: str = "CLTV in foreign banks") -> ResearchPlan:
-    """Build a stable first research plan without relying on an LLM."""
+    """Build the legacy CLTV notebook/demo fixture plan."""
 
     queries = [
         SearchQuery(
@@ -99,6 +99,24 @@ def build_generic_research_plan(topic: str) -> ResearchPlan:
             geography="global",
             language="en",
         ),
+        SearchQuery(
+            query=f"{clean_topic} market analysis industry report pdf",
+            research_block="use_cases_and_examples",
+            geography="global",
+            language="en",
+        ),
+        SearchQuery(
+            query=f"{clean_topic} best practices implementation guide",
+            research_block="implementation_considerations",
+            geography="global",
+            language="en",
+        ),
+        SearchQuery(
+            query=f"{clean_topic} official documentation standards",
+            research_block="definition_and_context",
+            geography="global",
+            language="en",
+        ),
     ]
     return ResearchPlan(topic=clean_topic, blocks=GENERIC_RESEARCH_BLOCKS, queries=queries)
 
@@ -106,13 +124,11 @@ def build_generic_research_plan(topic: str) -> ResearchPlan:
 def build_research_plan(topic: str) -> ResearchPlan:
     """Build the best available research plan for a topic."""
 
-    if is_cltv_topic(topic):
-        return build_cltv_research_plan(topic)
     return build_generic_research_plan(topic)
 
 
 def is_cltv_topic(topic: str) -> bool:
-    """Return whether the topic should use the curated CLTV demo plan."""
+    """Legacy demo helper retained for old notebooks; runtime planning ignores it."""
 
     normalized_topic = topic.lower()
     return any(term in normalized_topic for term in ("cltv", "clv", "customer lifetime value"))

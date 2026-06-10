@@ -13,13 +13,14 @@ from fastapi.staticfiles import StaticFiles
 
 from research_assistant.audit import AuditEvent, append_audit_event
 from research_assistant.config import default_pipeline_config
-from research_assistant.collector import build_sources_from_urls, load_seed_sources
+from research_assistant.collector import build_sources_from_urls
 from research_assistant.knowledge_graph import build_knowledge_graph
 from research_assistant.llm_gateway import default_llm_gateway_metadata
 from research_assistant.models import RawDocument, SourceCandidate, SourceType
 from research_assistant.parser import parse_raw_documents_safe
 from research_assistant.pipeline import run_research_pipeline_with_sources
-from research_assistant.planner import is_cltv_topic
+from research_assistant.planner import build_research_plan
+from research_assistant.sensitivity import check_query_sensitivity
 from research_assistant.source_discovery import SourceDiscoveryConfig, discover_public_sources
 from research_assistant.source_policy import (
     load_source_policy_config,
@@ -191,8 +192,9 @@ def _run_research_job(
     config = default_pipeline_config(PROJECT_ROOT).model_copy(update=config_updates)
 
     discovered_sources: list[SourceCandidate] = []
-    should_discover = not is_cltv_topic(topic) and auto_discover_sources
-    if should_discover:
+    sensitivity = check_query_sensitivity(topic)
+    if auto_discover_sources and sensitivity.allowed:
+        plan = build_research_plan(topic)
         discovered_sources = discover_public_sources(
             topic,
             config=SourceDiscoveryConfig(
@@ -200,6 +202,7 @@ def _run_research_job(
                 max_sources=discovery_max_sources,
                 timeout_seconds=config.discovery_timeout_seconds,
             ),
+            queries=plan.queries,
         )
 
     sources = [*uploaded_sources, *request_sources, *discovered_sources]
@@ -214,10 +217,6 @@ def _run_research_job(
             request_count=len(request_sources),
             discovered_count=len(discovered_sources),
         )
-    elif is_cltv_topic(topic):
-        sources = load_seed_sources(config.seed_sources_path)
-        source_candidates_for_pipeline = None
-        source_mode = None
     else:
         source_candidates_for_pipeline = []
         source_mode = "no_topic_sources"

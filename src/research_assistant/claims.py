@@ -8,11 +8,16 @@ from pathlib import Path
 from .models import ClaimItem, EvidenceItem
 
 BLOCK_CLAIM_PREFIXES = {
-    "definition_and_business_value": "CLTV is relevant to banking business value",
-    "calculation_methods": "Banking CLTV calculation depends on measurable customer economics",
-    "required_data": "CLTV research depends on transaction, product, and behavior data",
-    "banking_use_cases": "Banks can use CLTV evidence for prioritization and personalization",
-    "risks_and_limitations": "CLTV usage needs explicit risk and limitation review",
+    "definition_and_context": "{topic} has relevant definition and context evidence",
+    "definition_and_business_value": "{topic} has relevant business-value evidence",
+    "use_cases_and_examples": "{topic} has evidence about use cases and examples",
+    "methods_and_approaches": "{topic} has evidence about methods and implementation approaches",
+    "calculation_methods": "{topic} has evidence about calculation or analytical methods",
+    "data_and_requirements": "{topic} has evidence about data, metrics, or requirements",
+    "required_data": "{topic} has evidence about required data and inputs",
+    "banking_use_cases": "{topic} has evidence about banking use cases",
+    "risks_and_limitations": "{topic} needs explicit risk and limitation review",
+    "implementation_considerations": "{topic} has evidence about implementation considerations",
 }
 
 
@@ -28,10 +33,7 @@ def build_claim_items(
     for item in evidence_items[:max_claims]:
         evidence_id = evidence_item_id(item)
         block = item.research_block or "unknown"
-        prefix = BLOCK_CLAIM_PREFIXES.get(
-            block,
-            f"{topic or 'The research topic'} has evidence relevant to {block}",
-        )
+        prefix = _claim_prefix(block, topic)
         claims.append(
             ClaimItem(
                 claim_id=f"claim_{len(claims) + 1:03d}",
@@ -51,6 +53,15 @@ def evidence_item_id(item: EvidenceItem) -> str:
     """Return a stable evidence identifier used in claim links."""
 
     return f"{item.source_id}/{item.chunk_id}"
+
+
+def _claim_prefix(block: str, topic: str | None) -> str:
+    topic_text = topic or "The research topic"
+    template = BLOCK_CLAIM_PREFIXES.get(
+        block,
+        "{topic} has evidence relevant to " + block,
+    )
+    return template.format(topic=topic_text)
 
 
 def write_claims_csv(claim_items: list[ClaimItem], path: str | Path) -> Path:

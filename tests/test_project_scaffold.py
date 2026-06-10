@@ -101,12 +101,18 @@ def test_public_source_discovery_uses_public_api_payloads(monkeypatch) -> None:
 
     sources = discover_public_sources(
         "AI fraud detection in insurance",
-        config=SourceDiscoveryConfig(max_sources=4),
+        config=SourceDiscoveryConfig(
+            max_sources=4,
+            include_arxiv=False,
+            include_crossref=False,
+            include_searxng=False,
+        ),
     )
 
-    assert [source.source_id for source in sources] == ["wiki_001", "openalex_002"]
+    assert [source.source_id for source in sources] == ["wiki_001", "openalex_001"]
     assert sources[0].source_type.value == "encyclopedia"
     assert sources[1].source_type.value == "research_index"
+    assert sources[0].research_block == "definition_and_context"
 
 
 def test_source_policy_config_filters_by_ids_types_and_domains() -> None:
@@ -514,6 +520,7 @@ def test_modular_pipeline_runs_offline_on_clean_fixtures(tmp_path) -> None:
         raw_dir=raw_dir,
         clean_dir=clean_dir,
         reports_dir=reports_dir,
+        source_strategy="seed_sources",
         use_live_fetch=False,
         chunk_min_chars=60,
         filter_min_chars=60,
@@ -560,6 +567,27 @@ def test_generic_pipeline_without_sources_fails_without_cltv_leakage(tmp_path) -
     assert result.report_path.read_text(encoding="utf-8").startswith(
         "# AI fraud detection in insurance"
     )
+
+
+def test_cltv_pipeline_without_discovery_does_not_use_seed_fallback(tmp_path) -> None:
+    clean_dir = tmp_path / "clean"
+    clean_dir.mkdir(parents=True)
+    config = PipelineConfig(
+        project_root=PROJECT_ROOT,
+        raw_dir=tmp_path / "raw",
+        clean_dir=clean_dir,
+        reports_dir=tmp_path / "reports",
+        use_live_fetch=False,
+        auto_discover_sources=False,
+    ).resolved()
+
+    result = run_research_pipeline("CLTV in foreign banks", config)
+
+    assert result.quality_gate.status == "fail"
+    assert result.evaluation_summary["planner_mode"] == "generic"
+    assert result.evaluation_summary["source_mode"] == "no_topic_sources"
+    assert result.evaluation_summary["source_candidate_count"] == 0
+    assert result.evaluation_summary["clean_document_count"] == 0
 
 
 def test_generic_pipeline_runs_with_user_provided_cached_sources(tmp_path) -> None:

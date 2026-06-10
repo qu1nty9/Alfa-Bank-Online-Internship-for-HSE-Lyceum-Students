@@ -1,8 +1,75 @@
 import json
+from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from api.main import AUDIT_LOG_PATH, SOURCE_POLICY_PATH, app
+from research_assistant.models import FetchResult, RawDocument, SourceCandidate, SourceType
+
+
+@pytest.fixture(autouse=True)
+def fake_public_discovery_and_fetch(monkeypatch) -> None:
+    """Keep API tests offline while exercising the auto-discovery path."""
+
+    def fake_discover_public_sources(topic: str, *, config=None, queries=None):
+        return [
+            SourceCandidate(
+                source_id="auto_001",
+                url="https://example.com/research-report",
+                title=f"{topic} research report",
+                source_type=SourceType.RESEARCH_INDEX,
+                publisher="Example Research",
+                query=queries[0].query if queries else topic,
+                research_block="definition_and_context",
+                language="en",
+                status="ready",
+                notes="Offline API test discovery fixture.",
+            )
+        ]
+
+    def fake_fetch_sources_safe(
+        sources,
+        raw_dir,
+        *,
+        limit=None,
+        timeout_seconds=20,
+        force=False,
+    ):
+        Path(raw_dir).mkdir(parents=True, exist_ok=True)
+        selected_sources = sources[:limit] if limit else sources
+        results = []
+        for source in selected_sources:
+            raw_path = Path(raw_dir) / f"{source.source_id}.html"
+            raw_path.write_text(
+                (
+                    "<main>"
+                    f"<h1>{source.title}</h1>"
+                    f"<p>{source.title} provides overview, use cases, methods, "
+                    "implementation approach, data requirements, metrics, risks, "
+                    "limitations, governance, official report context, market analysis, "
+                    "and best practices for business analysts in banking and insurance.</p>"
+                    "</main>"
+                ),
+                encoding="utf-8",
+            )
+            results.append(
+                FetchResult(
+                    source_id=source.source_id,
+                    ok=True,
+                    raw_document=RawDocument(
+                        source_id=source.source_id,
+                        url=source.url,
+                        path=raw_path,
+                        content_type="text/html",
+                        from_cache=False,
+                    ),
+                )
+            )
+        return results
+
+    monkeypatch.setattr("api.main.discover_public_sources", fake_discover_public_sources)
+    monkeypatch.setattr("research_assistant.pipeline.fetch_sources_safe", fake_fetch_sources_safe)
 
 
 def test_health_endpoint() -> None:
@@ -32,7 +99,7 @@ def test_demo_ui_shell_and_static_assets_are_served() -> None:
     assert "runResearchWithFiles" in app_js_response.text
 
 
-def test_research_run_endpoint_offline() -> None:
+def test_research_run_endpoint_uses_auto_discovery_for_any_topic() -> None:
     client = TestClient(app)
 
     response = client.post(
@@ -46,10 +113,13 @@ def test_research_run_endpoint_offline() -> None:
     assert payload["status"] == "completed"
     assert payload["sensitivity"] == "allow"
     assert payload["quality_gate"] in {"pass", "warn"}
-    assert payload["evaluation_summary"]["clean_document_count"] >= 5
-    assert payload["request_settings"]["use_live_fetch"] is False
-    assert payload["source_policy"]["candidate_source_count"] >= 10
-    assert payload["source_policy"]["allowed_source_count"] >= 5
+    assert payload["evaluation_summary"]["planner_mode"] == "generic"
+    assert payload["evaluation_summary"]["source_mode"] == "auto_discovery"
+    assert payload["evaluation_summary"]["clean_document_count"] >= 1
+    assert payload["request_settings"]["use_live_fetch"] is True
+    assert payload["request_settings"]["discovered_source_count"] == 1
+    assert payload["source_policy"]["candidate_source_count"] == 1
+    assert payload["source_policy"]["allowed_source_count"] == 1
     assert payload["model_gateway"]["mode"] == "offline_template"
     assert payload["model_gateway"]["provider"] == "offline"
     assert payload["model_gateway"]["model"] == "template-report-v1"
@@ -386,7 +456,7 @@ def test_audit_log_contains_research_run_event() -> None:
 
     assert len(matching_events) == 1
     assert matching_events[0]["actor_id"] == "test_analyst"
-    assert matching_events[0]["source_policy"]["allowed_source_count"] >= 5
+    assert matching_events[0]["source_policy"]["allowed_source_count"] >= 1
 
 
 def test_unknown_run_returns_404() -> None:

@@ -22,13 +22,15 @@ DEFAULT_ALLOWED_SOURCE_TYPES = [
     SourceType.RESEARCH_INDEX,
     SourceType.USER_PROVIDED,
     SourceType.UPLOADED_DOCUMENT,
+    SourceType.NEWS,
+    SourceType.OTHER,
 ]
 
 DEFAULT_POLICY_NOTES = [
-    "Use curated public sources first.",
-    "Prefer official banks, regulators, reports, academic sources, and reputable vendors.",
+    "Use public discovery connectors, explicit source URLs, or uploaded local documents as source inputs.",
+    "Prefer official sources, regulators, reports, academic sources, and reputable vendors.",
     "Do not position anti-bot bypass as a project capability.",
-    "Use live fetching only for public URLs from the curated source list.",
+    "Use live fetching only for public URLs accepted by the source policy.",
 ]
 
 
@@ -36,7 +38,7 @@ class SourcePolicyConfig(BaseModel):
     """File-backed allowlist policy for public research sources."""
 
     policy_version: str = "source-policy-v1"
-    mode: str = "curated_seed_with_optional_live_fetch"
+    mode: str = "open_discovery_with_policy_controls"
     allowed_source_types: list[SourceType] = Field(
         default_factory=lambda: list(DEFAULT_ALLOWED_SOURCE_TYPES)
     )

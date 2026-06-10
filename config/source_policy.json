@@ -1,6 +1,6 @@
 {
   "policy_version": "source-policy-v1",
-  "mode": "curated_seed_with_optional_live_fetch",
+  "mode": "open_discovery_with_policy_controls",
   "allowed_source_types": [
     "official_bank",
     "regulator",
@@ -10,7 +10,9 @@
     "encyclopedia",
     "research_index",
     "user_provided",
-    "uploaded_document"
+    "uploaded_document",
+    "news",
+    "other"
   ],
   "allow_unlisted_public_sources": true,
   "allowed_source_ids": [
@@ -39,13 +41,12 @@
     "businesswire.com",
     "wikipedia.org",
     "openalex.org",
-    "arxiv.org",
     "local.upload"
   ],
   "notes": [
-    "Use curated public sources first.",
-    "Prefer official banks, regulators, reports, academic sources, and reputable vendors.",
+    "Use public discovery connectors, explicit source URLs, or uploaded local documents as source inputs.",
+    "Prefer official sources, regulators, reports, academic sources, and reputable vendors.",
     "Do not position anti-bot bypass as a project capability.",
-    "Use live fetching only for public URLs from the curated source list."
+    "Use live fetching only for public URLs accepted by the source policy."
   ]
 }

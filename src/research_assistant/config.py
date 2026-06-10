@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -12,6 +13,7 @@ class PipelineConfig(BaseModel):
 
     project_root: Path = Field(default_factory=lambda: Path.cwd())
     seed_sources_path: Path | None = None
+    source_strategy: Literal["auto_discovery", "seed_sources"] = "auto_discovery"
     raw_dir: Path | None = None
     clean_dir: Path | None = None
     reports_dir: Path | None = None

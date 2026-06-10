@@ -20,7 +20,7 @@ from .filtering import filter_chunks, rank_chunks_bm25
 from .llm_gateway import build_llm_gateway, llm_gateway_config_from_env
 from .models import ClaimItem, CleanDocument, FetchResult, ParseResult, SourceCandidate
 from .parser import parse_raw_documents_safe
-from .planner import build_research_plan, is_cltv_topic
+from .planner import build_research_plan
 from .quality_gate import QualityGateResult, run_quality_gate
 from .report import render_markdown_report, write_markdown_report
 from .sensitivity import SensitivityResult, check_query_sensitivity
@@ -87,6 +87,7 @@ def run_research_pipeline_with_sources(
     sources, source_mode = _resolve_sources_for_topic(
         topic=topic,
         config=cfg,
+        plan=plan,
         source_candidates=source_candidates,
         source_mode=source_mode,
     )
@@ -144,8 +145,8 @@ def run_research_pipeline_with_sources(
     evaluation_summary["source_candidate_count"] = len(sources)
     if source_mode == "no_topic_sources":
         evaluation_summary["source_warning"] = (
-            "No topic-matched sources were available. Configure source discovery, "
-            "provide public source URLs, or connect Search/RSS."
+            "No topic-matched sources were available from the configured discovery layer. "
+            "Connect Search/SearXNG, add source URLs, upload documents, or retry with live internet."
         )
     report_markdown = render_markdown_report(
         topic=topic,
@@ -212,6 +213,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--project-root", default=str(Path.cwd()))
     parser.add_argument("--live-fetch", action="store_true")
     parser.add_argument("--fetch-limit", type=int, default=None)
+    parser.add_argument(
+        "--source-strategy",
+        choices=["auto_discovery", "seed_sources"],
+        default="auto_discovery",
+        help="Use automatic public discovery or explicit seed sources.",
+    )
     parser.add_argument("--json", action="store_true", help="Print compact JSON summary.")
     args = parser.parse_args(argv)
 
@@ -219,6 +226,7 @@ def main(argv: list[str] | None = None) -> int:
         update={
             "use_live_fetch": args.live_fetch,
             "fetch_limit": args.fetch_limit,
+            "source_strategy": args.source_strategy,
         }
     )
     result = run_research_pipeline(args.topic, config)
@@ -278,33 +286,28 @@ def _resolve_sources_for_topic(
     *,
     topic: str,
     config: PipelineConfig,
+    plan,
     source_candidates: list[SourceCandidate] | None,
     source_mode: str | None,
 ) -> tuple[list[SourceCandidate], str]:
     if source_candidates is not None:
         return source_candidates, source_mode or "request_sources"
 
-    seed_sources = load_seed_sources(config.seed_sources_path)
-    if _is_default_cltv_seed(config.seed_sources_path) and not is_cltv_topic(topic):
-        discovered_sources = discover_public_sources(
-            topic,
-            config=SourceDiscoveryConfig(
-                enabled=config.auto_discover_sources,
-                max_sources=config.discovery_max_sources,
-                timeout_seconds=config.discovery_timeout_seconds,
-            ),
-        )
-        if discovered_sources:
-            return discovered_sources, "auto_discovery"
-        return [], "no_topic_sources"
+    if config.source_strategy == "seed_sources":
+        return load_seed_sources(config.seed_sources_path), "seed_sources"
 
-    return seed_sources, "seed_sources"
-
-
-def _is_default_cltv_seed(seed_path: Path | None) -> bool:
-    if seed_path is None:
-        return True
-    return seed_path.name == "cltv_sources_template.csv"
+    discovered_sources = discover_public_sources(
+        topic,
+        config=SourceDiscoveryConfig(
+            enabled=config.auto_discover_sources,
+            max_sources=config.discovery_max_sources,
+            timeout_seconds=config.discovery_timeout_seconds,
+        ),
+        queries=plan.queries,
+    )
+    if discovered_sources:
+        return discovered_sources, "auto_discovery"
+    return [], "no_topic_sources"
 
 
 def _domain_terms_for_plan(topic: str, plan) -> set[str]:
@@ -325,8 +328,6 @@ def _domain_terms_for_plan(topic: str, plan) -> set[str]:
     terms: set[str] = set()
     for value in [topic, *[query.query for query in plan.queries]]:
         terms.update(token for token in re.findall(r"[a-zA-Zа-яА-Я0-9]+", value.lower()) if token not in stop_words)
-    if is_cltv_topic(topic):
-        terms.update({"bank", "banking", "banks", "customer", "cltv", "clv", "retention"})
     return terms
 
 

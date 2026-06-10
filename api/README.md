@@ -76,7 +76,7 @@ UI tabs:
 
 `POST /research/run-with-files` accepts the same research settings as multipart form data and adds uploaded documents as local sources. Supported file types: `.md`, `.txt`, `.pdf`, `.html`, `.htm`.
 
-For the curated CLTV demo, the pipeline can use cached clean documents from the repository. For arbitrary topics, auto discovery is enabled by default and uses no-key public connectors. You can also pass public `source_urls` to fix or strengthen the source set, or upload local knowledge-base documents. If no topic-matched sources are available, the run fails the quality gate instead of reusing unrelated CLTV evidence.
+For every topic, including CLTV, auto discovery is enabled by default and uses the same public-source flow. You can also pass public `source_urls` to fix or strengthen the source set, or upload local knowledge-base documents. The CLTV seed file is available only as an explicit offline demo fixture; it is not used as a hidden fallback for API runs.
 
 The response includes:
 
@@ -220,7 +220,7 @@ config/source_policy.json
 It controls:
 
 - allowed source types;
-- explicit seed source ids;
+- explicit source ids, including optional offline demo fixture ids;
 - blocked source ids;
 - allowed public domains;
 - policy notes shown in run metadata and audit logs.
@@ -247,12 +247,13 @@ Example `policy_update.json`:
   "actor_role": "admin",
   "policy": {
     "policy_version": "source-policy-v1",
-    "mode": "curated_seed_with_optional_live_fetch",
-    "allowed_source_types": ["consulting", "academic", "vendor"],
-    "allowed_source_ids": ["seed_001"],
+    "mode": "open_discovery_with_policy_controls",
+    "allowed_source_types": ["official_bank", "regulator", "consulting", "academic", "vendor", "encyclopedia", "research_index", "user_provided", "uploaded_document", "news", "other"],
+    "allow_unlisted_public_sources": true,
+    "allowed_source_ids": [],
     "blocked_source_ids": [],
-    "allowed_domains": ["teradata.com"],
-    "notes": ["Use curated public sources first."]
+    "allowed_domains": [],
+    "notes": ["Use public discovery connectors, explicit source URLs, or uploaded local documents as source inputs."]
   }
 }
 ```

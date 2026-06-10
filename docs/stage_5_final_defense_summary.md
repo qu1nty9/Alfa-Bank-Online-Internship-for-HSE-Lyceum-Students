@@ -29,7 +29,7 @@ Stage 5 превращает рабочий прототип в понятный
    - GigaChat profile.
 9. Local Qwen3-1.7B установлен и проверен на машине участника.
 10. Lightweight no-build demo UI доступен на `/ui`.
-11. Generic planner, auto source discovery и `source_urls` позволяют запускать произвольные темы без CLTV-завязки.
+11. Generic planner, auto source discovery, `source_urls` и uploads позволяют запускать любые темы без CLTV-завязки.
 12. Multipart upload endpoint позволяет добавлять `.md`, `.txt`, `.pdf`, `.html` документы как локальные источники.
 13. Lightweight graph layer показывает связи `claim -> evidence -> source`.
 

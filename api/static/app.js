@@ -193,7 +193,7 @@ async function loadRuns() {
     }
 
     runs.slice(0, 30).forEach((run) => {
-      const mode = run.evaluation_summary?.source_mode || "seed_sources";
+      const mode = run.evaluation_summary?.source_mode || "auto_discovery";
       const button = document.createElement("button");
       button.type = "button";
       button.className = `run-item ${run.run_id === state.currentRunId ? "active" : ""}`;
@@ -294,7 +294,7 @@ async function loadAuditEvents() {
 function renderRunSummary(run) {
   const model = run.model_gateway || {};
   const sourcePolicy = run.source_policy || {};
-  const sourceMode = run.evaluation_summary?.source_mode || "seed_sources";
+  const sourceMode = run.evaluation_summary?.source_mode || "auto_discovery";
 
   els.runIdValue.textContent = run.run_id || "-";
   els.statusValue.textContent = run.status || "-";

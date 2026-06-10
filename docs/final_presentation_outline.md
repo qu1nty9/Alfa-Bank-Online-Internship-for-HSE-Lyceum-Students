@@ -141,8 +141,8 @@ docs/evaluation_metrics.md
 
 Честно сказать:
 
-- MVP использует curated seed sources;
-- live search пока не production connector;
+- MVP использует public discovery connectors и optional explicit fixtures;
+- production-grade Search/RSS connector пока в roadmap;
 - fact checking пока базовый;
 - роли не заменяют production IAM;
 - audit пока JSONL, не enterprise audit store.

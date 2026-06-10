@@ -71,12 +71,15 @@ api/static/app.js
 - вручную одобренные public PDFs;
 - search API через обезличенные публичные queries.
 
-Сейчас произвольная тема поддерживается через:
+Сейчас любая тема, включая CLTV, проходит единый runtime path:
 
 - generic planner;
-- auto source discovery;
-- source URLs, переданные пользователем как override/fallback;
-- честный `quality_gate=fail`, если evidence для темы отсутствует.
+- query expansion;
+- auto source discovery через public connectors;
+- optional source URLs и uploads как способ усилить или зафиксировать набор источников;
+- evidence extraction, claims, report, quality gate и audit без topic-specific веток.
+
+Если источников мало, система не подставляет evidence от другой темы и не делает вид, что результат полный. Она возвращает частичный, проверяемый отчет с quality signals и рекомендациями по дозагрузке источников.
 
 Не делать ценностью проекта:
 

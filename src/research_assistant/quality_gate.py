@@ -38,19 +38,31 @@ def run_quality_gate(
 
     checks = [
         QualityCheck(
-            name="clean_document_count",
-            passed=evaluation_summary.get("clean_document_count", 0) >= min_clean_documents,
+            name="has_clean_documents",
+            passed=evaluation_summary.get("clean_document_count", 0) > 0,
             severity="fail",
+            detail="At least one clean document is required to build a report.",
+        ),
+        QualityCheck(
+            name="clean_document_count_target",
+            passed=evaluation_summary.get("clean_document_count", 0) >= min_clean_documents,
+            severity="warn",
             detail=(
                 f"Clean documents: {evaluation_summary.get('clean_document_count', 0)} "
-                f"(required >= {min_clean_documents})."
+                f"(target >= {min_clean_documents})."
             ),
         ),
         QualityCheck(
-            name="evidence_item_count",
-            passed=len(evidence_items) >= min_evidence_items,
+            name="has_evidence_items",
+            passed=len(evidence_items) > 0,
             severity="fail",
-            detail=f"Evidence items: {len(evidence_items)} (required >= {min_evidence_items}).",
+            detail="At least one evidence item is required to support any conclusion.",
+        ),
+        QualityCheck(
+            name="evidence_item_count_target",
+            passed=len(evidence_items) >= min_evidence_items,
+            severity="warn",
+            detail=f"Evidence items: {len(evidence_items)} (target >= {min_evidence_items}).",
         ),
         QualityCheck(
             name="evidence_source_diversity",

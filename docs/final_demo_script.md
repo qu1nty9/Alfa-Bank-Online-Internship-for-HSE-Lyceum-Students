@@ -16,7 +16,7 @@ CLTV in foreign banks
 AI fraud detection in insurance
 ```
 
-Для произвольной темы auto discovery включен по умолчанию. Публичные source URLs можно добавить вручную, если нужно зафиксировать или усилить набор источников. Если источники не найдены, система должна вернуть `quality_gate=fail`, а не подставить CLTV evidence.
+Для любой темы auto discovery включен по умолчанию. CLTV не является специальной веткой runtime: это только пример темы. Публичные source URLs можно добавить вручную, если нужно зафиксировать или усилить набор источников.
 
 Дополнительный сценарий knowledge-base scan: загрузить `.md`, `.txt`, `.pdf` или `.html` документ через plus menu в UI и получить тот же report/evidence/claims/audit контур по локальному файлу.
 
@@ -40,7 +40,7 @@ source .venv/bin/activate
 Ожидаемо:
 
 ```text
-40 passed
+41 passed
 ```
 
 ### 3. Выбрать LLM mode
@@ -135,7 +135,7 @@ Query params:
 
 Что сказать:
 
-> Система работает не с произвольным web scraping, а с контролируемым allowlist публичных источников. Admin может менять границы источников, и это попадет в audit.
+> Система работает не как произвольный web scraping, а как управляемый контур публичных источников: discovery connectors, source URLs и uploaded documents проходят через source policy. Admin может менять границы источников, и это попадет в audit.
 
 ### Шаг 3. Запустить research run
 
