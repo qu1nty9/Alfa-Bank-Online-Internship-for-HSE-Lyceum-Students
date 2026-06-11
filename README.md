@@ -132,6 +132,7 @@ API endpoints:
 - `GET /` / `GET /ui` - lightweight demo UI
 - `GET /health`
 - `POST /research/run`
+- `POST /research/run-async`
 - `POST /research/run-with-files`
 - `GET /research/runs`
 - `GET /research/runs/{run_id}/status`
@@ -154,6 +155,16 @@ curl -X POST http://127.0.0.1:8000/research/run \
   -H "Content-Type: application/json" \
   -d '{"topic":"CLTV in foreign banks","use_live_fetch":false,"actor_id":"demo_analyst","actor_role":"analyst"}'
 ```
+
+Асинхронный запуск для интеграций с polling:
+
+```bash
+curl -X POST http://127.0.0.1:8000/research/run-async \
+  -H "Content-Type: application/json" \
+  -d '{"topic":"AI fraud detection in insurance","actor_id":"demo_analyst","actor_role":"analyst"}'
+```
+
+Дальше проверять прогресс через `GET /research/runs/{run_id}/status`.
 
 Пример любой темы с automatic source discovery:
 
@@ -218,6 +229,7 @@ docs/local_llm.md
 - `planner.py` - research plan;
 - `collector.py` - ручные source URLs и explicit seed fixtures;
 - `source_discovery.py` - public source discovery: Wikipedia, OpenAlex, arXiv, Crossref, optional SearXNG/Search endpoint;
+- `source_policy.py` - runtime filtering и audit decisions для разрешенных/заблокированных источников;
 - `fetcher.py` - raw fetching;
 - `parser.py` - clean text extraction;
 - `chunker.py` - chunking;

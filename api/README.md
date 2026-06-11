@@ -12,6 +12,7 @@ Endpoints:
 - `GET /ui`
 - `GET /health`
 - `POST /research/run`
+- `POST /research/run-async`
 - `POST /research/run-with-files`
 - `GET /research/runs`
 - `GET /research/runs/{run_id}/status`
@@ -74,20 +75,23 @@ UI tabs:
 
 `POST /research/run` runs the modular pipeline synchronously and stores an API run under `reports/api_runs/{run_id}/`.
 
+`POST /research/run-async` stores a queued run immediately, returns `202` with `run_id`, and updates `GET /research/runs/{run_id}/status` while the same pipeline runs in the background. This is the preferred contract for integrations where source discovery/fetching can take time.
+
 `POST /research/run-with-files` accepts the same research settings as multipart form data and adds uploaded documents as local sources. Supported file types: `.md`, `.txt`, `.pdf`, `.html`, `.htm`.
 
-For every topic, including CLTV, auto discovery is enabled by default and uses the same public-source flow. You can also pass public `source_urls` to fix or strengthen the source set, or upload local knowledge-base documents. The CLTV seed file is available only as an explicit offline demo fixture; it is not used as a hidden fallback for API runs.
+For every topic, including CLTV, auto discovery is enabled by default and uses the same public-source flow. You can also pass public `source_urls` to fix or strengthen the source set, or upload local knowledge-base documents. Candidate sources are filtered by `config/source_policy.json` before fetch/parse/ranking; blocked sources remain visible in `source_policy.source_decisions` but cannot contribute evidence. The CLTV seed file is available only as an explicit offline demo fixture; it is not used as a hidden fallback for API runs.
 
 The response includes:
 
 - `run_id` - stable identifier for follow-up requests;
-- `status` - `completed` or `blocked`;
+- `status` - `queued`, `running`, `completed`, `blocked`, or `failed`;
 - `sensitivity` - query policy decision;
 - `quality_gate` - `pass`, `warn`, or `fail`;
 - `evaluation_summary` - pipeline metrics;
 - `request_settings` - live-fetch settings used by this run;
 - `source_policy` - curated-source policy summary;
 - `model_gateway` - model mode and external-call boundary;
+- `progress` - async/sync progress stage, percent, message, and update time;
 - `review` - report review state;
 - `audit` - audit log status;
 - `links` - API paths for status, report, claims, evidence, graph, and review.
@@ -101,6 +105,20 @@ GET /research/runs/{run_id}/claims
 GET /research/runs/{run_id}/evidence
 GET /research/runs/{run_id}/graph
 POST /research/runs/{run_id}/review
+```
+
+Async example:
+
+```bash
+curl -X POST http://127.0.0.1:8000/research/run-async \
+  -H "Content-Type: application/json" \
+  -d '{"topic":"AI fraud detection in insurance","actor_id":"demo_analyst","actor_role":"analyst"}'
+```
+
+Then poll:
+
+```bash
+curl http://127.0.0.1:8000/research/runs/{run_id}/status
 ```
 
 `GET /research/report` and `GET /research/evidence` are kept as quick demo shortcuts for the latest run.
@@ -224,6 +242,8 @@ It controls:
 - blocked source ids;
 - allowed public domains;
 - policy notes shown in run metadata and audit logs.
+
+The policy is enforced at runtime. Only allowed sources are sent into fetch, parse, ranking, evidence extraction, and report generation.
 
 Read policy as admin:
 

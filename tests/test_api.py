@@ -140,6 +140,62 @@ def test_research_run_endpoint_uses_auto_discovery_for_any_topic() -> None:
     assert payload["links"]["review"].endswith("/review")
 
 
+def test_async_research_run_returns_run_id_and_status_link() -> None:
+    client = TestClient(app)
+
+    response = client.post(
+        "/research/run-async",
+        json={"topic": "CLTV in foreign banks", "use_live_fetch": False},
+    )
+
+    assert response.status_code == 202
+    payload = response.json()
+    assert payload["run_id"].startswith("run_")
+    assert payload["status"] == "queued"
+    assert payload["progress"]["stage"] == "queued"
+    assert payload["links"]["status"].endswith("/status")
+
+    status_response = client.get(payload["links"]["status"])
+    assert status_response.status_code == 200
+    status_payload = status_response.json()
+    assert status_payload["run_id"] == payload["run_id"]
+    assert status_payload["status"] in {"queued", "running", "completed", "blocked", "failed"}
+    assert "progress" in status_payload
+
+
+def test_source_policy_blocks_sources_before_pipeline() -> None:
+    client = TestClient(app)
+    original_policy_text = SOURCE_POLICY_PATH.read_text(encoding="utf-8")
+    blocked_url = "https://example.com/research-report"
+    blocked_source_id = "auto_" + hashlib.sha256(blocked_url.encode("utf-8")).hexdigest()[:12]
+
+    try:
+        policy = json.loads(original_policy_text)
+        policy["blocked_source_ids"] = [blocked_source_id]
+        SOURCE_POLICY_PATH.write_text(
+            json.dumps(policy, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+
+        response = client.post(
+            "/research/run",
+            json={"topic": "CLTV in foreign banks", "use_live_fetch": False},
+        )
+
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["quality_gate"] == "fail"
+        assert payload["evaluation_summary"]["source_mode"] == "policy_blocked_sources"
+        assert payload["evaluation_summary"]["evidence_item_count"] == 0
+        assert payload["request_settings"]["policy_allowed_source_count"] == 0
+        assert payload["request_settings"]["policy_blocked_source_count"] == 1
+        assert payload["source_policy"]["allowed_source_count"] == 0
+        assert payload["source_policy"]["blocked_source_ids"] == [blocked_source_id]
+        assert payload["source_policy"]["source_decisions"][0]["reason"] == "source_id_blocked"
+    finally:
+        SOURCE_POLICY_PATH.write_text(original_policy_text, encoding="utf-8")
+
+
 def test_research_run_blocks_sensitive_query() -> None:
     client = TestClient(app)
 

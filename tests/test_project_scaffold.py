@@ -28,7 +28,11 @@ from research_assistant.planner import build_cltv_research_plan, build_research_
 from research_assistant.quality_gate import run_quality_gate
 from research_assistant.report import render_markdown_report
 from research_assistant.sensitivity import check_query_sensitivity
-from research_assistant.source_policy import SourcePolicyConfig, summarize_source_policy
+from research_assistant.source_policy import (
+    SourcePolicyConfig,
+    filter_sources_by_policy,
+    summarize_source_policy,
+)
 from research_assistant.source_discovery import SourceDiscoveryConfig, discover_public_sources
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -161,6 +165,13 @@ def test_source_policy_config_filters_by_ids_types_and_domains() -> None:
     assert summary["allowed_source_ids"] == ["seed_003"]
     assert summary["allowed_source_count"] == 1
     assert "seed_001" in summary["blocked_source_ids"]
+    assert [source.source_id for source in filter_sources_by_policy(sources, policy)] == [
+        "seed_003"
+    ]
+    assert any(
+        decision["source_id"] == "seed_001" and not decision["allowed"]
+        for decision in summary["source_decisions"]
+    )
 
 
 def test_raw_document_path_uses_source_id_and_url_extension() -> None:

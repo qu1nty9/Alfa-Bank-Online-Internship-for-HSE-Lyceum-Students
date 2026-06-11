@@ -46,6 +46,7 @@ class ResearchRunResponse(BaseModel):
     request_settings: dict[str, Any]
     source_policy: dict[str, Any]
     model_gateway: dict[str, Any]
+    progress: dict[str, Any] = Field(default_factory=dict)
     review: dict[str, Any]
     audit: dict[str, Any]
     artifacts: dict[str, str | None]
@@ -54,6 +55,18 @@ class ResearchRunResponse(BaseModel):
 
 class ResearchRunStatusResponse(ResearchRunResponse):
     """Stored status and metadata for one research run."""
+
+
+class ResearchRunAcceptedResponse(BaseModel):
+    """Response returned after an asynchronous research job is queued."""
+
+    run_id: str
+    status: str
+    created_at: datetime
+    topic: str
+    request_settings: dict[str, Any]
+    progress: dict[str, Any]
+    links: dict[str, str | None]
 
 
 class ResearchRunListResponse(BaseModel):

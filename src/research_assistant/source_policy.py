@@ -87,10 +87,16 @@ def summarize_source_policy(
     """Build an auditable summary of the source boundary for one run."""
 
     active_policy = policy or default_source_policy_config()
+    decisions = [source_policy_decision(source, active_policy) for source in sources]
+    allowed_source_ids = {
+        decision["source_id"] for decision in decisions if decision["allowed"]
+    }
     ready_sources = [source for source in sources if source.status == "ready"]
-    allowed_sources = [source for source in ready_sources if _source_is_allowed(source, active_policy)]
+    allowed_sources = [
+        source for source in ready_sources if source.source_id in allowed_source_ids
+    ]
     blocked_sources = [
-        source for source in sources if source.status != "ready" or source not in allowed_sources
+        source for source in sources if source.source_id not in allowed_source_ids
     ]
 
     return {
@@ -116,22 +122,57 @@ def summarize_source_policy(
         "configured_blocked_source_ids": list(active_policy.blocked_source_ids),
         "allowed_domains": list(active_policy.allowed_domains),
         "policy_notes": list(active_policy.notes),
+        "source_decisions": decisions,
+    }
+
+
+def filter_sources_by_policy(
+    sources: list[SourceCandidate],
+    policy: SourcePolicyConfig | None = None,
+) -> list[SourceCandidate]:
+    """Return only sources allowed by the active source policy."""
+
+    active_policy = policy or default_source_policy_config()
+    return [source for source in sources if _source_is_allowed(source, active_policy)]
+
+
+def source_policy_decision(source: SourceCandidate, policy: SourcePolicyConfig) -> dict[str, Any]:
+    """Return an auditable allow/block decision for one source candidate."""
+
+    allowed, reason = _source_policy_decision_reason(source, policy)
+    return {
+        "source_id": source.source_id,
+        "allowed": allowed,
+        "reason": reason,
+        "domain": _source_domain(source),
+        "source_type": source.source_type.value,
+        "status": source.status,
+        "title": source.title,
+        "url": str(source.url),
     }
 
 
 def _source_is_allowed(source: SourceCandidate, policy: SourcePolicyConfig) -> bool:
+    allowed, _reason = _source_policy_decision_reason(source, policy)
+    return allowed
+
+
+def _source_policy_decision_reason(
+    source: SourceCandidate,
+    policy: SourcePolicyConfig,
+) -> tuple[bool, str]:
     if source.status != "ready":
-        return False
+        return False, "source_not_ready"
     if source.source_id in set(policy.blocked_source_ids):
-        return False
+        return False, "source_id_blocked"
     if source.source_type not in set(policy.allowed_source_types):
-        return False
+        return False, "source_type_not_allowed"
     if (
         policy.allowed_source_ids
         and not policy.allow_unlisted_public_sources
         and source.source_id not in set(policy.allowed_source_ids)
     ):
-        return False
+        return False, "source_id_not_allowlisted"
     is_unlisted_allowed_source = (
         policy.allow_unlisted_public_sources and source.source_id not in set(policy.allowed_source_ids)
     )
@@ -140,8 +181,10 @@ def _source_is_allowed(source: SourceCandidate, policy: SourcePolicyConfig) -> b
         and not is_unlisted_allowed_source
         and not _domain_is_allowed(_source_domain(source), policy.allowed_domains)
     ):
-        return False
-    return True
+        return False, "domain_not_allowlisted"
+    if is_unlisted_allowed_source:
+        return True, "unlisted_public_source_allowed"
+    return True, "source_allowed"
 
 
 def _source_domain(source: SourceCandidate) -> str:

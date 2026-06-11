@@ -93,6 +93,19 @@ def save_pipeline_run(
     return metadata
 
 
+def save_initial_run_metadata(runs_dir: Path, metadata: dict[str, Any]) -> dict[str, Any]:
+    """Create metadata for a queued or running API run before artifacts exist."""
+
+    run_id = metadata.get("run_id")
+    if not isinstance(run_id, str):
+        raise RunNotFoundError("unknown")
+    run_dir = _run_dir(runs_dir, run_id)
+    run_dir.mkdir(parents=True, exist_ok=True)
+    _write_json(run_dir / METADATA_FILENAME, metadata)
+    _write_json(runs_dir / LATEST_RUN_FILENAME, {"run_id": run_id})
+    return metadata
+
+
 def load_run_metadata(runs_dir: Path, run_id: str) -> dict[str, Any]:
     """Load metadata for a stored run."""
 

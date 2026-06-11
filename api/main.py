@@ -5,9 +5,10 @@ from __future__ import annotations
 import json
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 from urllib.parse import quote
 
-from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
+from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -23,6 +24,7 @@ from research_assistant.planner import build_research_plan
 from research_assistant.sensitivity import check_query_sensitivity
 from research_assistant.source_discovery import SourceDiscoveryConfig, discover_public_sources
 from research_assistant.source_policy import (
+    filter_sources_by_policy,
     load_source_policy_config,
     save_source_policy_config,
     summarize_source_policy,
@@ -39,6 +41,7 @@ from .run_store import (
     load_latest_run_id,
     load_report_markdown,
     load_run_metadata,
+    save_initial_run_metadata,
     save_pipeline_run,
     save_run_metadata,
 )
@@ -49,6 +52,7 @@ from .schemas import (
     HealthResponse,
     KnowledgeGraphResponse,
     ReportResponse,
+    ResearchRunAcceptedResponse,
     ResearchReviewRequest,
     ResearchReviewResponse,
     ResearchRunListResponse,
@@ -112,6 +116,55 @@ def run_research(request: ResearchRunRequest) -> ResearchRunResponse:
     )
 
 
+@app.post("/research/run-async", status_code=202, response_model=ResearchRunAcceptedResponse)
+def queue_research(
+    request: ResearchRunRequest,
+    background_tasks: BackgroundTasks,
+) -> ResearchRunAcceptedResponse:
+    """Queue a research run and return immediately with a status link."""
+
+    _require_role(request.actor_role, "analyst")
+    run_id = create_run_id()
+    created_at = datetime.now(UTC)
+    request_settings = {
+        "use_live_fetch": request.use_live_fetch,
+        "fetch_limit": request.fetch_limit,
+        "source_url_count": len(request.source_urls),
+        "uploaded_source_count": 0,
+        "uploaded_files": [],
+        "discovered_source_count": 0,
+        "auto_discover_sources": request.auto_discover_sources,
+        "discovery_max_sources": request.discovery_max_sources,
+        "execution_mode": "async",
+    }
+    metadata = _initial_run_metadata(
+        run_id=run_id,
+        topic=request.topic,
+        created_at=created_at,
+        actor_id=request.actor_id,
+        actor_role=request.actor_role,
+        request_settings=request_settings,
+    )
+    save_initial_run_metadata(RUNS_DIR, metadata)
+
+    background_tasks.add_task(
+        _execute_queued_research_job,
+        run_id,
+        created_at.isoformat(),
+        request.model_dump(mode="json"),
+    )
+    linked_metadata = _with_links(metadata)
+    return ResearchRunAcceptedResponse(
+        run_id=run_id,
+        status=metadata["status"],
+        created_at=created_at,
+        topic=request.topic,
+        request_settings=request_settings,
+        progress=metadata["progress"],
+        links=linked_metadata["links"],
+    )
+
+
 @app.post("/research/run-with-files", response_model=ResearchRunResponse)
 async def run_research_with_files(
     topic: str = Form(default="CLTV in foreign banks", min_length=3),
@@ -166,13 +219,16 @@ def _run_research_job(
     auto_discover_sources: bool,
     discovery_max_sources: int,
     run_id: str | None = None,
+    created_at: datetime | None = None,
     uploaded_sources: list[SourceCandidate] | None = None,
     uploaded_file_metadata: list[dict] | None = None,
+    progress_callback: Any | None = None,
 ) -> ResearchRunResponse:
     _require_role(actor_role, "analyst")
 
     active_run_id = run_id or create_run_id()
-    created_at = datetime.now(UTC)
+    created_at = created_at or datetime.now(UTC)
+    _record_progress(progress_callback, "accepted", 5, "Run accepted.")
     uploaded_sources = uploaded_sources or []
     uploaded_file_metadata = uploaded_file_metadata or []
     request_sources = build_sources_from_urls(source_urls, topic=topic)
@@ -194,6 +250,12 @@ def _run_research_job(
     discovered_sources: list[SourceCandidate] = []
     sensitivity = check_query_sensitivity(topic)
     if auto_discover_sources and sensitivity.allowed:
+        _record_progress(
+            progress_callback,
+            "discovering_sources",
+            20,
+            "Discovering public sources.",
+        )
         plan = build_research_plan(topic)
         discovered_sources = discover_public_sources(
             topic,
@@ -206,30 +268,60 @@ def _run_research_job(
         )
 
     sources = [*uploaded_sources, *request_sources, *discovered_sources]
-    active_use_live_fetch = use_live_fetch or bool(request_sources) or bool(discovered_sources)
+    source_policy_config = load_source_policy_config(SOURCE_POLICY_PATH)
+    allowed_sources = filter_sources_by_policy(sources, source_policy_config)
+    allowed_source_ids = {source.source_id for source in allowed_sources}
+    allowed_uploaded_count = sum(
+        1 for source in uploaded_sources if source.source_id in allowed_source_ids
+    )
+    allowed_request_count = sum(
+        1 for source in request_sources if source.source_id in allowed_source_ids
+    )
+    allowed_discovered_count = sum(
+        1 for source in discovered_sources if source.source_id in allowed_source_ids
+    )
+    active_use_live_fetch = (
+        use_live_fetch or allowed_request_count > 0 or allowed_discovered_count > 0
+    )
+    _record_progress(
+        progress_callback,
+        "applying_source_policy",
+        35,
+        "Applying source policy.",
+    )
+    source_policy = summarize_source_policy(
+        sources,
+        use_live_fetch=active_use_live_fetch,
+        fetch_limit=fetch_limit,
+        policy=source_policy_config,
+    )
     source_candidates_for_pipeline: list[SourceCandidate] | None
     source_mode: str | None
 
-    if sources:
-        source_candidates_for_pipeline = sources
+    if allowed_sources:
+        source_candidates_for_pipeline = allowed_sources
         source_mode = _source_mode_for(
-            uploaded_count=len(uploaded_sources),
-            request_count=len(request_sources),
-            discovered_count=len(discovered_sources),
+            uploaded_count=allowed_uploaded_count,
+            request_count=allowed_request_count,
+            discovered_count=allowed_discovered_count,
         )
     else:
         source_candidates_for_pipeline = []
-        source_mode = "no_topic_sources"
+        source_mode = "policy_blocked_sources" if sources else "no_topic_sources"
 
     request_settings = {
         "use_live_fetch": active_use_live_fetch,
+        "requested_live_fetch": use_live_fetch,
         "fetch_limit": fetch_limit,
         "source_url_count": len(request_sources),
         "uploaded_source_count": len(uploaded_sources),
         "uploaded_files": uploaded_file_metadata,
         "discovered_source_count": len(discovered_sources),
+        "policy_allowed_source_count": len(allowed_sources),
+        "policy_blocked_source_count": len(sources) - len(allowed_sources),
         "auto_discover_sources": auto_discover_sources,
         "discovery_max_sources": discovery_max_sources,
+        "execution_mode": "sync" if progress_callback is None else "async",
     }
     config = config.model_copy(
         update={
@@ -237,20 +329,22 @@ def _run_research_job(
             "auto_discover_sources": False,
         }
     )
-    source_policy_config = load_source_policy_config(SOURCE_POLICY_PATH)
-    source_policy = summarize_source_policy(
-        sources,
-        use_live_fetch=active_use_live_fetch,
-        fetch_limit=fetch_limit,
-        policy=source_policy_config,
-    )
+    _record_progress(progress_callback, "running_pipeline", 55, "Running research pipeline.")
     result = run_research_pipeline_with_sources(
         topic,
         config=config,
         source_candidates=source_candidates_for_pipeline,
         source_mode=source_mode,
     )
+    if sources and not allowed_sources:
+        result.evaluation_summary["source_warning"] = (
+            "All candidate sources were blocked by source policy. "
+            "Review policy source_decisions, add approved URLs, or loosen the allowlist."
+        )
+    result.evaluation_summary["source_policy_allowed_count"] = len(allowed_sources)
+    result.evaluation_summary["source_policy_blocked_count"] = len(sources) - len(allowed_sources)
     model_gateway = result.model_gateway_metadata
+    _record_progress(progress_callback, "persisting_artifacts", 90, "Persisting artifacts.")
     completed_at = datetime.now(UTC)
 
     metadata = save_pipeline_run(
@@ -265,6 +359,7 @@ def _run_research_job(
         source_policy=source_policy,
         model_gateway=model_gateway,
     )
+    metadata["progress"] = _progress_payload("completed", 100, "Run completed.")
     audit_event = AuditEvent(
         run_id=active_run_id,
         actor_id=actor_id,
@@ -285,7 +380,157 @@ def _run_research_job(
         "log_name": AUDIT_LOG_PATH.name,
     }
     save_run_metadata(RUNS_DIR, metadata)
+    _record_progress(progress_callback, "completed", 100, "Run completed.")
     return ResearchRunResponse.model_validate(_with_links(metadata))
+
+
+def _execute_queued_research_job(
+    run_id: str,
+    created_at_iso: str,
+    request_payload: dict[str, Any],
+) -> None:
+    """Execute a queued run in a FastAPI background task."""
+
+    def progress_callback(stage: str, percent: int, message: str) -> None:
+        _save_run_progress(run_id, stage, percent, message)
+
+    try:
+        _run_research_job(
+            topic=request_payload["topic"],
+            use_live_fetch=bool(request_payload.get("use_live_fetch", False)),
+            fetch_limit=request_payload.get("fetch_limit"),
+            actor_id=request_payload.get("actor_id", "local_analyst"),
+            actor_role=request_payload.get("actor_role", "analyst"),
+            source_urls=[str(url) for url in request_payload.get("source_urls", [])],
+            auto_discover_sources=bool(request_payload.get("auto_discover_sources", True)),
+            discovery_max_sources=int(request_payload.get("discovery_max_sources", 8)),
+            run_id=run_id,
+            created_at=datetime.fromisoformat(created_at_iso),
+            progress_callback=progress_callback,
+        )
+    except Exception as exc:
+        _mark_run_failed(run_id, exc)
+
+
+def _initial_run_metadata(
+    *,
+    run_id: str,
+    topic: str,
+    created_at: datetime,
+    actor_id: str,
+    actor_role: str,
+    request_settings: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "run_id": run_id,
+        "status": "queued",
+        "topic": topic,
+        "actor_id": actor_id,
+        "actor_role": actor_role,
+        "created_at": created_at.astimezone(UTC).isoformat(),
+        "completed_at": None,
+        "sensitivity": "pending",
+        "quality_gate": "pending",
+        "evaluation_summary": {},
+        "request_settings": request_settings,
+        "source_policy": {},
+        "model_gateway": default_llm_gateway_metadata(),
+        "progress": _progress_payload("queued", 0, "Run queued."),
+        "review": {
+            "status": "not_applicable",
+            "updated_at": None,
+            "updated_by": None,
+            "history": [],
+        },
+        "audit": {
+            "logged": False,
+            "event_type": None,
+            "log_name": None,
+        },
+        "artifacts": _empty_artifacts(),
+    }
+
+
+def _empty_artifacts() -> dict[str, None]:
+    return {
+        "report_markdown": None,
+        "claims_csv": None,
+        "claims_jsonl": None,
+        "evidence_csv": None,
+        "evidence_jsonl": None,
+        "evaluation_json": None,
+    }
+
+
+def _progress_payload(stage: str, percent: int, message: str) -> dict[str, Any]:
+    return {
+        "stage": stage,
+        "percent": percent,
+        "message": message,
+        "updated_at": datetime.now(UTC).isoformat(),
+    }
+
+
+def _record_progress(
+    progress_callback: Any | None,
+    stage: str,
+    percent: int,
+    message: str,
+) -> None:
+    if progress_callback is None:
+        return
+    progress_callback(stage, percent, message)
+
+
+def _save_run_progress(run_id: str, stage: str, percent: int, message: str) -> None:
+    try:
+        metadata = _with_metadata_defaults(load_run_metadata(RUNS_DIR, run_id))
+    except RunNotFoundError:
+        return
+
+    metadata["progress"] = _progress_payload(stage, percent, message)
+    if stage != "completed":
+        metadata["status"] = "running"
+        metadata["completed_at"] = None
+    save_run_metadata(RUNS_DIR, metadata)
+
+
+def _mark_run_failed(run_id: str, exc: Exception) -> None:
+    try:
+        metadata = _with_metadata_defaults(load_run_metadata(RUNS_DIR, run_id))
+    except RunNotFoundError:
+        return
+
+    error = f"{type(exc).__name__}: {str(exc)[:300]}"
+    metadata["status"] = "failed"
+    metadata["completed_at"] = datetime.now(UTC).isoformat()
+    metadata["quality_gate"] = "fail"
+    metadata["evaluation_summary"] = {
+        **metadata.get("evaluation_summary", {}),
+        "error": error,
+    }
+    metadata["progress"] = _progress_payload("failed", 100, error)
+    audit_event = AuditEvent(
+        event_type="research_run.failed",
+        run_id=run_id,
+        actor_id=metadata["actor_id"],
+        actor_role=metadata["actor_role"],
+        topic=metadata["topic"],
+        status=metadata["status"],
+        sensitivity=metadata["sensitivity"],
+        quality_gate=metadata["quality_gate"],
+        request_settings=metadata["request_settings"],
+        source_policy=metadata["source_policy"],
+        model_gateway=metadata["model_gateway"],
+        artifacts=metadata["artifacts"],
+    )
+    append_audit_event(AUDIT_LOG_PATH, audit_event)
+    metadata["audit"] = {
+        "logged": True,
+        "event_type": audit_event.event_type,
+        "log_name": AUDIT_LOG_PATH.name,
+    }
+    save_run_metadata(RUNS_DIR, metadata)
 
 
 async def _prepare_uploaded_sources(
@@ -700,6 +945,7 @@ def _with_metadata_defaults(metadata: dict) -> dict:
             "model": None,
             "external_llm_calls": None,
         },
+        "progress": {},
         "review": {
             "status": "not_applicable",
             "updated_at": None,
@@ -711,6 +957,7 @@ def _with_metadata_defaults(metadata: dict) -> dict:
             "event_type": None,
             "log_name": None,
         },
+        "artifacts": _empty_artifacts(),
         **metadata,
     }
 

@@ -60,7 +60,7 @@ api/static/app.js
 - export report button;
 - source policy editor;
 - LLM mode indicator from environment;
-- run progress for async execution.
+- показать уже доступный async progress из `POST /research/run-async` прямо в UI.
 
 ### 2. Source connectors
 
@@ -76,6 +76,7 @@ api/static/app.js
 - generic planner;
 - query expansion;
 - auto source discovery через public connectors;
+- runtime source policy filtering перед fetch/parse/ranking;
 - optional source URLs и uploads как способ усилить или зафиксировать набор источников;
 - evidence extraction, claims, report, quality gate и audit без topic-specific веток.
 

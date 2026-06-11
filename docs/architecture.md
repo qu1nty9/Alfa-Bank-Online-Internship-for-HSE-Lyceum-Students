@@ -41,6 +41,7 @@ flowchart LR
 Основные endpoints:
 
 - `POST /research/run`;
+- `POST /research/run-async`;
 - `GET /research/runs/{run_id}/status`;
 - `GET /research/runs/{run_id}/report`;
 - `GET /research/runs/{run_id}/evidence`;
@@ -72,6 +73,7 @@ config/source_policy.json
 - policy notes для audit и metadata.
 
 Admin может менять policy через API, а каждое изменение попадает в audit log.
+Runtime использует policy как фильтр перед fetch/parse/ranking: заблокированные источники остаются в `source_policy.source_decisions`, но не могут попасть в evidence и отчет.
 
 ### Evidence Store
 

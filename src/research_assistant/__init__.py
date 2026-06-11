@@ -39,8 +39,10 @@ from .sensitivity import SensitivityResult, check_query_sensitivity
 from .source_policy import (
     SourcePolicyConfig,
     default_source_policy_config,
+    filter_sources_by_policy,
     load_source_policy_config,
     save_source_policy_config,
+    source_policy_decision,
     summarize_source_policy,
 )
 from .source_discovery import SourceDiscoveryConfig, discover_public_sources
@@ -81,6 +83,7 @@ __all__ = [
     "discover_public_sources",
     "fetch_source",
     "fetch_sources_safe",
+    "filter_sources_by_policy",
     "filter_chunks",
     "is_cltv_topic",
     "load_seed_sources",
@@ -92,5 +95,6 @@ __all__ = [
     "render_markdown_report",
     "run_quality_gate",
     "save_source_policy_config",
+    "source_policy_decision",
     "summarize_source_policy",
 ]
