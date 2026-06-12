@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import os
 from datetime import UTC, datetime
 from pathlib import Path
+from time import perf_counter
 from typing import Any
 from urllib.parse import quote
+from uuid import uuid4
 
 from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, PlainTextResponse
@@ -70,6 +74,16 @@ SOURCE_POLICY_PATH = PROJECT_ROOT / "config" / "source_policy.json"
 UI_DIR = PROJECT_ROOT / "api" / "static"
 ALLOWED_UPLOAD_SUFFIXES = {".md", ".txt", ".pdf", ".html", ".htm"}
 MAX_UPLOAD_BYTES = 8 * 1024 * 1024
+MAX_UPLOAD_FILES = int(os.getenv("MAX_UPLOAD_FILES", "8"))
+UPLOAD_RETENTION_DAYS = int(os.getenv("UPLOAD_RETENTION_DAYS", "7"))
+
+UPLOAD_CONTENT_TYPES = {
+    ".md": {"text/markdown", "text/x-markdown", "text/plain", "application/octet-stream"},
+    ".txt": {"text/plain", "application/octet-stream"},
+    ".pdf": {"application/pdf", "application/octet-stream"},
+    ".html": {"text/html", "application/xhtml+xml", "application/octet-stream"},
+    ".htm": {"text/html", "application/xhtml+xml", "application/octet-stream"},
+}
 
 app = FastAPI(
     title="Bank Research Assistant API",
@@ -100,6 +114,47 @@ def health() -> HealthResponse:
     return HealthResponse(status="ok", service="bank-research-assistant")
 
 
+class _RunTrace:
+    """Small per-run trace stored in metadata for integration debugging."""
+
+    def __init__(self, request_id: str) -> None:
+        self.request_id = request_id
+        self._started_at = perf_counter()
+        self._previous_at = self._started_at
+        self.events: list[dict[str, Any]] = []
+
+    def record(self, stage: str, message: str) -> None:
+        current_time = perf_counter()
+        self.events.append(
+            {
+                "stage": stage,
+                "message": message,
+                "elapsed_ms": round((current_time - self._started_at) * 1000, 2),
+                "delta_ms": round((current_time - self._previous_at) * 1000, 2),
+                "created_at": datetime.now(UTC).isoformat(),
+            }
+        )
+        self._previous_at = current_time
+
+    def summary(self, status: str) -> dict[str, Any]:
+        total_duration_ms = (
+            self.events[-1]["elapsed_ms"]
+            if self.events
+            else round((perf_counter() - self._started_at) * 1000, 2)
+        )
+        return {
+            "request_id": self.request_id,
+            "status": status,
+            "total_duration_ms": total_duration_ms,
+            "stage_count": len(self.events),
+            "stage_events": self.events,
+            "stage_durations_ms": {
+                event["stage"]: event["delta_ms"] for event in self.events
+            },
+            "updated_at": datetime.now(UTC).isoformat(),
+        }
+
+
 @app.post("/research/run", response_model=ResearchRunResponse)
 def run_research(request: ResearchRunRequest) -> ResearchRunResponse:
     """Run the research pipeline and persist a queryable run record."""
@@ -126,7 +181,9 @@ def queue_research(
     _require_role(request.actor_role, "analyst")
     run_id = create_run_id()
     created_at = datetime.now(UTC)
+    request_id = uuid4().hex
     request_settings = {
+        "request_id": request_id,
         "use_live_fetch": request.use_live_fetch,
         "fetch_limit": request.fetch_limit,
         "source_url_count": len(request.source_urls),
@@ -152,6 +209,7 @@ def queue_research(
         run_id,
         created_at.isoformat(),
         request.model_dump(mode="json"),
+        request_id,
     )
     linked_metadata = _with_links(metadata)
     return ResearchRunAcceptedResponse(
@@ -161,6 +219,7 @@ def queue_research(
         topic=request.topic,
         request_settings=request_settings,
         progress=metadata["progress"],
+        observability=metadata["observability"],
         links=linked_metadata["links"],
     )
 
@@ -223,12 +282,15 @@ def _run_research_job(
     uploaded_sources: list[SourceCandidate] | None = None,
     uploaded_file_metadata: list[dict] | None = None,
     progress_callback: Any | None = None,
+    request_id: str | None = None,
 ) -> ResearchRunResponse:
     _require_role(actor_role, "analyst")
 
     active_run_id = run_id or create_run_id()
     created_at = created_at or datetime.now(UTC)
-    _record_progress(progress_callback, "accepted", 5, "Run accepted.")
+    active_request_id = request_id or uuid4().hex
+    trace = _RunTrace(active_request_id)
+    _record_stage(trace, progress_callback, "accepted", 5, "Run accepted.")
     uploaded_sources = uploaded_sources or []
     uploaded_file_metadata = uploaded_file_metadata or []
     request_sources = build_sources_from_urls(source_urls, topic=topic)
@@ -250,7 +312,8 @@ def _run_research_job(
     discovered_sources: list[SourceCandidate] = []
     sensitivity = check_query_sensitivity(topic)
     if auto_discover_sources and sensitivity.allowed:
-        _record_progress(
+        _record_stage(
+            trace,
             progress_callback,
             "discovering_sources",
             20,
@@ -283,7 +346,8 @@ def _run_research_job(
     active_use_live_fetch = (
         use_live_fetch or allowed_request_count > 0 or allowed_discovered_count > 0
     )
-    _record_progress(
+    _record_stage(
+        trace,
         progress_callback,
         "applying_source_policy",
         35,
@@ -310,6 +374,7 @@ def _run_research_job(
         source_mode = "policy_blocked_sources" if sources else "no_topic_sources"
 
     request_settings = {
+        "request_id": active_request_id,
         "use_live_fetch": active_use_live_fetch,
         "requested_live_fetch": use_live_fetch,
         "fetch_limit": fetch_limit,
@@ -329,7 +394,7 @@ def _run_research_job(
             "auto_discover_sources": False,
         }
     )
-    _record_progress(progress_callback, "running_pipeline", 55, "Running research pipeline.")
+    _record_stage(trace, progress_callback, "running_pipeline", 55, "Running research pipeline.")
     result = run_research_pipeline_with_sources(
         topic,
         config=config,
@@ -344,7 +409,7 @@ def _run_research_job(
     result.evaluation_summary["source_policy_allowed_count"] = len(allowed_sources)
     result.evaluation_summary["source_policy_blocked_count"] = len(sources) - len(allowed_sources)
     model_gateway = result.model_gateway_metadata
-    _record_progress(progress_callback, "persisting_artifacts", 90, "Persisting artifacts.")
+    _record_stage(trace, progress_callback, "persisting_artifacts", 90, "Persisting artifacts.")
     completed_at = datetime.now(UTC)
 
     metadata = save_pipeline_run(
@@ -359,7 +424,9 @@ def _run_research_job(
         source_policy=source_policy,
         model_gateway=model_gateway,
     )
+    _record_stage(trace, progress_callback, "completed", 100, "Run completed.")
     metadata["progress"] = _progress_payload("completed", 100, "Run completed.")
+    metadata["observability"] = trace.summary("completed")
     audit_event = AuditEvent(
         run_id=active_run_id,
         actor_id=actor_id,
@@ -380,7 +447,6 @@ def _run_research_job(
         "log_name": AUDIT_LOG_PATH.name,
     }
     save_run_metadata(RUNS_DIR, metadata)
-    _record_progress(progress_callback, "completed", 100, "Run completed.")
     return ResearchRunResponse.model_validate(_with_links(metadata))
 
 
@@ -388,6 +454,7 @@ def _execute_queued_research_job(
     run_id: str,
     created_at_iso: str,
     request_payload: dict[str, Any],
+    request_id: str,
 ) -> None:
     """Execute a queued run in a FastAPI background task."""
 
@@ -407,6 +474,7 @@ def _execute_queued_research_job(
             run_id=run_id,
             created_at=datetime.fromisoformat(created_at_iso),
             progress_callback=progress_callback,
+            request_id=request_id,
         )
     except Exception as exc:
         _mark_run_failed(run_id, exc)
@@ -436,6 +504,7 @@ def _initial_run_metadata(
         "source_policy": {},
         "model_gateway": default_llm_gateway_metadata(),
         "progress": _progress_payload("queued", 0, "Run queued."),
+        "observability": _initial_observability(request_settings["request_id"]),
         "review": {
             "status": "not_applicable",
             "updated_at": None,
@@ -471,6 +540,29 @@ def _progress_payload(stage: str, percent: int, message: str) -> dict[str, Any]:
     }
 
 
+def _initial_observability(request_id: str) -> dict[str, Any]:
+    return {
+        "request_id": request_id,
+        "status": "queued",
+        "total_duration_ms": 0,
+        "stage_count": 0,
+        "stage_events": [],
+        "stage_durations_ms": {},
+        "updated_at": datetime.now(UTC).isoformat(),
+    }
+
+
+def _record_stage(
+    trace: _RunTrace,
+    progress_callback: Any | None,
+    stage: str,
+    percent: int,
+    message: str,
+) -> None:
+    trace.record(stage, message)
+    _record_progress(progress_callback, stage, percent, message)
+
+
 def _record_progress(
     progress_callback: Any | None,
     stage: str,
@@ -489,6 +581,11 @@ def _save_run_progress(run_id: str, stage: str, percent: int, message: str) -> N
         return
 
     metadata["progress"] = _progress_payload(stage, percent, message)
+    metadata["observability"] = {
+        **metadata.get("observability", {}),
+        "status": "running" if stage != "completed" else "completed",
+        "updated_at": datetime.now(UTC).isoformat(),
+    }
     if stage != "completed":
         metadata["status"] = "running"
         metadata["completed_at"] = None
@@ -510,6 +607,11 @@ def _mark_run_failed(run_id: str, exc: Exception) -> None:
         "error": error,
     }
     metadata["progress"] = _progress_payload("failed", 100, error)
+    metadata["observability"] = {
+        **metadata.get("observability", {}),
+        "status": "failed",
+        "updated_at": datetime.now(UTC).isoformat(),
+    }
     audit_event = AuditEvent(
         event_type="research_run.failed",
         run_id=run_id,
@@ -545,6 +647,12 @@ async def _prepare_uploaded_sources(
     metadata: list[dict] = []
     raw_upload_dir = config.raw_dir / "uploads" / run_id
 
+    if len(files) > MAX_UPLOAD_FILES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Too many uploaded files: {len(files)} (max {MAX_UPLOAD_FILES}).",
+        )
+
     for index, upload in enumerate(files, start=1):
         original_name = Path(upload.filename or f"document_{index}.txt").name
         suffix = Path(original_name).suffix.lower() or ".txt"
@@ -565,6 +673,12 @@ async def _prepare_uploaded_sources(
                 status_code=413,
                 detail=f"Uploaded file is too large: {original_name}",
             )
+        detected_content_type = _validate_upload_content_type(
+            filename=original_name,
+            suffix=suffix,
+            declared_content_type=upload.content_type,
+            body=body,
+        )
 
         source_id = f"upload_{run_id.rsplit('_', 1)[-1]}_{index:03d}"
         safe_name = _safe_upload_name(original_name)
@@ -587,7 +701,7 @@ async def _prepare_uploaded_sources(
             source_id=source_id,
             url=source.url,
             path=raw_path,
-            content_type=_upload_content_type(upload.content_type, suffix),
+            content_type=detected_content_type,
             from_cache=False,
         )
         sources.append(source)
@@ -597,7 +711,15 @@ async def _prepare_uploaded_sources(
                 "source_id": source_id,
                 "filename": original_name,
                 "content_type": raw_document.content_type,
+                "declared_content_type": upload.content_type,
+                "detected_content_type": detected_content_type,
                 "size_bytes": len(body),
+                "sha256": hashlib.sha256(body).hexdigest(),
+                "retention_days": UPLOAD_RETENTION_DAYS,
+                "retention_policy": (
+                    "Uploaded raw files are stored in ignored data/raw/uploads "
+                    f"and should be deleted after {UPLOAD_RETENTION_DAYS} days."
+                ),
             }
         )
 
@@ -655,6 +777,59 @@ def _upload_content_type(content_type: str | None, suffix: str) -> str:
         ".html": "text/html",
         ".htm": "text/html",
     }.get(suffix, "application/octet-stream")
+
+
+def _validate_upload_content_type(
+    *,
+    filename: str,
+    suffix: str,
+    declared_content_type: str | None,
+    body: bytes,
+) -> str:
+    declared = _normalized_content_type(declared_content_type)
+    if declared and declared not in UPLOAD_CONTENT_TYPES.get(suffix, set()):
+        raise HTTPException(
+            status_code=415,
+            detail=(
+                f"Declared content type '{declared}' is not allowed for {filename}."
+            ),
+        )
+
+    detected = _detect_upload_content_type(body, suffix)
+    if suffix == ".pdf" and detected != "application/pdf":
+        raise HTTPException(status_code=415, detail=f"Invalid PDF signature: {filename}")
+    if suffix in {".html", ".htm"} and detected != "text/html":
+        raise HTTPException(status_code=415, detail=f"Invalid HTML document: {filename}")
+    if suffix in {".md", ".txt"} and detected != "text/plain":
+        raise HTTPException(status_code=415, detail=f"Invalid text document: {filename}")
+    return _upload_content_type(detected, suffix)
+
+
+def _detect_upload_content_type(body: bytes, suffix: str) -> str:
+    if body.startswith(b"%PDF-"):
+        return "application/pdf"
+    head = body[:4096].lstrip().lower()
+    if suffix in {".html", ".htm"} and (
+        head.startswith(b"<!doctype html")
+        or head.startswith(b"<html")
+        or b"<body" in head
+        or b"<main" in head
+        or b"<article" in head
+    ):
+        return "text/html"
+    if b"\x00" in body[:4096]:
+        return "application/octet-stream"
+    try:
+        body[:4096].decode("utf-8")
+    except UnicodeDecodeError:
+        return "application/octet-stream"
+    return "text/plain"
+
+
+def _normalized_content_type(content_type: str | None) -> str | None:
+    if not content_type:
+        return None
+    return content_type.split(";", 1)[0].strip().lower()
 
 
 @app.get("/research/runs", response_model=ResearchRunListResponse)
@@ -946,6 +1121,7 @@ def _with_metadata_defaults(metadata: dict) -> dict:
             "external_llm_calls": None,
         },
         "progress": {},
+        "observability": {},
         "review": {
             "status": "not_applicable",
             "updated_at": None,

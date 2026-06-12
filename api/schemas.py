@@ -47,6 +47,7 @@ class ResearchRunResponse(BaseModel):
     source_policy: dict[str, Any]
     model_gateway: dict[str, Any]
     progress: dict[str, Any] = Field(default_factory=dict)
+    observability: dict[str, Any] = Field(default_factory=dict)
     review: dict[str, Any]
     audit: dict[str, Any]
     artifacts: dict[str, str | None]
@@ -66,6 +67,7 @@ class ResearchRunAcceptedResponse(BaseModel):
     topic: str
     request_settings: dict[str, Any]
     progress: dict[str, Any]
+    observability: dict[str, Any] = Field(default_factory=dict)
     links: dict[str, str | None]
 
 

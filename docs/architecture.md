@@ -19,16 +19,19 @@ flowchart LR
     parser --> filtering["Noise Filter + Domain Reranker"]
     filtering --> evidence["Evidence Store"]
     evidence --> claims["Claim / Evidence Traceability"]
+    claims --> critic["Claim Critic"]
+    evidence --> critic
     evidence --> llm_gateway["LLM Gateway"]
     llm_gateway --> local_llm["Local Qwen via Ollama"]
     llm_gateway --> corporate_llm["AlfaGen / GigaChat / Corporate LLM"]
     llm_gateway --> offline["Offline Template"]
-    claims --> report["Markdown Report"]
+    critic --> report["Markdown Report"]
     llm_gateway --> report
     report --> quality_gate["Quality Gate"]
     quality_gate --> review["Reviewer Workflow"]
     review --> audit["Append-only Audit Log"]
     api --> audit
+    api --> observability["Run Observability Metadata"]
     source_policy --> audit
 ```
 
@@ -97,6 +100,16 @@ reports/api_runs/{run_id}/claims.csv
 
 Формат связывает `claim_id` с `evidence_ids` и `source_ids`.
 
+### Claim Critic
+
+Детерминированный слой проверяет claim/evidence связи до ручного review:
+
+- есть ли referenced evidence;
+- достаточно ли лексической поддержки между claim и evidence;
+- не появились ли числовые значения, которых нет в evidence.
+
+Результат сохраняется в `evaluation_summary.critic_summary`, claim `status` и Markdown-отчете.
+
 ### LLM Gateway
 
 Gateway изолирует продуктовую логику от конкретной модели.
@@ -119,7 +132,19 @@ Quality gate проверяет:
 - достаточно ли evidence items;
 - достаточно ли разных источников;
 - есть ли report artifacts;
-- не прошел ли sensitive-запрос дальше pipeline.
+- не прошел ли sensitive-запрос дальше pipeline;
+- нет ли unsupported claims по `critic_summary`.
+
+### Observability
+
+Каждый API run хранит:
+
+- `request_id` для корреляции вызовов;
+- `progress` для UI/polling;
+- `observability.stage_events` с `elapsed_ms` и `delta_ms`;
+- `observability.total_duration_ms`.
+
+Это не заменяет enterprise APM, но дает понятный trace для open-source демо и интеграционного дебага.
 
 ### Reviewer Workflow
 

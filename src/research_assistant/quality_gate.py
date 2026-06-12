@@ -97,6 +97,45 @@ def run_quality_gate(
             severity="fail",
             detail="Every evidence item must have source_id and chunk_id.",
         ),
+        QualityCheck(
+            name="claim_critic_has_no_unsupported_claims",
+            passed=evaluation_summary.get("critic_summary", {}).get(
+                "unsupported_claim_count",
+                0,
+            )
+            == 0,
+            severity="fail",
+            detail=(
+                "Unsupported claims: "
+                f"{evaluation_summary.get('critic_summary', {}).get('unsupported_claim_count', 0)}."
+            ),
+        ),
+        QualityCheck(
+            name="claim_critic_has_no_numeric_warnings",
+            passed=evaluation_summary.get("critic_summary", {}).get(
+                "numeric_warning_count",
+                0,
+            )
+            == 0,
+            severity="warn",
+            detail=(
+                "Numeric claim warnings: "
+                f"{evaluation_summary.get('critic_summary', {}).get('numeric_warning_count', 0)}."
+            ),
+        ),
+        QualityCheck(
+            name="claim_critic_has_no_review_claims",
+            passed=evaluation_summary.get("critic_summary", {}).get(
+                "needs_review_claim_count",
+                0,
+            )
+            == 0,
+            severity="warn",
+            detail=(
+                "Claims needing review: "
+                f"{evaluation_summary.get('critic_summary', {}).get('needs_review_claim_count', 0)}."
+            ),
+        ),
     ]
 
     has_failed_required_check = any(

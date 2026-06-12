@@ -34,8 +34,7 @@ def parse_raw_document(
         parser_name = "plain_text"
     else:
         html = raw_path.read_text(encoding="utf-8", errors="ignore")
-        text = extract_html_text(html)
-        parser_name = "stdlib_html_parser"
+        text, parser_name = extract_html_text_with_parser(html)
 
     clean_text = normalize_whitespace(text)
     if not clean_text:
@@ -117,12 +116,80 @@ def clean_document_path(source: SourceCandidate, clean_dir: str | Path) -> Path:
 
 
 def extract_html_text(html: str) -> str:
+    """Extract visible text from HTML with optional boilerplate cleanup."""
+
+    text, _parser_name = extract_html_text_with_parser(html)
+    return text
+
+
+def extract_html_text_with_parser(html: str) -> tuple[str, str]:
+    """Extract visible text from HTML and return the parser that worked."""
+
+    for parser_name, extractor in [
+        ("trafilatura_html", _extract_html_with_trafilatura),
+        ("beautifulsoup_html", _extract_html_with_beautifulsoup),
+        ("stdlib_html_parser", _extract_html_with_stdlib),
+    ]:
+        try:
+            text = normalize_whitespace(extractor(html))
+        except Exception:
+            continue
+        if _has_enough_text(text):
+            return text, parser_name
+
+    text = normalize_whitespace(_extract_html_with_stdlib(html))
+    return text, "stdlib_html_parser"
+
+
+def _extract_html_with_trafilatura(html: str) -> str:
+    try:
+        from trafilatura import extract
+    except ModuleNotFoundError as exc:
+        raise ParseError("trafilatura is not available") from exc
+
+    extracted = extract(
+        _strip_html_noise_tags(html),
+        include_comments=False,
+        include_formatting=False,
+        include_images=False,
+        include_links=False,
+        include_tables=True,
+    )
+    return extracted or ""
+
+
+def _extract_html_with_beautifulsoup(html: str) -> str:
+    try:
+        from bs4 import BeautifulSoup
+    except ModuleNotFoundError as exc:
+        raise ParseError("beautifulsoup4 is not available") from exc
+
+    soup = BeautifulSoup(html, "html.parser")
+    for tag in soup(["script", "style", "noscript", "svg", "nav", "header", "footer"]):
+        tag.decompose()
+    root = soup.find("main") or soup.find("article") or soup.body or soup
+    return root.get_text("\n")
+
+
+def _extract_html_with_stdlib(html: str) -> str:
     """Extract visible text from HTML using only the Python standard library."""
 
     parser = _VisibleTextHTMLParser()
     parser.feed(html)
     parser.close()
-    return normalize_whitespace("\n".join(parser.text_parts))
+    return "\n".join(parser.text_parts)
+
+
+def _strip_html_noise_tags(html: str) -> str:
+    cleaned = html
+    for tag in ["script", "style", "noscript", "svg", "nav", "header", "footer"]:
+        cleaned = re.sub(
+            rf"<{tag}\b[^>]*>.*?</{tag}>",
+            " ",
+            cleaned,
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+    return cleaned
 
 
 def extract_pdf_text(path: str | Path) -> str:
@@ -142,8 +209,30 @@ def normalize_whitespace(text: str) -> str:
     """Normalize whitespace while preserving paragraph-ish line breaks."""
 
     lines = [re.sub(r"\s+", " ", line).strip() for line in text.splitlines()]
-    non_empty_lines = [line for line in lines if line]
+    non_empty_lines = _dedupe_repeated_lines([line for line in lines if line])
     return "\n".join(non_empty_lines).strip()
+
+
+def _dedupe_repeated_lines(lines: list[str]) -> list[str]:
+    deduped: list[str] = []
+    seen_short_lines: dict[str, int] = {}
+    previous_signature = ""
+    for line in lines:
+        signature = line.lower()
+        if signature == previous_signature:
+            continue
+        if len(line) <= 140:
+            seen_count = seen_short_lines.get(signature, 0)
+            if seen_count >= 2:
+                continue
+            seen_short_lines[signature] = seen_count + 1
+        deduped.append(line)
+        previous_signature = signature
+    return deduped
+
+
+def _has_enough_text(text: str) -> bool:
+    return len(text) >= 80 or len(text.split()) >= 12
 
 
 def _is_pdf(raw_document: RawDocument) -> bool:

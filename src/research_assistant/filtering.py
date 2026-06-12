@@ -7,7 +7,7 @@ from collections import Counter
 from collections.abc import Iterable
 
 from .chunker import simple_tokenize
-from .models import SearchQuery, TextChunk
+from .models import SearchQuery, SourceType, TextChunk
 
 DOMAIN_TERMS = {
     "bank",
@@ -54,6 +54,20 @@ STRONG_NOISE_TERMS = {
     "virgin islands",
     "terms of use",
     "cookie preferences",
+}
+
+SOURCE_TYPE_TRUST_SCORES = {
+    SourceType.REGULATOR: 1.0,
+    SourceType.OFFICIAL_BANK: 0.95,
+    SourceType.ACADEMIC: 0.9,
+    SourceType.CONSULTING: 0.82,
+    SourceType.RESEARCH_INDEX: 0.78,
+    SourceType.VENDOR: 0.7,
+    SourceType.ENCYCLOPEDIA: 0.65,
+    SourceType.NEWS: 0.55,
+    SourceType.USER_PROVIDED: 0.5,
+    SourceType.UPLOADED_DOCUMENT: 0.5,
+    SourceType.OTHER: 0.4,
 }
 
 
@@ -134,6 +148,44 @@ def rank_chunks_bm25(
                 ranked.append((chunk, query, score))
 
     return ranked
+
+
+def rank_chunks_hybrid(
+    chunks: list[TextChunk],
+    queries: list[SearchQuery],
+    *,
+    top_k_per_query: int = 5,
+    trust_boost: float = 0.25,
+) -> list[tuple[TextChunk, SearchQuery, float]]:
+    """Rank chunks with BM25 plus an explainable source-trust boost."""
+
+    expanded_top_k = max(top_k_per_query * 3, top_k_per_query)
+    bm25_matches = rank_chunks_bm25(
+        chunks,
+        queries,
+        top_k_per_query=expanded_top_k,
+    )
+    if not bm25_matches:
+        return []
+
+    grouped_matches: dict[str, list[tuple[TextChunk, SearchQuery, float]]] = {}
+    for chunk, query, bm25_score in bm25_matches:
+        hybrid_score = bm25_score * (1 + trust_boost * source_trust_score(chunk.source_type))
+        key = f"{query.research_block}:{query.query}"
+        grouped_matches.setdefault(key, []).append((chunk, query, hybrid_score))
+
+    ranked: list[tuple[TextChunk, SearchQuery, float]] = []
+    for matches in grouped_matches.values():
+        ranked.extend(
+            sorted(matches, key=lambda item: item[2], reverse=True)[:top_k_per_query]
+        )
+    return ranked
+
+
+def source_trust_score(source_type: SourceType) -> float:
+    """Return deterministic source trust used for ranking and evidence metadata."""
+
+    return SOURCE_TYPE_TRUST_SCORES.get(source_type, SOURCE_TYPE_TRUST_SCORES[SourceType.OTHER])
 
 
 def _document_frequencies(tokenized_chunks: list[list[str]]) -> Counter[str]:

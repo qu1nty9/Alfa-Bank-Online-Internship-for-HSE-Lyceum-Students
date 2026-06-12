@@ -92,6 +92,7 @@ The response includes:
 - `source_policy` - curated-source policy summary;
 - `model_gateway` - model mode and external-call boundary;
 - `progress` - async/sync progress stage, percent, message, and update time;
+- `observability` - `request_id`, stage timings, total duration, and trace events;
 - `review` - report review state;
 - `audit` - audit log status;
 - `links` - API paths for status, report, claims, evidence, graph, and review.
@@ -178,6 +179,14 @@ curl -X POST http://127.0.0.1:8000/research/run-with-files \
 ```
 
 Uploaded files are saved under ignored `data/raw/uploads/{run_id}/`, parsed into ignored `data/clean/`, and represented as `source_type=uploaded_document` in policy/evidence metadata.
+
+Upload hardening:
+
+- allowed extensions: `.md`, `.txt`, `.pdf`, `.html`, `.htm`;
+- default max file size: 8 MB;
+- default max files per request: `MAX_UPLOAD_FILES=8`;
+- MIME/content sniffing blocks disguised PDFs, HTML, and binary text uploads;
+- uploaded metadata includes `sha256`, detected content type, and `UPLOAD_RETENTION_DAYS`.
 
 ## Knowledge graph
 
@@ -328,6 +337,24 @@ LLM_EXTERNAL_CALLS_ENABLED=true
 
 See `docs/local_llm.md` for local Qwen3, AlfaGen, and GigaChat setup.
 
+## Container and local automation
+
+Local Makefile commands:
+
+```bash
+make install
+make test
+make run
+```
+
+Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Compose mounts `config/`, `data/`, and `reports/` so run artifacts and policy edits stay on the host machine.
+
 ## Claim/evidence traceability
 
 Each completed run stores a machine-readable claim table:
@@ -345,7 +372,9 @@ reports/api_runs/{run_id}/claims.csv
 - `evidence_ids`;
 - `source_ids`;
 - `confidence`;
-- `status`.
+- `status` from the deterministic claim critic: `supported`, `needs_review`, or `unsupported`.
+
+Each run also stores `evaluation_summary.critic_summary`, including unsupported claim counts, numeric warnings, and per-claim overlap checks. Evidence rows include `trust_score`, which is derived from source type and used by the hybrid BM25/source-trust ranking baseline.
 
 The generated Markdown report is structured for business review:
 
@@ -354,4 +383,5 @@ The generated Markdown report is structured for business review:
 - `Полный отчет по источникам и ресурсам`;
 - thematic analysis;
 - `Утверждения и доказательства`;
+- `Проверка утверждений`;
 - evidence table and unknowns.

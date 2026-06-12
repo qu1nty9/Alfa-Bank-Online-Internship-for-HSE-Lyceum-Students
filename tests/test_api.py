@@ -121,6 +121,7 @@ def test_research_run_endpoint_uses_auto_discovery_for_any_topic() -> None:
     assert payload["evaluation_summary"]["source_mode"] == "auto_discovery"
     assert payload["evaluation_summary"]["clean_document_count"] >= 1
     assert payload["request_settings"]["use_live_fetch"] is True
+    assert payload["request_settings"]["request_id"]
     assert payload["request_settings"]["discovered_source_count"] == 1
     assert payload["source_policy"]["candidate_source_count"] == 1
     assert payload["source_policy"]["allowed_source_count"] == 1
@@ -130,6 +131,12 @@ def test_research_run_endpoint_uses_auto_discovery_for_any_topic() -> None:
     assert payload["model_gateway"]["api_key_configured"] is False
     assert payload["model_gateway"]["external_llm_calls"] is False
     assert payload["model_gateway"]["synthesis_status"] == "not_requested"
+    assert payload["observability"]["request_id"] == payload["request_settings"]["request_id"]
+    assert payload["observability"]["total_duration_ms"] >= 0
+    assert any(
+        event["stage"] == "completed"
+        for event in payload["observability"]["stage_events"]
+    )
     assert payload["review"]["status"] == "draft"
     assert payload["audit"]["logged"] is True
     assert payload["links"]["status"].endswith("/status")
@@ -329,6 +336,9 @@ def test_research_run_with_uploaded_markdown_file() -> None:
     assert payload["evaluation_summary"]["evidence_item_count"] >= 1
     assert payload["request_settings"]["uploaded_source_count"] == 1
     assert payload["request_settings"]["uploaded_files"][0]["parsed"] is True
+    assert payload["request_settings"]["uploaded_files"][0]["sha256"]
+    assert payload["request_settings"]["uploaded_files"][0]["detected_content_type"] == "text/plain"
+    assert payload["request_settings"]["uploaded_files"][0]["retention_days"] == 7
     assert payload["source_policy"]["source_type_counts"]["uploaded_document"] == 1
 
     graph_response = client.get(payload["links"]["graph"])
@@ -336,6 +346,31 @@ def test_research_run_with_uploaded_markdown_file() -> None:
     graph = graph_response.json()["graph"]
     assert graph["summary"]["source_count"] == 1
     assert graph["summary"]["claim_count"] >= 1
+
+
+def test_research_run_rejects_disguised_pdf_upload() -> None:
+    client = TestClient(app)
+
+    response = client.post(
+        "/research/run-with-files",
+        data={
+            "topic": "AI fraud detection in insurance",
+            "actor_id": "test_analyst",
+            "actor_role": "analyst",
+            "auto_discover_sources": "false",
+            "use_live_fetch": "false",
+        },
+        files={
+            "files": (
+                "fake.pdf",
+                b"not a pdf file",
+                "application/pdf",
+            )
+        },
+    )
+
+    assert response.status_code == 415
+    assert "Invalid PDF signature" in response.json()["detail"]
 
 
 def test_report_review_workflow_requires_reviewer_and_valid_transition() -> None:

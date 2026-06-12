@@ -47,7 +47,7 @@ Core pipeline не ограничен CLTV: для любой темы он ст
 
 Ключевой результат Stage 4: каждый API-запуск оставляет audit trail, отчет проходит reviewer workflow, ключевые claims связаны с evidence, source allowlist управляется через admin API, а LLM Gateway заменяем между offline, local Qwen, AlfaGen/GigaChat и OpenAI-compatible endpoints.
 
-Ключевой результат текущего Stage 5: продуктовый no-build UI поверх FastAPI, multipart upload endpoint, поддержка uploaded knowledge-base documents и lightweight graph layer `claim -> evidence -> source`.
+Ключевой результат текущего Stage 5: продуктовый no-build UI поверх FastAPI, multipart upload endpoint, поддержка uploaded knowledge-base documents, runtime source policy enforcement, async run polling, observability metadata, upload hardening, Docker packaging, hybrid ranking и lightweight graph layer `claim -> evidence -> source`.
 
 ## Структура проекта
 
@@ -81,6 +81,14 @@ pip install -r requirements.txt
 
 ```bash
 pytest
+```
+
+То же через Makefile:
+
+```bash
+make install
+make test
+make run
 ```
 
 Открыть стартовый notebook:
@@ -119,6 +127,12 @@ PYTHONPATH=src python -m research_assistant.pipeline --topic "CLTV in foreign ba
 
 ```bash
 PYTHONPATH=.:src uvicorn api.main:app --reload
+```
+
+Запустить через Docker Compose:
+
+```bash
+docker compose up --build
 ```
 
 Открыть demo UI:
@@ -217,6 +231,7 @@ docs/local_llm.md
 - `docs/local_llm.md` - подключение Qwen3-1.7B, AlfaGen/GigaChat и OpenAI-compatible endpoints.
 - `api/README.md` - FastAPI MVP.
 - `api/static/` - no-build demo UI поверх FastAPI.
+- `Dockerfile`, `docker-compose.yml`, `Makefile` - воспроизводимый open-source запуск и проверка.
 - `config/source_policy.json` - file-backed source allowlist для admin-сценария.
 - `data/seed_sources/cltv_sources_template.csv` - явный offline demo fixture, не runtime fallback.
 
@@ -231,10 +246,11 @@ docs/local_llm.md
 - `source_discovery.py` - public source discovery: Wikipedia, OpenAlex, arXiv, Crossref, optional SearXNG/Search endpoint;
 - `source_policy.py` - runtime filtering и audit decisions для разрешенных/заблокированных источников;
 - `fetcher.py` - raw fetching;
-- `parser.py` - clean text extraction;
+- `parser.py` - clean text extraction with optional `trafilatura`/BeautifulSoup boilerplate cleanup;
 - `chunker.py` - chunking;
-- `filtering.py` - noise filter и BM25 ranking;
+- `filtering.py` - noise filter, BM25 baseline и source-trust hybrid ranking;
 - `evidence.py` - evidence table;
+- `critic.py` - deterministic claim/evidence critic для unsupported, weak и numeric-risk claims;
 - `knowledge_graph.py` - lightweight claim/evidence/source graph;
 - `report.py` - template-based report;
 - `quality_gate.py` - проверки результата;

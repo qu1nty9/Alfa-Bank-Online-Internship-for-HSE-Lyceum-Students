@@ -314,12 +314,13 @@ function renderEvidence(items) {
       <td>${escapeHtml(item.source_type || "-")}</td>
       <td>${escapeHtml(item.research_block || "-")}</td>
       <td>${formatScore(item.relevance_score)}</td>
+      <td>${formatScore(item.trust_score)}</td>
       <td>${escapeHtml(trimText(item.text || "", 360))}</td>
     `;
     els.evidenceTable.appendChild(row);
   });
   if (!items.length) {
-    els.evidenceTable.innerHTML = '<tr><td colspan="5">No evidence loaded.</td></tr>';
+    els.evidenceTable.innerHTML = '<tr><td colspan="6">No evidence loaded.</td></tr>';
   }
 }
 
@@ -330,13 +331,14 @@ function renderClaims(items) {
     row.innerHTML = `
       <td>${escapeHtml(item.claim_id || "-")}</td>
       <td>${escapeHtml(item.confidence || "-")}</td>
+      <td>${escapeHtml(item.status || "-")}</td>
       <td>${escapeHtml((item.evidence_ids || []).join(", "))}</td>
       <td>${escapeHtml(trimText(item.claim_text || "", 360))}</td>
     `;
     els.claimsTable.appendChild(row);
   });
   if (!items.length) {
-    els.claimsTable.innerHTML = '<tr><td colspan="4">No claims loaded.</td></tr>';
+    els.claimsTable.innerHTML = '<tr><td colspan="5">No claims loaded.</td></tr>';
   }
 }
 

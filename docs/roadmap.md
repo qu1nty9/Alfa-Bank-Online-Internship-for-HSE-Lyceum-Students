@@ -12,15 +12,21 @@ Roadmap отделяет текущий MVP от production-ready банковс
 - Модульный Python pipeline.
 - FastAPI service layer.
 - Seed-source collector.
-- Parser/cleaner.
-- Noise filter и BM25 reranker.
+- Parser/cleaner with optional trafilatura/BeautifulSoup HTML cleanup.
+- Noise filter, BM25 baseline и source-trust hybrid reranker.
 - Evidence store.
 - Template report.
 - Claim/evidence traceability.
+- Deterministic claim critic for unsupported, weak, and numeric-risk claims.
 - Quality gate.
 - Audit log.
 - Reviewer workflow.
 - Source allowlist.
+- Runtime source policy enforcement.
+- Async run polling.
+- Run observability metadata with request id and stage timings.
+- Upload hardening: file count limit, MIME/content sniffing, SHA-256 metadata, retention metadata.
+- Dockerfile, Docker Compose, and Makefile for reproducible open-source startup.
 - LLM Gateway.
 - Local Qwen profile.
 - AlfaGen/GigaChat-ready gateway profiles.
@@ -88,34 +94,35 @@ api/static/app.js
 - парсинг закрытых источников;
 - отправку внутренних данных наружу.
 
-### 3. Better parsing
+### 3. Parsing hardening
 
-Улучшить extraction:
+MVP-level HTML cleanup уже реализован через optional trafilatura/BeautifulSoup fallback.
+Production-уровень:
 
-- PDF parser;
-- HTML boilerplate removal;
 - language detection;
 - document deduplication;
 - source freshness metadata.
+- OCR/table extraction для сложных PDF.
 
 ### 4. Better reranking
 
-Добавить:
+MVP-level source-trust hybrid ranking уже реализован без обязательных embedding-моделей.
+Production-уровень:
 
 - embeddings reranker;
 - domain classifier;
-- source trust calibration;
+- source trust calibration на размеченном наборе;
 - block-level coverage scoring.
 
 ### 5. Stronger fact checking
 
-Добавить critic layer:
+MVP-level deterministic critic уже реализован для claim/evidence links, weak support и numeric warnings.
+Production-уровень:
 
 - claim extraction from final report;
-- automatic source support check;
-- numeric claim validation;
 - contradiction detection;
-- unsupported claim warnings.
+- LLM/embedding-based semantic entailment;
+- reviewer feedback loop для улучшения правил.
 
 ### 6. Enterprise security
 
@@ -125,7 +132,7 @@ Production banking layer:
 - secrets management;
 - VPC/on-prem deployment;
 - structured audit store;
-- retention policy;
+- enforced retention jobs;
 - PII detection model;
 - policy engine integration.
 

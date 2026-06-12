@@ -3,10 +3,11 @@
 from .chunker import chunk_clean_document
 from .collector import build_sources_from_urls, load_seed_sources
 from .config import PipelineConfig, default_pipeline_config
+from .critic import apply_claim_critic, critique_claims
 from .evidence import build_evidence_items
 from .evaluation import build_evaluation_summary
 from .fetcher import fetch_source, fetch_sources_safe
-from .filtering import filter_chunks, rank_chunks_bm25
+from .filtering import filter_chunks, rank_chunks_bm25, rank_chunks_hybrid, source_trust_score
 from .knowledge_graph import build_knowledge_graph
 from .llm_gateway import (
     LLMGatewayConfig,
@@ -85,6 +86,8 @@ __all__ = [
     "fetch_sources_safe",
     "filter_sources_by_policy",
     "filter_chunks",
+    "apply_claim_critic",
+    "critique_claims",
     "is_cltv_topic",
     "load_seed_sources",
     "load_source_policy_config",
@@ -92,9 +95,11 @@ __all__ = [
     "parse_raw_document",
     "parse_raw_documents_safe",
     "rank_chunks_bm25",
+    "rank_chunks_hybrid",
     "render_markdown_report",
     "run_quality_gate",
     "save_source_policy_config",
     "source_policy_decision",
+    "source_trust_score",
     "summarize_source_policy",
 ]

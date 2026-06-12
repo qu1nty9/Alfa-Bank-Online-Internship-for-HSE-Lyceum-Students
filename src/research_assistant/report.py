@@ -97,7 +97,7 @@ def render_markdown_report(
                 "без ручной проверки."
             ),
             "",
-            "| claim_id | research_block | evidence_ids | confidence | claim_text |",
+            "| claim_id | research_block | evidence_ids | confidence/status | claim_text |",
             "| --- | --- | --- | --- | --- |",
         ]
     )
@@ -107,10 +107,11 @@ def render_markdown_report(
             f"{item.claim_id} | "
             f"{item.research_block or ''} | "
             f"{', '.join(item.evidence_ids)} | "
-            f"{item.confidence} | "
+            f"{item.confidence} / {item.status} | "
             f"{_escape_table(item.claim_text)} |"
         )
     lines.append("")
+    lines.extend(_render_critic_summary(evaluation_summary))
 
     lines.extend(
         [
@@ -142,8 +143,8 @@ def render_markdown_report(
         [
             "## Evidence table",
             "",
-            "| rank | source_id | source_type | research_block | relevance_score | title |",
-            "| --- | --- | --- | --- | --- | --- |",
+            "| rank | source_id | source_type | research_block | relevance_score | trust_score | title |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
         ]
     )
     for item in evidence_items:
@@ -154,6 +155,7 @@ def render_markdown_report(
             f"{item.source_type.value} | "
             f"{item.research_block or ''} | "
             f"{item.relevance_score or ''} | "
+            f"{item.trust_score if item.trust_score is not None else ''} | "
             f"{_escape_table(item.title or '')} |"
         )
 
@@ -164,16 +166,16 @@ def render_markdown_report(
             "",
             "- Часть публичных или пользовательских источников могла не загрузиться из-за timeout, SSL или ограничений сайта.",
             "- Evidence зависит от качества auto discovery, source URLs, uploads или подключенного Search/RSS connector.",
-            "- BM25 ранжирует по лексическим совпадениям и может пропускать семантически близкие фрагменты.",
+            "- Hybrid BM25 ranking использует лексическое совпадение и source trust, но может пропускать семантически близкие фрагменты.",
             "- Текущий отчет является template-based черновиком, а не финальной LLM-сводкой.",
-            "- Citation accuracy пока требует ручной проверки аналитиком.",
+            "- Claim critic выполняет детерминированную первичную проверку, но ручной review аналитика остается обязательным.",
             "",
             "## Рекомендации для дальнейшей проверки",
             "",
             "- Ручно проверить top evidence по каждому разделу.",
             "- Дозагрузить источники, которые не прошли fetching.",
             "- Добавить LLM Synthesizer только после фиксации quality gate.",
-            "- Сравнить BM25 baseline с embeddings/reranker на той же evidence table.",
+            "- Сравнить текущий hybrid baseline с embeddings/reranker на той же evidence table.",
             "",
         ]
     )
@@ -261,6 +263,7 @@ def _render_result_passport(
     evaluation_summary: dict[str, Any],
 ) -> list[str]:
     interpretability = evaluation_summary.get("interpretability_summary", {})
+    critic_summary = evaluation_summary.get("critic_summary", {})
     missing_blocks = interpretability.get("weakest_or_missing_blocks") or []
     strongest_blocks = interpretability.get("strongest_supported_blocks") or []
     return [
@@ -273,8 +276,47 @@ def _render_result_passport(
         f"- Покрытие типов источников: {evaluation_summary.get('source_type_coverage', {})}.",
         f"- Самые сильные блоки: {strongest_blocks or 'нет данных'}.",
         f"- Слабые или непокрытые блоки: {missing_blocks or 'нет явных пропусков'}.",
+        f"- Ranking mode: {evaluation_summary.get('ranking_mode', 'bm25')}.",
+        f"- Claim critic: {critic_summary.get('status', 'not_run')}.",
+        f"- Claims needing review: {critic_summary.get('needs_review_claim_count', 0)}.",
         "",
     ]
+
+
+def _render_critic_summary(evaluation_summary: dict[str, Any]) -> list[str]:
+    critic_summary = evaluation_summary.get("critic_summary") or {}
+    findings = critic_summary.get("findings") or []
+    lines = [
+        "## Проверка утверждений",
+        "",
+        f"- Critic status: `{critic_summary.get('status', 'not_run')}`.",
+        f"- Supported claims: {critic_summary.get('supported_claim_count', 0)}.",
+        f"- Claims needing review: {critic_summary.get('needs_review_claim_count', 0)}.",
+        f"- Unsupported claims: {critic_summary.get('unsupported_claim_count', 0)}.",
+        f"- Numeric warnings: {critic_summary.get('numeric_warning_count', 0)}.",
+        "",
+    ]
+    if not findings:
+        lines.extend(["Claim critic findings отсутствуют.", ""])
+        return lines
+
+    lines.extend(
+        [
+            "| claim_id | status | severity | overlap_score | reasons |",
+            "| --- | --- | --- | --- | --- |",
+        ]
+    )
+    for finding in findings:
+        lines.append(
+            "| "
+            f"{finding.get('claim_id', '')} | "
+            f"{finding.get('status', '')} | "
+            f"{finding.get('severity', '')} | "
+            f"{finding.get('overlap_score', '')} | "
+            f"{_escape_table(', '.join(finding.get('reasons') or []))} |"
+        )
+    lines.append("")
+    return lines
 
 
 def _render_full_source_report(

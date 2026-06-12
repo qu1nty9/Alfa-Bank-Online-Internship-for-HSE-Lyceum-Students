@@ -6,6 +6,7 @@ import csv
 import json
 from pathlib import Path
 
+from .filtering import source_trust_score
 from .models import EvidenceItem, SearchQuery, TextChunk
 
 
@@ -61,6 +62,7 @@ def build_evidence_items(
                 matched_query=query.query,
                 rank=len(evidence_items) + 1,
                 relevance_score=round(score, 4),
+                trust_score=source_trust_score(chunk.source_type),
             )
         )
         if len(evidence_items) >= max_items:
@@ -86,6 +88,7 @@ def write_evidence_csv(evidence_items: list[EvidenceItem], path: str | Path) -> 
                 "research_block",
                 "matched_query",
                 "relevance_score",
+                "trust_score",
                 "title",
                 "url",
                 "text_preview",
@@ -102,6 +105,7 @@ def write_evidence_csv(evidence_items: list[EvidenceItem], path: str | Path) -> 
                     "research_block": item.research_block,
                     "matched_query": item.matched_query,
                     "relevance_score": item.relevance_score,
+                    "trust_score": item.trust_score,
                     "title": item.title,
                     "url": str(item.url) if item.url else "",
                     "text_preview": _preview(item.text),

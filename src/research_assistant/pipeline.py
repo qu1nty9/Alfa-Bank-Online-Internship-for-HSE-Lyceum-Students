@@ -13,10 +13,11 @@ from .chunker import chunk_clean_documents
 from .claims import build_claim_items, write_claims_csv, write_claims_jsonl
 from .collector import load_seed_sources
 from .config import PipelineConfig, default_pipeline_config
+from .critic import apply_claim_critic
 from .evidence import build_evidence_items, write_evidence_csv, write_evidence_jsonl
 from .evaluation import build_evaluation_summary, write_evaluation_json
 from .fetcher import fetch_sources_safe
-from .filtering import filter_chunks, rank_chunks_bm25
+from .filtering import filter_chunks, rank_chunks_hybrid
 from .llm_gateway import build_llm_gateway, llm_gateway_config_from_env
 from .models import ClaimItem, CleanDocument, FetchResult, ParseResult, SourceCandidate
 from .parser import parse_raw_documents_safe
@@ -122,13 +123,14 @@ def run_research_pipeline_with_sources(
         min_domain_terms=cfg.filter_min_domain_terms,
         domain_terms=_domain_terms_for_plan(topic, plan),
     )
-    ranked_chunks = rank_chunks_bm25(
+    ranked_chunks = rank_chunks_hybrid(
         filtered_chunks,
         plan.queries,
         top_k_per_query=cfg.top_k_per_query,
     )
     evidence_items = build_evidence_items(ranked_chunks, max_items=cfg.max_evidence_items)
     claim_items = build_claim_items(evidence_items, topic=topic)
+    claim_items, critic_summary = apply_claim_critic(claim_items, evidence_items)
     model_gateway_metadata, llm_synthesis_markdown = _maybe_synthesize_with_llm(
         topic,
         evidence_items,
@@ -143,6 +145,8 @@ def run_research_pipeline_with_sources(
     )
     evaluation_summary["source_mode"] = source_mode
     evaluation_summary["source_candidate_count"] = len(sources)
+    evaluation_summary["ranking_mode"] = "bm25_with_source_trust"
+    evaluation_summary["critic_summary"] = critic_summary
     if source_mode == "no_topic_sources":
         evaluation_summary["source_warning"] = (
             "No topic-matched sources were available from the configured discovery layer. "

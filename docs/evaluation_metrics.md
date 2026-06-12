@@ -47,6 +47,7 @@ supported_claims / all_claims
 ```text
 GET /research/runs/{run_id}/claims
 GET /research/runs/{run_id}/evidence
+GET /research/runs/{run_id}/status -> evaluation_summary.critic_summary
 ```
 
 Целевой уровень для демо:
@@ -71,8 +72,10 @@ unsupported_claims / all_claims
 
 Практическая проверка:
 
-- claims без `evidence_ids` должны отсутствовать или иметь статус `needs_review`;
+- claims без `evidence_ids` должны отсутствовать или иметь статус `unsupported`;
+- claims со слабой поддержкой должны иметь статус `needs_review`;
 - любые точные проценты/суммы должны иметь evidence;
+- `critic_summary.numeric_warning_count` должен быть равен 0 для pass-level отчета;
 - если модель недоступна, pipeline должен уйти в template fallback.
 
 Целевой уровень для демо:
@@ -202,4 +205,3 @@ reports/audit/research_runs.jsonl
 4. Открыть `claims`.
 5. Открыть `evidence`.
 6. Объяснить, что production-версия добавит автоматизированную разметку relevance и регулярный benchmark set.
-

@@ -9,10 +9,16 @@ from research_assistant.collector import (
     load_seed_sources,
 )
 from research_assistant.config import PipelineConfig
+from research_assistant.critic import apply_claim_critic, critique_claims
 from research_assistant.evidence import build_evidence_items, write_evidence_csv
 from research_assistant.evaluation import build_evaluation_summary
 from research_assistant.fetcher import fetch_sources_safe, raw_document_path
-from research_assistant.filtering import filter_chunks, rank_chunks_bm25
+from research_assistant.filtering import (
+    filter_chunks,
+    rank_chunks_bm25,
+    rank_chunks_hybrid,
+    source_trust_score,
+)
 from research_assistant.knowledge_graph import build_knowledge_graph
 from research_assistant.llm_gateway import (
     LLMGatewayConfig,
@@ -21,8 +27,20 @@ from research_assistant.llm_gateway import (
     default_llm_gateway_metadata,
     llm_gateway_config_from_env,
 )
-from research_assistant.models import CleanDocument, RawDocument, SourceCandidate, SourceType
-from research_assistant.parser import extract_html_text, parse_raw_document, parse_raw_documents_safe
+from research_assistant.models import (
+    ClaimItem,
+    CleanDocument,
+    EvidenceItem,
+    RawDocument,
+    SourceCandidate,
+    SourceType,
+)
+from research_assistant.parser import (
+    extract_html_text,
+    extract_html_text_with_parser,
+    parse_raw_document,
+    parse_raw_documents_safe,
+)
 from research_assistant.pipeline import run_research_pipeline, run_research_pipeline_with_sources
 from research_assistant.planner import build_cltv_research_plan, build_research_plan
 from research_assistant.quality_gate import run_quality_gate
@@ -199,6 +217,10 @@ def test_extract_html_text_removes_scripts_and_navigation() -> None:
     assert "Customer Lifetime Value" in text
     assert "retention and personalization" in text
     assert "Menu item" not in text
+
+    extracted_text, parser_name = extract_html_text_with_parser(html)
+    assert "Customer Lifetime Value" in extracted_text
+    assert parser_name in {"trafilatura_html", "beautifulsoup_html", "stdlib_html_parser"}
     assert "console.log" not in text
 
 
@@ -298,7 +320,13 @@ def test_chunk_filter_rank_and_evidence_flow(tmp_path) -> None:
     chunks = chunk_clean_document(clean_document, source, max_chars=220, overlap_chars=20, min_chars=80)
     filtered_chunks = filter_chunks(chunks, min_chars=80, min_domain_terms=2)
     ranked_chunks = rank_chunks_bm25(filtered_chunks, build_cltv_research_plan().queries, top_k_per_query=2)
+    hybrid_ranked_chunks = rank_chunks_hybrid(
+        filtered_chunks,
+        build_cltv_research_plan().queries,
+        top_k_per_query=2,
+    )
     evidence_items = build_evidence_items(ranked_chunks, max_items=3)
+    hybrid_evidence_items = build_evidence_items(hybrid_ranked_chunks, max_items=3)
     claim_items = build_claim_items(evidence_items)
     csv_path = write_evidence_csv(evidence_items, tmp_path / "evidence.csv")
     claims_csv_path = write_claims_csv(claim_items, tmp_path / "claims.csv")
@@ -307,7 +335,9 @@ def test_chunk_filter_rank_and_evidence_flow(tmp_path) -> None:
     assert chunks
     assert filtered_chunks
     assert ranked_chunks
+    assert hybrid_ranked_chunks
     assert evidence_items
+    assert hybrid_evidence_items[0].trust_score == source_trust_score(source.source_type)
     assert claim_items
     assert claim_items[0].evidence_ids == [
         f"{evidence_items[0].source_id}/{evidence_items[0].chunk_id}"
@@ -398,6 +428,7 @@ def test_evaluation_report_and_quality_gate_flow(tmp_path) -> None:
     assert "## Паспорт результата" in report_markdown
     assert "## Полный отчет по источникам и ресурсам" in report_markdown
     assert "## Утверждения и доказательства" in report_markdown
+    assert "## Проверка утверждений" in report_markdown
     assert "## Knowledge graph links" in report_markdown
     assert "## Evidence table" in report_markdown
     assert "## Unknowns" in report_markdown
@@ -428,6 +459,52 @@ def test_knowledge_graph_links_claims_evidence_and_sources() -> None:
     assert graph["summary"]["source_count"] == 1
     assert graph["summary"]["edge_count"] == 2
     assert any(edge["relation"] == "supported_by" for edge in graph["edges"])
+
+
+def test_claim_critic_updates_claim_statuses_and_flags_numeric_warnings() -> None:
+    evidence = [
+        EvidenceItem(
+            source_id="source_001",
+            chunk_id="chunk_001",
+            text="Fraud detection uses claims history and provider behavior for review.",
+            source_type=SourceType.ACADEMIC,
+            research_block="methods_and_approaches",
+        )
+    ]
+    supported_claim = ClaimItem(
+        claim_id="claim_001",
+        claim_text="Fraud detection uses claims history and provider behavior.",
+        evidence_ids=["source_001/chunk_001"],
+        source_ids=["source_001"],
+    )
+    numeric_claim = ClaimItem(
+        claim_id="claim_002",
+        claim_text="Fraud detection improves precision by 25%.",
+        evidence_ids=["source_001/chunk_001"],
+        source_ids=["source_001"],
+    )
+    missing_evidence_claim = ClaimItem(
+        claim_id="claim_003",
+        claim_text="Fraud detection has evidence from another source.",
+        evidence_ids=["missing/chunk"],
+        source_ids=["missing"],
+    )
+
+    updated_claims, summary = apply_claim_critic(
+        [supported_claim, numeric_claim, missing_evidence_claim],
+        evidence,
+    )
+    direct_summary = critique_claims([supported_claim], evidence)
+
+    assert [claim.status for claim in updated_claims] == [
+        "supported",
+        "needs_review",
+        "unsupported",
+    ]
+    assert summary["status"] == "fail"
+    assert summary["numeric_warning_count"] == 1
+    assert summary["unsupported_claim_count"] == 1
+    assert direct_summary.status == "pass"
 
 
 def test_sensitivity_blocks_personal_data() -> None:

@@ -32,6 +32,14 @@ Stage 5 превращает рабочий прототип в понятный
 11. Generic planner, auto source discovery, `source_urls` и uploads позволяют запускать любые темы без CLTV-завязки.
 12. Multipart upload endpoint позволяет добавлять `.md`, `.txt`, `.pdf`, `.html` документы как локальные источники.
 13. Lightweight graph layer показывает связи `claim -> evidence -> source`.
+14. Runtime source policy enforcement блокирует неразрешенные источники до fetch/parse/ranking.
+15. Async run endpoint `POST /research/run-async` возвращает `run_id` и progress для polling.
+16. Parser использует optional trafilatura/BeautifulSoup cleanup с stdlib fallback.
+17. Hybrid ranking учитывает BM25 score и source trust.
+18. Claim critic помечает claims как `supported`, `needs_review` или `unsupported`.
+19. Observability metadata фиксирует `request_id`, stage timings и total duration.
+20. Upload hardening проверяет количество файлов, MIME/content signature, SHA-256 и retention metadata.
+21. Dockerfile, Docker Compose и Makefile дают воспроизводимый open-source запуск.
 
 ## Stage 5 deliverables
 
@@ -95,6 +103,9 @@ UI включает:
 - tabs: `Отчёт`, `Доказательства`, `Утверждения`, `Проверка`, `Аудит`;
 - структуру отчета: краткий ответ, паспорт результата, полный разбор источников;
 - graph summary внутри claims-раздела;
+- trust score в evidence table;
+- critic status в claims/report;
+- request id и progress/timings в metadata;
 - badge текущей модели: `offline_template` / `local_qwen`;
 - кнопки reviewer workflow.
 
