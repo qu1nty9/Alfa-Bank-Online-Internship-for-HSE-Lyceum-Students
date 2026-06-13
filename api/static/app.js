@@ -227,7 +227,7 @@ async function selectRun(runId) {
 async function loadRunArtifacts(run) {
   if (run.links.report) {
     const report = await api(run.links.report);
-    els.reportOutput.textContent = report.markdown || "";
+    els.reportOutput.innerHTML = renderMarkdown(report.markdown || "");
   } else {
     els.reportOutput.textContent = "No report artifact for this run.";
   }
@@ -503,4 +503,36 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function renderMarkdown(src) {
+  const escapeHtml = (s) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const inline = (s) => {
+    let t = escapeHtml(s);
+    t = t.replace(/`([^`]+)`/g, "<code>$1</code>");
+    t = t.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    t = t.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    t = t.replace(/(^|[\s(])((?:https?:\/\/)[^\s<)]+)/g,
+      '$1<a href="$2" target="_blank" rel="noopener noreferrer">$2</a>');
+    return t;
+  };
+  const lines = String(src).replace(/\r\n/g, "\n").split("\n");
+  const out = []; let inList = false; let para = [];
+  const closeList = () => { if (inList) { out.push("</ul>"); inList = false; } };
+  const flushPara = () => { if (para.length) { out.push("<p>" + inline(para.join(" ")) + "</p>"); para = []; } };
+  for (const raw of lines) {
+    const line = raw.replace(/\s+$/, "");
+    const heading = /^(#{1,6})\s+(.*)$/.exec(line);
+    const bullet = /^[-*]\s+(.*)$/.exec(line);
+    if (heading) { flushPara(); closeList(); const lvl = heading[1].length;
+      out.push("<h" + lvl + ">" + inline(heading[2]) + "</h" + lvl + ">"); }
+    else if (bullet) { flushPara(); if (!inList) { out.push("<ul>"); inList = true; }
+      out.push("<li>" + inline(bullet[1]) + "</li>"); }
+    else if (line.trim() === "") { flushPara(); closeList(); }
+    else { para.push(line.trim()); }
+  }
+  flushPara(); closeList();
+  return out.join("\n");
 }
