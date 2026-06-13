@@ -16,6 +16,7 @@ class PipelineConfig(BaseModel):
     source_strategy: Literal["auto_discovery", "seed_sources"] = "auto_discovery"
     raw_dir: Path | None = None
     clean_dir: Path | None = None
+    seed_cache_dir: Path | None = None
     reports_dir: Path | None = None
     use_live_fetch: bool = False
     fetch_limit: int | None = None
@@ -46,6 +47,7 @@ class PipelineConfig(BaseModel):
                 or root / "data" / "seed_sources" / "cltv_sources_template.csv",
                 "raw_dir": self.raw_dir or root / "data" / "raw",
                 "clean_dir": self.clean_dir or root / "data" / "clean",
+                "seed_cache_dir": self.seed_cache_dir or root / "data" / "seed_cache",
                 "reports_dir": self.reports_dir or root / "reports",
             }
         )

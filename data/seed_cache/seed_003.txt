@@ -1,0 +1,158 @@
+What Does Personalization in Banking Really Mean?
+Banking
+What Does Personalization in Banking Really Mean?
+By
+Sonia Brodski
+,
+Laurent Desmangles
+,
+Stefano Fanfarillo
+,
+Shervin Khodabandeh
+,
+Silvio Palumbo
+, and
+Maximiliano Santinelli
+Article
+March 12, 2019
+Save It For Later
+Saved To
+My Saved Content
+Share
+Link copied
+Subscribe
+Stay ahead with BCG insights on financial institutions
+Stay ahead with BCG insights on financial institutions
+You are subscribed to BCG's eAlert on financial institutions.
+Manage Subscriptions
+Subscribe
+Banks have been targeting customer microsegments and tailoring offers to them for decades. These capabilities, until recently, have been sufficient to help banks differentiate their institutions, build customer engagement, and gain competitive advantage. But this advantage is eroding. Banks are being leapfrogged by retailers and tech-savvy companies that put
+personalization
+at the center of their business models and successfully scale it to achieve significant performance gains.
+Indeed, according to recent research, a majority of people who are either open to or actively mulling changing banks would consider banking with a tech company—such as Amazon, Facebook, or Google—if they could. This is not surprising, because such companies have spurred a desire for more customized interactions and fostered a willingness to trade data for a better experience.
+The truth, however, is that banks can also deliver meaningful and powerful personalized experiences by using their existing data and everyday customer touchpoints. This, in our view, is the true promise of personalization in retail banking: being able to go beyond next-best offers and targeted marketing and create more customized, relevant end-to-end experiences for customers.
+But first banks must develop a new approach to personalization and forge a fresh strategic agenda to scale it. A key initial step is to fully grasp exactly what personalization is and what it is not. Only then can banks take the actions that are necessary to compete—and win—against high-tech disruptors.
+The Personalization Imperative
+Although much of the discussion about personalization in banking focuses on marketing and next-best offers, its true potential lies in transforming all of an organization’s customer interactions by using data and analytics to anticipate individual needs, target segments of one, and build deep relationships that stand the test of time. To be sure, personalization in banking is not primarily about selling. It’s about providing service, information, and advice, often on a daily basis or even several times a day. Such interactions, as opposed to infrequent sales communications, form the crux of the customer’s banking experience. Yet many banks still tend to focus their personalization efforts on the sales arena.
+Personalization in banking is not about selling, yet many banks tend to focus on the sales arena.
+Personalization at scale demands recursive learning, a single view of the customer, and a personalized curriculum (a sequence of interventions that are intended to change a customer’s behavior). These must be leveraged across all channels, products, and services.
+Several consumer brands have shown the way forward. Starbucks, for example, uses a digital flywheel of rewards, partnerships, and technologies to develop relationships with millions of customers across its 7,000 stores in the US. Netflix uses personalization techniques to make movie and series recommendations. Yet while many financial institutions are conceptually on board and heavily investing, the Netflix of banking has yet to emerge. The main reason is that true end-to-end personalization requires developing new muscles—such as strong cross-channel offerings, cross-enterprise collaboration, a single view of the customer, and a new technology ecosystem—all of which are difficult to build.
+Indeed, banks’ fragmented databases make it difficult to organize information and create 360-degree customer profiles. As a result, customers with different needs and propensities are sometimes offered the same products. Marketing strategies also tend to be stuck in the past, adhering to a calendar-based framework or featuring competing product lines that have to jostle for virtual shelf space. Moreover, legacy IT systems are often unable to measure responses or recommend next-best actions, while complex organization structures and silos undermine coherence and focus. As a result, although many banks are developing personalized marketing capabilities, they may be missing the more strategic opportunity for true differentiation.
+Meanwhile, regulation is driving competition and increasing the threat of disintermediation. New rules such the UK’s Open Banking initiative and the European Union’s Payment Services Directive 2 are broadening access to
+customer data
+and creating an opportunity for third parties to get closer to consolidated customer account information.
+Ultimately, if done well, personalization at scale can provide a direct route to lower rates of customer churn and higher sales. Conservatively speaking, it can lead to annual revenue uplifts of 10% for banks. In many ways, personalization at scale is a 21st-century approach to delivering what the banking industry lost many years ago: the ability to truly know customers, anticipate their needs, engage in a rich dialogue about their financial lives, and, as a consequence, foster loyalty that can last a lifetime.
+What Personalization Is Not
+Although personalization is gaining traction, a definition has yet to be widely accepted. The erroneous descriptions that we have seen include segmenting product offers, customizing homepage messages, and digitizing the customer journey. All of these are critical to enabling personalization, but they are not equivalents. Furthermore, delivering unique customer experiences in nondigital channels (such as branches and call centers) can be a game-changer.
+True personalization is grounded in developing a deep understanding of each customer’s unique needs and orchestrating a set of tailored experiences across digital and human channels. A similar approach might be taken by a skillful sommelier who changes a wine recommendation on the basis of a customer’s tastes, mood, and resources. Personalization potentially creates a win-win scenario for banks and the customers they serve.
+How Personalization Boosts Revenue Growth
+BCG estimates that for every $100 billion in assets that a bank has, it can achieve as much as $300 million in revenue growth by personalizing its customer interactions. We also expect personalized banking to drive material competitive advantage for first movers that embrace it over the next five years.
+We expect personalized banking to drive competitive advantage for first movers over the next five years.
+In practical terms, personalized banking means delivering the right individual experience through the right channel at the right time. Winning banks can rebuild trust and enable deeper and more beneficial financial relationships by using a simple equation:
+Frequency of interaction
+x
+the wow factor
+=
+trust
+(The wow factor reflects the impact of each interaction.) Although banking products are relatively infrequent purchases, many people do interact with their banks often by using a mobile app on a daily basis. This dynamic creates an opportunity for banks to have personalized interactions that are contextually appropriate, relevant, and valuable. And customers are certainly looking for more personal engagement. According to the Aite Group, some three-quarters of 22- to 49-year-olds say they would like to have their own virtual financial wellness coach. Other customers wish that banks were more like other types of service providers. (See Exhibit 1.) In other words, banks that offer appropriate equivalents through managed financial care services, while in the background analyzing data and orchestrating customers’ experiences effectively, are in a commanding position to assume new and helpful roles. We’ve seen banks use such personalization approaches to retain customers and win their loyalty, and the result is customers’ willingness to recommend their banks or consolidate their financial assets with these institutions, both of which have a significant impact on banks’ profits.
+1
+/
+1
+Personalization will also drive sales communications, although these are not the most frequent interactions. Every banking customer is unique, so bespoke services will naturally fit better than standard options. One bank has used personalization to lift branch sales productivity by more than 30%. Another institution has seen a 20% increase in revenues over three years.
+A New Approach Is Required
+Banks need to make revolutionary internal changes in order to scale personalization, driving it across the stages of customer prospecting, engagement, and retention. First and foremost, personalization at scale mandates breaking down channel and product silos and making the customer the true center of attention. It further requires implementing fundamentally new ways of working that require updating customer-centric objectives, creating customer incentives, retraining employees, hiring new talent, and building a new analytics and technology stack. Scaling personalization is extremely challenging, and many companies do not move beyond proofs of concept and technology pilots. Companies that attempt an all-at-once step-change approach to personalization at scale typically do not succeed.
+Orchestration, from data marshalling through channel management and delivery, is fundamental to achieving personalization at scale. Banks should focus on orchestrating a personalization stack of tools and resources. (See Exhibit 2.)
+1
+/
+1
+The stack should have three core elements that form the foundation for personalization at scale in banking:
+Customer DNA.
+Banks’ systems should feed a single, enterprise-wide view of each customer—a view that dynamically reflects each customer at any given moment.
+A Personalized Curriculum.
+Customer offerings are tailored to a segment of one. They define desired customer behaviors and a strategy to incentivize those behaviors.
+An Analytics Engine and Recursive Learning.
+By using machine learning and systematic experimentation, banks enable flexibility and create customized offers and communications that evolve over time. The recursive learning capability required for personalization—no less than the ability to continuously learn about each individual customer and enhance that knowledge over time—constitutes a built-in advantage for those who leverage it first.
+Of course, success will require more than analytics, technology, and next-best-action algorithms. Integrating personalization typically requires setting up an incubator outside of “business as usual” that is infused with new talent. It requires permitting the incubator to have its own culture—one that differs from the organization—and incentivizing staff behaviors that are typical of a digital organization: fact-based decision-making, meticulous measurement, agility, and collaboration. Given the magnitude and speed of change in the industry, traditional change management approaches typically do not yield the necessary outcomes.
+Leading banks are approaching personalization as a journey, developing a vision and rolling out tangible use cases and customer experiences in waves. This requires building the stack in an iterative, use case-driven way and training new orchestration muscles. Sophistication typically increases over time. Moreover, some banks are indeed learning and changing their cultures while building a new infrastructure. Such an incremental approach helps ensure that implementation risks are managed and that measurable impact is delivered along the way.
+To start scaling personalization, we recommend the following six steps:
+Define a few flagship customer experiences that will help the bank achieve differentiation.
+Assess current personalization capabilities. Banks that have been investing in technology typically have assets and resources that they can tap.
+Assign a senior executive ownership of personalization at scale.
+Instill a bias for execution. Many banks are likely to have enough data and technology to get started and learn. Waiting for the full implementation of the personalization stack is a poor substitute for building and learning on the job.
+Scale iteratively in six-month waves. Each wave should deliver a more complete version of the target experience while building key elements of the stack.
+Ensure that the strategy addresses the tradeoffs between short-term revenue and longer-term benefits and delivers the right mix.
+Now Is the Time
+Personalized banking is becoming a reality, with leading banks seeking to transform how they interact with customers. Banks that achieve personalization at scale stand to make significant performance gains and create a powerful barrier to disintermediation. Those institutions that seize the challenge most rapidly and deliver true end-to-end personalization will create a significant advantage over their competitors.
+But time is of the essence. For those that have not already embarked on the journey, the time to act is now.
+Authors
+Sonia Brodski
+Principal
+New York
+Laurent Desmangles
+Senior Advisor
+Stefano Fanfarillo
+Alumnus
+Shervin Khodabandeh
+Managing Director & Senior Partner
+Los Angeles
+Silvio Palumbo
+Managing Director & Senior Partner
+New York
+Maximiliano Santinelli
+Partner & Associate Director
+Boston
+Related Content
+Digital, Technology, and Data
+Article
+August 24, 2018
+Competing on the Rate of Learning
+New technologies operate at superhuman speed. Social, political, and economic forces move much more slowly. To use learning as a competitive advantage, companies must be able to learn on both timescales.
+Read more
+International Business
+Article
+January 16, 2019
+The Emerging Art of Ecosystem Management
+Many companies are building or joining collaborative networks. The challenge is how to effectively set up and manage these ecosystems and use them strategically to maximize value—and gain a competitive edge.
+Learn More
+International Business
+Commentary
+April 7, 2017
+Building a Resilient Business Inspired by Biology
+Unprecedented levels of uncertainty threaten the architecture of many global firms. Six principles of biological systems can help companies address the unknown and the unknowable.
+Learn More
+Digital, Technology, and Data
+Focus
+June 13, 2018
+The Big Leap Toward AI at Scale
+Companies are encountering the “AI paradox”: it is deceptively easy to launch projects with AI but fiendishly hard to reach scale.
+Learn More
+ABOUT BOSTON CONSULTING GROUP
+Boston Consulting Group partners with leaders in business and society to tackle their most important challenges and capture their greatest opportunities. BCG was the pioneer in business strategy when it was founded in 1963. Today, we work closely with clients to embrace a transformational approach aimed at benefiting all stakeholders—empowering organizations to grow, build sustainable competitive advantage, and drive positive societal impact.
+Our diverse, global teams bring deep industry and functional expertise and a range of perspectives that question the status quo and spark change. BCG delivers solutions through leading-edge management consulting, technology and design, and corporate and digital ventures. We work in a uniquely collaborative model across the firm and throughout all levels of the client organization, fueled by the goal of helping our clients thrive and enabling them to make the world a better place.
+© Boston Consulting Group 2026. All rights reserved.
+For information or permission to reprint, please contact BCG at
+permissions@bcg.com
+. To find the latest BCG content and register to receive e-alerts on this topic or others, please visit
+bcg.com
+. Follow Boston Consulting Group on
+Facebook
+and
+X (formerly Twitter)
+.
+Hide
+Save It For Later
+Saved To
+My Saved Content
+Subscribe
+Stay ahead with BCG insights on financial institutions
+Stay ahead with BCG insights on financial institutions
+You are subscribed to BCG's eAlert on financial institutions.
+Manage Subscriptions
+Subscribe
+Share
+Link copied
+Save It For Later
+Saved To
+My Saved Content
+Subscribe
+Expand

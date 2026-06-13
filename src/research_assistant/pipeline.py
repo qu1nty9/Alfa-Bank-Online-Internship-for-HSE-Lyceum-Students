@@ -109,7 +109,11 @@ def run_research_pipeline_with_sources(
         ]
         parse_results = parse_raw_documents_safe(raw_documents, sources, cfg.clean_dir)
 
-    clean_documents = _load_cached_clean_documents(cfg.clean_dir, sources)
+    clean_documents = _load_cached_clean_documents(
+        cfg.clean_dir,
+        sources,
+        seed_cache_dir=cfg.seed_cache_dir,
+    )
     chunks = chunk_clean_documents(
         clean_documents,
         sources,
@@ -264,25 +268,34 @@ def main(argv: list[str] | None = None) -> int:
 def _load_cached_clean_documents(
     clean_dir: Path,
     sources,
+    *,
+    seed_cache_dir: Path | None = None,
 ) -> list[CleanDocument]:
     sources_by_id = {source.source_id: source for source in sources}
     clean_documents: list[CleanDocument] = []
-    for clean_path in sorted(clean_dir.glob("*.txt")):
-        source = sources_by_id.get(clean_path.stem)
-        if source is None:
+    loaded_source_ids: set[str] = set()
+    # data/clean (fresh fetches) takes precedence; the committed seed cache
+    # only fills in sources that have no freshly parsed clean text.
+    for directory in (clean_dir, seed_cache_dir):
+        if directory is None or not directory.exists():
             continue
-        text = clean_path.read_text(encoding="utf-8")
-        clean_documents.append(
-            CleanDocument(
-                source_id=source.source_id,
-                title=source.title,
-                url=source.url,
-                path=clean_path,
-                text=text,
-                parser_name="cached_clean_text",
-                char_count=len(text),
+        for clean_path in sorted(directory.glob("*.txt")):
+            source = sources_by_id.get(clean_path.stem)
+            if source is None or source.source_id in loaded_source_ids:
+                continue
+            text = clean_path.read_text(encoding="utf-8")
+            loaded_source_ids.add(source.source_id)
+            clean_documents.append(
+                CleanDocument(
+                    source_id=source.source_id,
+                    title=source.title,
+                    url=source.url,
+                    path=clean_path,
+                    text=text,
+                    parser_name="cached_clean_text",
+                    char_count=len(text),
+                )
             )
-        )
     return clean_documents
 
 
