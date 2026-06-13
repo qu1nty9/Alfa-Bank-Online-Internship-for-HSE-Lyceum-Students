@@ -5,9 +5,10 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
+from .language import ReportLanguage
 from .models import ClaimItem, EvidenceItem
 
-BLOCK_CLAIM_PREFIXES = {
+BLOCK_CLAIM_PREFIXES_EN = {
     "definition_and_context": "{topic} has relevant definition and context evidence",
     "definition_and_business_value": "{topic} has relevant business-value evidence",
     "use_cases_and_examples": "{topic} has evidence about use cases and examples",
@@ -20,12 +21,26 @@ BLOCK_CLAIM_PREFIXES = {
     "implementation_considerations": "{topic} has evidence about implementation considerations",
 }
 
+BLOCK_CLAIM_PREFIXES_RU = {
+    "definition_and_context": "По теме {topic} есть evidence об определении и контексте",
+    "definition_and_business_value": "По теме {topic} есть evidence о бизнес-ценности",
+    "use_cases_and_examples": "По теме {topic} есть evidence о сценариях применения и примерах",
+    "methods_and_approaches": "По теме {topic} есть evidence о методах и подходах внедрения",
+    "calculation_methods": "По теме {topic} есть evidence о расчетных или аналитических методах",
+    "data_and_requirements": "По теме {topic} есть evidence о данных, метриках или требованиях",
+    "required_data": "По теме {topic} есть evidence о необходимых данных и входных признаках",
+    "banking_use_cases": "По теме {topic} есть evidence о банковских сценариях применения",
+    "risks_and_limitations": "По теме {topic} нужна отдельная проверка рисков и ограничений",
+    "implementation_considerations": "По теме {topic} есть evidence о практическом внедрении",
+}
+
 
 def build_claim_items(
     evidence_items: list[EvidenceItem],
     *,
     topic: str | None = None,
     max_claims: int = 12,
+    language: ReportLanguage = "en",
 ) -> list[ClaimItem]:
     """Create traceable draft claims from selected evidence items."""
 
@@ -33,7 +48,7 @@ def build_claim_items(
     for item in evidence_items[:max_claims]:
         evidence_id = evidence_item_id(item)
         block = item.research_block or "unknown"
-        prefix = _claim_prefix(block, topic)
+        prefix = _claim_prefix(block, topic, language)
         claims.append(
             ClaimItem(
                 claim_id=f"claim_{len(claims) + 1:03d}",
@@ -55,12 +70,17 @@ def evidence_item_id(item: EvidenceItem) -> str:
     return f"{item.source_id}/{item.chunk_id}"
 
 
-def _claim_prefix(block: str, topic: str | None) -> str:
+def _claim_prefix(block: str, topic: str | None, language: ReportLanguage) -> str:
+    if language == "ru":
+        topic_text = topic or "исследуемой теме"
+        template = BLOCK_CLAIM_PREFIXES_RU.get(
+            block,
+            "{topic} есть evidence по блоку " + block,
+        )
+        return template.format(topic=topic_text)
+
     topic_text = topic or "The research topic"
-    template = BLOCK_CLAIM_PREFIXES.get(
-        block,
-        "{topic} has evidence relevant to " + block,
-    )
+    template = BLOCK_CLAIM_PREFIXES_EN.get(block, "{topic} has evidence relevant to " + block)
     return template.format(topic=topic_text)
 
 

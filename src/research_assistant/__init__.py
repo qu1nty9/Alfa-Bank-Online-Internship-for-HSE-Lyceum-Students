@@ -9,6 +9,7 @@ from .evaluation import build_evaluation_summary
 from .fetcher import fetch_source, fetch_sources_safe
 from .filtering import filter_chunks, rank_chunks_bm25, rank_chunks_hybrid, source_trust_score
 from .knowledge_graph import build_knowledge_graph
+from .language import detect_report_language
 from .llm_gateway import (
     LLMGatewayConfig,
     LLMGatewayMetadata,
@@ -81,6 +82,7 @@ __all__ = [
     "default_pipeline_config",
     "default_source_policy_config",
     "default_llm_gateway_metadata",
+    "detect_report_language",
     "discover_public_sources",
     "fetch_source",
     "fetch_sources_safe",

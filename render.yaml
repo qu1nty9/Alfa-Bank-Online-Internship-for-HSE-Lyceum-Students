@@ -1,0 +1,28 @@
+services:
+  - type: web
+    runtime: docker
+    name: bank-research-assistant
+    plan: free
+    region: frankfurt
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHONPATH
+        value: .:src
+      - key: LLM_GATEWAY_MODE
+        value: offline_template
+      - key: LLM_PROVIDER
+        value: offline
+      - key: LLM_MODEL
+        value: template-report-v1
+      - key: LLM_EXTERNAL_CALLS_ENABLED
+        value: "false"
+      - key: LLM_TEMPERATURE
+        value: "0.2"
+      - key: LLM_MAX_OUTPUT_TOKENS
+        value: "1200"
+      - key: LLM_TIMEOUT_SECONDS
+        value: "60"
+      - key: MAX_UPLOAD_FILES
+        value: "8"
+      - key: UPLOAD_RETENTION_DAYS
+        value: "7"

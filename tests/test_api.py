@@ -96,11 +96,14 @@ def test_demo_ui_shell_and_static_assets_are_served() -> None:
     assert "Bank Research Console" in ui_response.text
     assert "Source URLs" in ui_response.text
     assert "Public search" in ui_response.text
-    assert "Загрузить документы" in ui_response.text
-    assert "Утверждения" in ui_response.text
+    assert "Upload documents" in ui_response.text
+    assert "Claims" in ui_response.text
+    assert "markdown-body" in ui_response.text
     assert "/static/app.js" in ui_response.text
     assert app_js_response.status_code == 200
     assert "runResearchWithFiles" in app_js_response.text
+    assert "renderMarkdown" in app_js_response.text
+    assert "sourceCell" in app_js_response.text
 
 
 def test_research_run_endpoint_uses_auto_discovery_for_any_topic() -> None:
@@ -118,6 +121,7 @@ def test_research_run_endpoint_uses_auto_discovery_for_any_topic() -> None:
     assert payload["sensitivity"] == "allow"
     assert payload["quality_gate"] in {"pass", "warn"}
     assert payload["evaluation_summary"]["planner_mode"] == "generic"
+    assert payload["evaluation_summary"]["report_language"] == "en"
     assert payload["evaluation_summary"]["source_mode"] == "auto_discovery"
     assert payload["evaluation_summary"]["clean_document_count"] >= 1
     assert payload["request_settings"]["use_live_fetch"] is True
@@ -276,9 +280,9 @@ def test_run_specific_report_and_evidence_endpoints_return_payloads() -> None:
     assert status_response.json()["run_id"] == run_id
     assert report_response.status_code == 200
     assert "# CLTV" in report_response.json()["markdown"]
-    assert "## Краткий ответ" in report_response.json()["markdown"]
-    assert "## Полный отчет по источникам и ресурсам" in report_response.json()["markdown"]
-    assert "## Утверждения и доказательства" in report_response.json()["markdown"]
+    assert "## Short answer" in report_response.json()["markdown"]
+    assert "## Full source report" in report_response.json()["markdown"]
+    assert "## Claims and evidence" in report_response.json()["markdown"]
     assert "## Knowledge graph links" in report_response.json()["markdown"]
     assert evidence_response.status_code == 200
     evidence_items = evidence_response.json()["items"]
@@ -293,6 +297,23 @@ def test_run_specific_report_and_evidence_endpoints_return_payloads() -> None:
     graph = graph_response.json()["graph"]
     assert graph["summary"]["claim_count"] >= 1
     assert graph["summary"]["edge_count"] >= 1
+
+
+def test_mixed_english_and_russian_topic_returns_russian_report() -> None:
+    client = TestClient(app)
+    run_response = client.post("/research/run", json={"topic": "CLTV применение в банках"})
+    payload = run_response.json()
+    run_id = payload["run_id"]
+
+    report_response = client.get(f"/research/runs/{run_id}/report")
+
+    assert run_response.status_code == 200
+    assert payload["evaluation_summary"]["report_language"] == "ru"
+    assert report_response.status_code == 200
+    markdown = report_response.json()["markdown"]
+    assert "## Краткий ответ" in markdown
+    assert "## Полный отчет по источникам и ресурсам" in markdown
+    assert "## Утверждения и доказательства" in markdown
 
 
 def test_research_run_with_uploaded_markdown_file() -> None:

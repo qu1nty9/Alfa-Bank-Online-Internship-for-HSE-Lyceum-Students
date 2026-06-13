@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,14 +8,14 @@
   </head>
   <body>
     <main class="app-shell">
-      <aside class="history-panel" aria-label="История запросов">
+      <aside class="history-panel" aria-label="Query history">
         <div class="brand-block">
           <p class="eyebrow">Open-source analytics</p>
           <h1>Research Console</h1>
         </div>
         <div class="history-header">
-          <h2>История</h2>
-          <button id="refreshRunsButton" class="icon-button" type="button" title="Обновить историю">↻</button>
+          <h2>History</h2>
+          <button id="refreshRunsButton" class="icon-button" type="button" title="Refresh history">↻</button>
         </div>
         <div id="runsList" class="runs-list"></div>
       </aside>
@@ -24,7 +24,7 @@
         <header class="topbar">
           <div>
             <p class="eyebrow">Evidence-first pipeline</p>
-            <h2>Автоматизированная аналитика по открытым источникам</h2>
+            <h2>Automated analytics from open sources</h2>
           </div>
           <div class="topbar-actions">
             <span id="runsCount" class="counter">0</span>
@@ -32,21 +32,21 @@
           </div>
         </header>
 
-        <form id="runForm" class="prompt-card" aria-label="Запуск исследования">
+        <form id="runForm" class="prompt-card" aria-label="Start research">
           <div id="selectedFiles" class="file-chip-row" aria-live="polite"></div>
           <div id="promptDropZone" class="prompt-box">
             <textarea
               id="topicInput"
               rows="2"
-              placeholder="Введите тему исследования"
+              placeholder="Enter a research topic"
             >CLTV in foreign banks</textarea>
 
             <div class="prompt-actions">
               <div class="attach-wrap">
-                <button id="attachButton" class="round-button" type="button" title="Добавить файл">+</button>
+                <button id="attachButton" class="round-button" type="button" title="Add file">+</button>
                 <div id="attachMenu" class="attach-menu" hidden>
-                  <button id="uploadDocsButton" type="button">Загрузить документы</button>
-                  <button id="clearFilesButton" type="button">Очистить файлы</button>
+                  <button id="uploadDocsButton" type="button">Upload documents</button>
+                  <button id="clearFilesButton" type="button">Clear files</button>
                 </div>
                 <input
                   id="fileInput"
@@ -64,16 +64,16 @@
                 <input id="liveFetchInput" type="checkbox">
                 Live fetch
               </label>
-              <button id="runButton" class="send-button" type="submit">Запустить</button>
+              <button id="runButton" class="send-button" type="submit">Run</button>
             </div>
           </div>
 
           <details class="settings-panel">
-            <summary>Параметры интеграции</summary>
+            <summary>Integration settings</summary>
             <div class="settings-grid">
               <label>
                 Source URLs
-                <textarea id="sourceUrlsInput" rows="3" placeholder="Один публичный URL на строку"></textarea>
+                <textarea id="sourceUrlsInput" rows="3" placeholder="One public URL per line"></textarea>
               </label>
               <label>
                 Actor ID
@@ -99,7 +99,7 @@
           </details>
         </form>
 
-        <section class="status-strip" aria-label="Статус исследования">
+        <section class="status-strip" aria-label="Research status">
           <div><span>Run</span><strong id="runIdValue">-</strong></div>
           <div><span>Status</span><strong id="statusValue">-</strong></div>
           <div><span>Quality</span><strong id="qualityPill" class="pill neutral">not started</strong></div>
@@ -108,18 +108,18 @@
         </section>
 
         <section class="detail-panel">
-          <nav class="tabs" aria-label="Разделы результата">
-            <button class="tab active" type="button" data-tab="report">Отчёт</button>
-            <button class="tab" type="button" data-tab="evidence">Доказательства</button>
-            <button class="tab" type="button" data-tab="claims">Утверждения</button>
-            <button class="tab" type="button" data-tab="review">Проверка</button>
-            <button class="tab" type="button" data-tab="audit">Аудит</button>
+          <nav class="tabs" aria-label="Result sections">
+            <button class="tab active" type="button" data-tab="report">Report</button>
+            <button class="tab" type="button" data-tab="evidence">Evidence</button>
+            <button class="tab" type="button" data-tab="claims">Claims</button>
+            <button class="tab" type="button" data-tab="review">Review</button>
+            <button class="tab" type="button" data-tab="audit">Audit</button>
           </nav>
 
           <div id="messageBar" class="message-bar" hidden></div>
 
           <section id="reportTab" class="tab-panel active">
-            <pre id="reportOutput" class="markdown-output">Запустите исследование, чтобы получить отчёт.</pre>
+            <div id="reportOutput" class="markdown-output markdown-body">Run research to generate a report.</div>
           </section>
 
           <section id="evidenceTab" class="tab-panel">

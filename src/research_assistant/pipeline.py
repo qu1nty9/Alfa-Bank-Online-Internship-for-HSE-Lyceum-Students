@@ -18,6 +18,7 @@ from .evidence import build_evidence_items, write_evidence_csv, write_evidence_j
 from .evaluation import build_evaluation_summary, write_evaluation_json
 from .fetcher import fetch_sources_safe
 from .filtering import filter_chunks, rank_chunks_hybrid
+from .language import detect_report_language
 from .llm_gateway import build_llm_gateway, llm_gateway_config_from_env
 from .models import ClaimItem, CleanDocument, FetchResult, ParseResult, SourceCandidate
 from .parser import parse_raw_documents_safe
@@ -65,6 +66,7 @@ def run_research_pipeline_with_sources(
     cfg = (config or default_pipeline_config()).resolved()
     sensitivity = check_query_sensitivity(topic)
     if not sensitivity.allowed:
+        report_language = detect_report_language(topic)
         model_gateway_metadata = build_llm_gateway(
             llm_gateway_config_from_env()
         ).metadata().model_dump(mode="json")
@@ -79,11 +81,16 @@ def run_research_pipeline_with_sources(
             sensitivity=sensitivity,
             fetch_results=[],
             parse_results=[],
-            evaluation_summary={"blocked": True, "reason": "sensitivity_check"},
+            evaluation_summary={
+                "blocked": True,
+                "reason": "sensitivity_check",
+                "report_language": report_language,
+            },
             quality_gate=empty_gate,
             model_gateway_metadata=model_gateway_metadata,
         )
 
+    report_language = detect_report_language(topic)
     plan = build_research_plan(topic)
     sources, source_mode = _resolve_sources_for_topic(
         topic=topic,
@@ -129,7 +136,7 @@ def run_research_pipeline_with_sources(
         top_k_per_query=cfg.top_k_per_query,
     )
     evidence_items = build_evidence_items(ranked_chunks, max_items=cfg.max_evidence_items)
-    claim_items = build_claim_items(evidence_items, topic=topic)
+    claim_items = build_claim_items(evidence_items, topic=topic, language=report_language)
     claim_items, critic_summary = apply_claim_critic(claim_items, evidence_items)
     model_gateway_metadata, llm_synthesis_markdown = _maybe_synthesize_with_llm(
         topic,
@@ -147,6 +154,7 @@ def run_research_pipeline_with_sources(
     evaluation_summary["source_candidate_count"] = len(sources)
     evaluation_summary["ranking_mode"] = "bm25_with_source_trust"
     evaluation_summary["critic_summary"] = critic_summary
+    evaluation_summary["report_language"] = report_language
     if source_mode == "no_topic_sources":
         evaluation_summary["source_warning"] = (
             "No topic-matched sources were available from the configured discovery layer. "
@@ -158,6 +166,7 @@ def run_research_pipeline_with_sources(
         evaluation_summary=evaluation_summary,
         claim_items=claim_items,
         llm_synthesis_markdown=llm_synthesis_markdown,
+        language=report_language,
     )
     quality_gate = run_quality_gate(
         evidence_items=evidence_items,

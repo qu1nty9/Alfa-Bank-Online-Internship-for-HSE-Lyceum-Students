@@ -108,7 +108,7 @@ function bindEvents() {
 async function runResearch() {
   const topic = els.topicInput.value.trim();
   if (!topic) {
-    showMessage("Введите тему исследования.");
+    showMessage("Enter a research topic.");
     return;
   }
 
@@ -188,7 +188,7 @@ async function loadRuns() {
     els.runsList.innerHTML = "";
 
     if (!runs.length) {
-      els.runsList.innerHTML = '<p class="muted">Пока нет запусков.</p>';
+      els.runsList.innerHTML = '<p class="muted">No runs yet.</p>';
       return;
     }
 
@@ -227,7 +227,7 @@ async function selectRun(runId) {
 async function loadRunArtifacts(run) {
   if (run.links.report) {
     const report = await api(run.links.report);
-    els.reportOutput.textContent = report.markdown || "";
+    els.reportOutput.innerHTML = renderMarkdown(report.markdown || "");
   } else {
     els.reportOutput.textContent = "No report artifact for this run.";
   }
@@ -259,7 +259,7 @@ async function loadRunArtifacts(run) {
 
 async function submitReview(decision) {
   if (!state.currentRunId) {
-    showMessage("Сначала выберите запуск.");
+    showMessage("Select a run first.");
     return;
   }
 
@@ -310,7 +310,7 @@ function renderEvidence(items) {
   items.forEach((item) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${escapeHtml(item.source_id || "-")}</td>
+      <td>${sourceCell(item)}</td>
       <td>${escapeHtml(item.source_type || "-")}</td>
       <td>${escapeHtml(item.research_block || "-")}</td>
       <td>${formatScore(item.relevance_score)}</td>
@@ -363,7 +363,7 @@ function renderGraph(graph) {
     els.graphList.appendChild(item);
   });
   if (!sourceSummaries.length) {
-    els.graphList.innerHTML = '<p class="muted">Связи появятся после извлечения evidence.</p>';
+    els.graphList.innerHTML = '<p class="muted">Links will appear after evidence extraction.</p>';
   }
 }
 
@@ -424,7 +424,7 @@ function addFiles(files) {
   state.selectedFiles = Array.from(byName.values());
   renderSelectedFiles();
   if (files.length !== accepted.length) {
-    showMessage("Часть файлов пропущена: поддерживаются .md, .txt, .pdf, .html.");
+    showMessage("Some files were skipped: supported formats are .md, .txt, .pdf, .html.");
   }
 }
 
@@ -435,7 +435,7 @@ function renderSelectedFiles() {
     chip.className = "file-chip";
     chip.innerHTML = `
       ${escapeHtml(file.name)}
-      <button type="button" title="Удалить файл" aria-label="Удалить файл">×</button>
+      <button type="button" title="Remove file" aria-label="Remove file">×</button>
     `;
     chip.querySelector("button").addEventListener("click", () => {
       state.selectedFiles.splice(index, 1);
@@ -458,7 +458,7 @@ function parseSourceUrls() {
 
 function setBusy(isBusy) {
   els.runButton.disabled = isBusy;
-  els.runButton.textContent = isBusy ? "Анализ..." : "Запустить";
+  els.runButton.textContent = isBusy ? "Analyzing..." : "Run";
   els.promptDropZone.classList.toggle("is-loading", isBusy);
 }
 
@@ -503,4 +503,166 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function renderMarkdown(source) {
+  const lines = String(source).replace(/\r\n/g, "\n").split("\n");
+  const output = [];
+  let paragraph = [];
+  let inList = false;
+
+  const flushParagraph = () => {
+    if (!paragraph.length) {
+      return;
+    }
+    output.push(`<p>${renderInline(paragraph.join(" "))}</p>`);
+    paragraph = [];
+  };
+
+  const closeList = () => {
+    if (!inList) {
+      return;
+    }
+    output.push("</ul>");
+    inList = false;
+  };
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index].replace(/\s+$/, "");
+    const heading = /^(#{1,6})\s+(.*)$/.exec(line);
+    const bullet = /^[-*]\s+(.*)$/.exec(line);
+
+    if (heading) {
+      flushParagraph();
+      closeList();
+      const level = heading[1].length;
+      output.push(`<h${level}>${renderInline(heading[2])}</h${level}>`);
+      continue;
+    }
+
+    if (bullet) {
+      flushParagraph();
+      if (!inList) {
+        output.push("<ul>");
+        inList = true;
+      }
+      output.push(`<li>${renderInline(bullet[1])}</li>`);
+      continue;
+    }
+
+    if (isTableHeader(lines, index)) {
+      flushParagraph();
+      closeList();
+      const tableLines = [];
+      while (index < lines.length && isTableRow(lines[index])) {
+        tableLines.push(lines[index]);
+        index += 1;
+      }
+      index -= 1;
+      output.push(renderMarkdownTable(tableLines));
+      continue;
+    }
+
+    if (line.trim() === "") {
+      flushParagraph();
+      closeList();
+      continue;
+    }
+
+    paragraph.push(line.trim());
+  }
+
+  flushParagraph();
+  closeList();
+  return output.join("\n");
+}
+
+function renderInline(value) {
+  let text = escapeHtml(value);
+  const linkPlaceholders = [];
+
+  text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_, label, url) => {
+    const href = safeExternalHref(url);
+    if (!href) {
+      return label;
+    }
+    const token = `@@LINK_${linkPlaceholders.length}@@`;
+    linkPlaceholders.push(`<a href="${href}" target="_blank" rel="noopener noreferrer">${label}</a>`);
+    return token;
+  });
+
+  text = text.replace(/`([^`]+)`/g, "<code>$1</code>");
+  text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  text = text.replace(/(^|[\s(])((?:https?:\/\/)[^\s<)]+)/g, (_, prefix, url) => {
+    const href = safeExternalHref(url);
+    if (!href) {
+      return `${prefix}${url}`;
+    }
+    return `${prefix}<a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+  });
+
+  linkPlaceholders.forEach((html, index) => {
+    text = text.replace(`@@LINK_${index}@@`, html);
+  });
+  return text;
+}
+
+function renderMarkdownTable(tableLines) {
+  const header = splitTableRow(tableLines[0]);
+  const bodyRows = tableLines.slice(2).map(splitTableRow).filter((row) => row.length);
+  const headHtml = header.map((cell) => `<th>${renderInline(cell)}</th>`).join("");
+  const bodyHtml = bodyRows
+    .map((row) => `<tr>${row.map((cell) => `<td>${renderInline(cell)}</td>`).join("")}</tr>`)
+    .join("");
+  return `<div class="markdown-table-wrap"><table><thead><tr>${headHtml}</tr></thead><tbody>${bodyHtml}</tbody></table></div>`;
+}
+
+function isTableHeader(lines, index) {
+  return isTableRow(lines[index]) && index + 1 < lines.length && isTableSeparator(lines[index + 1]);
+}
+
+function isTableRow(value) {
+  return /^\s*\|.*\|\s*$/.test(value || "");
+}
+
+function isTableSeparator(value) {
+  return /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(value || "");
+}
+
+function splitTableRow(value) {
+  return String(value)
+    .trim()
+    .replace(/^\|/, "")
+    .replace(/\|$/, "")
+    .split("|")
+    .map((cell) => cell.trim());
+}
+
+function sourceCell(item) {
+  const label = escapeHtml(item.source_id || "-");
+  const href = safeExternalHref(item.url);
+  if (!href || String(item.url).startsWith("https://local.upload/")) {
+    return label;
+  }
+  const titleAttr = item.title ? ` title="${escapeHtml(item.title)}"` : "";
+  return `<a href="${href}" target="_blank" rel="noopener noreferrer"${titleAttr}>${label}</a>`;
+}
+
+function safeExternalHref(value) {
+  if (!value) {
+    return "";
+  }
+  const decoded = String(value)
+    .replaceAll("&amp;", "&")
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#039;", "'");
+  try {
+    const url = new URL(decoded);
+    if (!["http:", "https:"].includes(url.protocol)) {
+      return "";
+    }
+    return escapeHtml(url.href);
+  } catch (error) {
+    return "";
+  }
 }

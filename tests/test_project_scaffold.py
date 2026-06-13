@@ -20,6 +20,7 @@ from research_assistant.filtering import (
     source_trust_score,
 )
 from research_assistant.knowledge_graph import build_knowledge_graph
+from research_assistant.language import detect_report_language
 from research_assistant.llm_gateway import (
     LLMGatewayConfig,
     LLMGatewayError,
@@ -70,6 +71,11 @@ def test_generic_research_plan_uses_arbitrary_topic() -> None:
     assert plan.topic == "AI fraud detection in insurance"
     assert "definition_and_context" in plan.blocks
     assert any("AI fraud detection in insurance" in query.query for query in plan.queries)
+
+
+def test_report_language_detection_prefers_non_english_part_for_mixed_topics() -> None:
+    assert detect_report_language("CLTV in foreign banks") == "en"
+    assert detect_report_language("CLTV применение в банках") == "ru"
 
 
 def test_seed_sources_load_real_ready_sources() -> None:
@@ -424,11 +430,11 @@ def test_evaluation_report_and_quality_gate_flow(tmp_path) -> None:
     assert summary["clean_document_count"] == 5
     assert summary["analyzed_sources"]
     assert summary["interpretability_summary"]["source_diversity"] in {"medium", "high"}
-    assert "## Краткий ответ" in report_markdown
-    assert "## Паспорт результата" in report_markdown
-    assert "## Полный отчет по источникам и ресурсам" in report_markdown
-    assert "## Утверждения и доказательства" in report_markdown
-    assert "## Проверка утверждений" in report_markdown
+    assert "## Short answer" in report_markdown
+    assert "## Result passport" in report_markdown
+    assert "## Full source report" in report_markdown
+    assert "## Claims and evidence" in report_markdown
+    assert "## Claim checks" in report_markdown
     assert "## Knowledge graph links" in report_markdown
     assert "## Evidence table" in report_markdown
     assert "## Unknowns" in report_markdown

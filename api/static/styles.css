@@ -570,6 +570,78 @@ textarea:focus {
   min-height: 360px;
 }
 
+.markdown-body {
+  white-space: normal;
+  font-family: inherit;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+  line-height: 1.25;
+  font-weight: 800;
+  margin: 1.4em 0 0.5em;
+}
+
+.markdown-body h1 {
+  font-size: 1.6rem;
+}
+
+.markdown-body h2 {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.25em;
+  font-size: 1.3rem;
+}
+
+.markdown-body h3 {
+  font-size: 1.1rem;
+}
+
+.markdown-body h1:first-child,
+.markdown-body h2:first-child {
+  margin-top: 0;
+}
+
+.markdown-body p,
+.markdown-body ul {
+  margin: 0.65em 0;
+}
+
+.markdown-body ul {
+  padding-left: 1.4em;
+}
+
+.markdown-body li {
+  margin: 0.3em 0;
+}
+
+.markdown-body code {
+  border-radius: 4px;
+  background: #eef1f6;
+  padding: 0.1em 0.35em;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 0.88em;
+}
+
+.markdown-body a,
+.table-wrap a {
+  color: var(--blue);
+  text-decoration: underline;
+  word-break: break-word;
+}
+
+.markdown-table-wrap {
+  overflow: auto;
+  margin: 0.9em 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.markdown-table-wrap table {
+  min-width: 720px;
+}
+
 .table-wrap {
   max-height: 68vh;
   overflow: auto;
