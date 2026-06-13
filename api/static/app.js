@@ -310,7 +310,7 @@ function renderEvidence(items) {
   items.forEach((item) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${escapeHtml(item.source_id || "-")}</td>
+      <td>${sourceCell(item)}</td>
       <td>${escapeHtml(item.source_type || "-")}</td>
       <td>${escapeHtml(item.research_block || "-")}</td>
       <td>${formatScore(item.relevance_score)}</td>
@@ -535,4 +535,13 @@ function renderMarkdown(src) {
   }
   flushPara(); closeList();
   return out.join("\n");
+}
+
+function sourceCell(item) {
+  const label = escapeHtml(item.source_id || "-");
+  const url = item.url ? String(item.url) : "";
+  const isReal = /^https?:\/\//.test(url) && !url.startsWith("https://local.upload/");
+  if (!isReal) return label;
+  const titleAttr = item.title ? ` title="${escapeHtml(item.title)}"` : "";
+  return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer"${titleAttr}>${label}</a>`;
 }

@@ -757,3 +757,4 @@ dd {
   background: #eef1f6; padding: 0.1em 0.35em; border-radius: 4px; }
 .markdown-body a { color: #6d28d9; text-decoration: underline; word-break: break-word; }
 .markdown-body strong { font-weight: 700; }
+.table-wrap a { color: #6d28d9; text-decoration: underline; word-break: break-all; }
